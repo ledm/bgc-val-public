@@ -34,18 +34,18 @@ from netCDF4 import Dataset
 import UKESMpython as ukp
 import numpy as np
 from changeNC import changeNC, AutoVivification
-import paths
+#import paths
 from bgcvaltools.makeMask import makeMask
 
 """ 	This code makes a mask netcdf for the regions written below.
 	this code is needed for profileAnalysis.py
 """
 
-def makeMaskNC(outFile, regions, grid):
+def makeMaskNC(outFile, regions, grid,gridfn=''):
 
-	if grid in ['eORCA1',]:
+	#if grid in ['eORCA1',]:
 	#	orcaGridfn 	= '/data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc'	
-		orcaGridfn	= paths.orcaGridfn
+	#	orcaGridfn	= paths.orcaGridfn
 	#####
 	# load mask and coordinates.
 	ncmesh = Dataset(orcaGridfn,'r')

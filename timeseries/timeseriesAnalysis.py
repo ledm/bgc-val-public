@@ -68,12 +68,37 @@ class timeseriesAnalysis:
 		clean		= False,
 		debug		= True,
 		noNewFiles	= False,	# stops loading new files
+		strictFileCheck = True,
 		):
 		
 	#####
 	#	This is the class that does most of the legwork.
 	#	First we save all the initialisation settings as class attributes.
-		
+	
+	####
+	# 	Do some tests on whether the files are present/absent	
+	if len(modelFiles) == 0:
+		print "analysis-Timeseries.py:\tWARNING:\tmodel files are not found:",modelFiles
+		if strictFileCheck: assert 0
+
+	modelfilesexists = [os.path.exists(f) for f in modelFiles]
+	if False in modelfilesexists:
+		print "analysis-Timeseries.py:\tWARNING:\tnot model files do not all exist:",modelFiles
+		for f in modelFiles:
+			if os.path.exists(f):continue
+			print f, 'does not exist'
+		if strictFileCheck: assert 0
+
+	if dataFile!='':
+	   if not os.path.exists(dataFile):
+		print "analysis-Timeseries.py:\tWARNING:\tdata file is not found:",dataFile
+		if strictFileCheck: assert 0
+
+	if not os.path.exists(gridFile):
+		print "analysis-Timeseries.py:\tWARNING:\tgrid file is not found:",gridFile
+		if strictFileCheck: assert 0
+			
+			
 	
 	if debug: print "timeseriesAnalysis:\t init."	
 	self.modelFiles 	= modelFiles 		

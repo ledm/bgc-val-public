@@ -23,7 +23,7 @@
 # ledm@pml.ac.uk
 #
 """
-.. module:: analysis_skeleton
+.. module:: skeleton_parser
    :platform: Unix
    :synopsis: A nearly empty script to produce analysis.
 
@@ -50,36 +50,38 @@ from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesTools as tst
 
-from bgcvaltools.mergeMonthlyFiles import mergeMonthlyFiles,meanDJF
-from bgcvaltools.AOU import AOU
-from bgcvaltools.dataset import dataset
+from p2p.testsuite_p2p import testsuite_p2p_noAV as testsuite_p2p
 
-#####
-# User defined set of paths pointing towards the datasets.
-#import paths
+from bgcvaltools.dataset import dataset
+from bgcvaltools.configparser import AnalysisKeyParser, linkActiveKeys, parseFilepath
 
 
 
 
 
 def analysis_skeleton(
-			jobID = "skeleton",
-			model = 'MEDUSA',
-			clean = False,
-			strictFileCheck = True,
+#			pathsfn = 'paths.ini',	
+			configfile = 'runconfig.ini',
+			#model = 'MEDUSA',
+			#clean = False,
+			#strictFileCheck = True,
 			):
-
-	timeseriesKeys 	= ['Chl_CCI',]
-	p2pKeys 	= ['Chl_CCI',]	
-
-	#####
-	metricList = ['mean','median', '10pc','20pc','30pc','40pc','50pc','60pc','70pc','80pc','90pc','min','max']
-
+	#paths = FullyParseConfig(configfile,debug=True)['paths']
+	
 	#####
 	# Location of images directory
 	# the imagedir is where the analysis images will be saved.
-	imagedir_ts 	= ukp.folder('images/'+jobID+'/timeseries')
-	imagedir_p2p	= ukp.folder('images/'+jobID+'/p2p/')
+
+	#imagedir = parseFilepath(configfile, 'Global', 'imagedir')
+	#image2 = parseFilepath(configfile, 'Defaults', 'imagedir')
+	#image3 = parseFilepath(configfile, 'Chl_CCI', 'imagedir')	
+	#imagedir_ts 	= ukp.folder(imagedir +'/'+jobID+'/timeseries')
+	#print imagedir , type(imagedir)	
+	#print image2 , type(image2)	
+	#print image3 , type(image3)			
+	#assert 0
+	
+	#imagedir_p2p	= ukp.folder(paths['imagedir']'/'+jobID+'/p2p/')
 	
 	#####
 	# Location of shelves folder
@@ -87,8 +89,10 @@ def analysis_skeleton(
 	# This allows us to put away a python open to be re-opened later.
 	# This means that we can interupt the analysis without loosing lots of data and processing time,
 	# or we can append new simulation years to the end of the analysis without starting from scratch each time.
-	workingdir_ts 	= ukp.folder("shelves/timeseries/"+jobID)
-	workingdir_p2p	= ukp.folder("shelves/"+model+'-'+jobID+'-'+year)
+	#workingdir_ts 	= ukp.folder(parseFilepath(configfile, 'Global', 'shelvedir') +'/'+jobID+'/timeseries')
+#	workingdir_ts 	= ukp.folder(paths.shelvedir+"/timeseries/"+jobID)
+	
+	#workingdir_p2p	= ukp.folder(paths.p2p_ppDir+'/'+model+'-'+jobID+'-'+year)
 
   	#####
   	# The analysis settings:
@@ -120,9 +124,10 @@ def analysis_skeleton(
 
 
                         
-	av_ts = ukp.AutoVivification()
-	av_p2p = ukp.AutoVivification()	
+	#av_ts = ukp.AutoVivification()
+	#av_p2p = ukp.AutoVivification()	
 
+	"""	
 	if 'Chl_CCI' in timeseriesKeys:
 		name = 'Chlorophyll_cci'
 		#####
@@ -139,7 +144,7 @@ def analysis_skeleton(
 
 		av_ts[name]['layers'] 		= ['Surface',] 	# CCI is surface only, it's a satellite product.
 		av_ts[name]['regions'] 		= ['Global', 'ignoreInlandSeas', 'SouthernOcean','ArcticOcean','Equator10', 'Remainder','NorthernSubpolarAtlantic','NorthernSubpolarPacific',]
-		av_ts[name]['metrics']		= metricList	#['mean','median', ]
+		#av_ts[name]['metrics']		= metricList	#['mean','median', ]
 
 		av_ts[name]['datasource'] 	= 'CCI'
 		av_ts[name]['model']		= 'MEDUSA'
@@ -167,7 +172,7 @@ def analysis_skeleton(
 		av_p2p[name]['MEDUSA']['details']=  {'name': name, 'vars':['CHL',], 'convert': ukp.NoChange,'units':'mg C/m^3'}
 		av_p2p[name]['Data']['details']	= {'name': name, 'vars':['chlor_a',], 'convert':  ukp.NoChange,'units':'mg C/m^3'}	
 
-
+	"""
 
   	#####
   	# Calling timeseriesAnalysis
@@ -177,97 +182,95 @@ def analysis_skeleton(
 	# Once the timeseriesAnalysis has completed, we save all the output shelves in a dictionairy.
 	# At the moment, this dictioary is not used, but we could for instance open the shelve to highlight specific data,
 	#	(ie, andy asked to produce a table showing the final year of data.
+	analysiskeys =  linkActiveKeys(configfile)
+	print analysiskeys
+	
+	for k, key in analysiskeys.items():
+		akp = AnalysisKeyParser(configfile, key, debug=True)
+	
 
-	for name in av_ts.keys():
-		print "------------------------------------------------------------------"
-		print "analysis-Timeseries.py:\tBeginning to call timeseriesAnalysis for ", name
-
-		if len(av_ts[name]['modelFiles']) == 0:
-			print "analysis-Timeseries.py:\tWARNING:\tmodel files are not found:",name,av_ts[name]['modelFiles']
-			if strictFileCheck: assert 0
-
-		modelfilesexists = [os.path.exists(f) for f in av_ts[name]['modelFiles']]
-		if False in modelfilesexists:
-			print "analysis-Timeseries.py:\tWARNING:\tnot model files do not all exist:",av_ts[name]['modelFiles']
-			for f in av_ts[name]['modelFiles']:
-				if os.path.exists(f):continue
-				print f, 'does not exist'
-			if strictFileCheck: assert 0
-
-
-		if av_ts[name]['dataFile']!='':
-		   if not os.path.exists(av_ts[name]['dataFile']):
-			print "analysis-Timeseries.py:\tWARNING:\tdata file is not found:",av_ts[name]['dataFile']
-			if strictFileCheck: assert 0
-
+	
+		
+	
+		
+		if akp.dimensions in  [2, 3]:
+			metricList = ['mean','median', '10pc','20pc','30pc','40pc','50pc','60pc','70pc','80pc','90pc','min','max']
+		else:	metricList = ['metricless',]	
+		
                 tsa = timeseriesAnalysis(
-                        av_ts[name]['modelFiles'],
-                        av_ts[name]['dataFile'],
-                        dataType        = name,
-                        jobID           = jobID,
-                        workingDir      = workingdir_ts,
-                        imageDir        = imagedir_ts,
-                        modelcoords     = av_ts[name]['modelcoords'],
-                        modeldetails    = av_ts[name]['modeldetails'],
-                        datacoords      = av_ts[name]['datacoords'],
-                        datadetails     = av_ts[name]['datadetails'],
-                        datasource      = av_ts[name]['datasource'],
-                        model           = av_ts[name]['model'],
-                        layers          = av_ts[name]['layers'],
-                        regions         = av_ts[name]['regions'],
-                        metrics         = av_ts[name]['metrics'],
-                        grid            = av_ts[name]['modelgrid'],
-                        gridFile        = av_ts[name]['gridFile'],
-                        clean           = clean,
+                        akp.modelFiles,
+                        akp.dataFile,
+                        jobID           = akp.jobID,
+                        dataType        = akp.name,
+                        workingDir      = akp.postproc_ts,
+                        imageDir        = akp.images_ts,
+                        metrics         = metricList,
+                        modelcoords     = akp.modelcoords,
+                        modeldetails    = akp.modeldetails,
+                        datacoords      = akp.datacoords,
+                        datadetails     = akp.datadetails,
+                        datasource      = akp.datasource,
+                        model           = akp.model,
+                        layers          = akp.layers,
+                        regions         = akp.regions,
+                        grid            = akp.modelgrid,
+                        gridFile        = akp.gridFile,
+                        clean           = True,
                 )
+               # assert 0
 
 		#####
 		# Profile plots
-		if av_ts[name]['Dimensions'] == 3:
+		if akp.dimensions == 3:
 			profa = profileAnalysis(
-				av_ts[name]['modelFiles'],
-				av_ts[name]['dataFile'],
-				dataType	= name,
-	  			modelcoords 	= av_ts[name]['modelcoords'],
-	  			modeldetails 	= av_ts[name]['modeldetails'],
-	  			datacoords 	= av_ts[name]['datacoords'],
-	  			datadetails 	= av_ts[name]['datadetails'],
-				datasource	= av_ts[name]['datasource'],
-				model 		= av_ts[name]['model'],
-				jobID		= jobID,
+				akp.modelFiles,
+				akp.dataFile,
+				jobID           = akp.jobID,
+				dataType        = akp.name,
+				workingDir      = shelvedir,
+				imageDir        = imagedir_ts,
+				modelcoords     = akp.modelcoords,
+				modeldetails    = akp.modeldetails,
+				datacoords      = akp.datacoords,
+				datadetails     = akp.datadetails,
+				datasource      = akp.datasource,
+				model           = akp.model,
+				regions         = akp.regions,
+				grid            = akp.modelgrid,
+				gridFile        = akp.gridFile,
 				layers	 	= list(np.arange(102)),		# 102 because that is the number of layers in WOA Oxygen
-				regions	 	= av_ts[name]['regions'],
-				metrics	 	= ['mean',],
-				workingDir	= workingdir_ts,
-				imageDir	= imagedir_ts,
-				grid		= av_ts[name]['modelgrid'],
-				gridFile	= av_ts[name]['gridFile'],
+				metrics	 	= ['mean',],								
 				clean 		= False,
 			)
 
-
-	for name in av_p2p.keys():
-		print "------------------------------------------------------------------"
-		print "analysis-p2p.py:\tBeginning to call testsuite_p2p for ", name, p2pyear
-		
-					
-    		testsuite_p2p(
-			model 		= model,
-			jobID 		= jobID,
-			year  		= year,
-			av 		= av_p2p,
-			plottingSlices	= [],	# set this so that testsuite_p2p reads the slice list from the av.
-			workingDir 	= workingdir_p2p, 
-			imageFolder	= imagedir_p2p,
-			noPlots		= noPlots,	# turns off plot making to save space and compute time.
-			gridFile	= paths.orcaGridfn,	# enforces custom gridfile.
-			annual		= annual,
-			noTargets	= noTargets,
-	 	)
+	    	testsuite_p2p(
+                        modelFile	= akp.modelFile_p2p,
+                        dataFile 	= akp.dataFile,    		
+			model 		= akp.model,
+			jobID 		= akp.jobID,
+			year  		= akp.year,
+			modelcoords     = akp.modelcoords,
+                        modeldetails    = akp.modeldetails,
+                        datacoords      = akp.datacoords,
+                        datadetails     = akp.datadetails,
+                        datasource      = akp.datasource,
+			plottingSlices	= akp.regions,		# set this so that testsuite_p2p reads the slice list from the av.
+			workingDir 	= akp.postproc_p2p, 
+			imageFolder	= akp.images_p2p,
+                        grid            = akp.modelgrid,			
+			gridFile	= akp.gridFile,	# enforces custom gridfile.
+			noPlots		= False,	# turns off plot making to save space and compute time.
+			annual		= True,
+			noTargets	= True,
+	 	)	
 
 
 
 def main():
+	analysis_skeleton()
+	#jobID='u-ad371')
+	assert 0
+	
 	try:	jobID = argv[1]
 	except:
 		jobID = "u-ab749"
