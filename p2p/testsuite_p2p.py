@@ -535,7 +535,7 @@ def testsuite_p2p_noAV(
 								model 		= model,
 								jobID		= jobID,
 								year		= year,
-								workingDir 	= ukp.folder(workingDir+name),
+								workingDir 	= ukp.folder(workingDir),
 								depthLevel 	= depthLevel,
 								grid		= grid,
 								gridFile	= gridFile
@@ -557,7 +557,7 @@ def testsuite_p2p_noAV(
 				print "Plotting slices provided, using ",nplottingSlices					
 
 					
-			imageDir	= ukp.folder(imageFolder +'P2Pplots/'+year+'/'+name+depthLevel)	
+			#imageDir	= ukp.folder(imageFolder +'/P2Pplots/'+year+'/'+name+depthLevel)	
 			m = makePlots(	b.MatchedDataFile, 
 					b.MatchedModelFile, 
 					name, 
@@ -571,8 +571,8 @@ def testsuite_p2p_noAV(
 		  			modeldetails 	= modeldetails,
 		  			datacoords 	= datacoords,
 		  			datadetails 	= datadetails,
-					shelveDir 	= ukp.folder(workingDir+name+depthLevel),
-					imageDir	= imageDir,
+					shelveDir 	= ukp.folder(workingDir),
+					imageDir	= ukp.folder(imageFolder),
 					compareCoords	= True,
 					noPlots		= noPlots
 				     )

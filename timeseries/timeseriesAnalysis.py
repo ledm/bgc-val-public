@@ -560,7 +560,7 @@ class timeseriesAnalysis:
 	for r in self.regions:
 	    for l in self.layers:	
 		if type(l) in [type(0),type(0.)]:continue
- 		mapfilename = ukp.folder(self.imageDir+'/'+self.dataType)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
+ 		mapfilename = ukp.folder(self.imageDir)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
    		modeldata	= mDL.load[(r,l)]
    		modellat	= mDL.load[(r,l,'lat')]
    		modellon	= mDL.load[(r,l,'lon')]
@@ -648,7 +648,7 @@ class timeseriesAnalysis:
 		    	
 		    title = ' '.join([getLongName(t) for t in [r,str(l),self.datasource, self.dataType]])
 		    for greyband in  ['10-90pc',]: #'MinMax', 
-			filename = ukp.folder(self.imageDir+'/'+self.dataType)+'_'.join(['percentiles',self.jobID,self.dataType,r,str(l),greyband])+'.png'
+			filename = ukp.folder(self.imageDir)+'_'.join(['percentiles',self.jobID,self.dataType,r,str(l),greyband])+'.png'
                         if self.debug: print "timeseriesAnalysis:\t makePlots.\tInvestigating:",filename
 
 			if not ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):continue
@@ -658,7 +658,7 @@ class timeseriesAnalysis:
 	    	# Percentiles plots.		  	    
 	    	for m in self.metrics: 
 	    		if m not in ['sum', ]: continue 
-			filename = ukp.folder(self.imageDir+'/'+self.dataType)+'_'.join([m,self.jobID,self.dataType,r,str(l),m,])+'.png'
+			filename = ukp.folder(self.imageDir)+'_'.join([m,self.jobID,self.dataType,r,str(l),m,])+'.png'
                         if self.debug: print "timeseriesAnalysis:\t makePlots.\tInvestigating:",filename
 
 			if not ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):	continue
@@ -680,7 +680,7 @@ class timeseriesAnalysis:
 	    	# Mean plots.
 	    	for m in self.metrics:  
 	    		if m not in ['mean', 'metricless',]: continue
-			filename = ukp.folder(self.imageDir+'/'+self.dataType)+'_'.join([m,self.jobID,self.dataType,r,str(l),m,])+'.png'
+			filename = ukp.folder(self.imageDir)+'_'.join([m,self.jobID,self.dataType,r,str(l),m,])+'.png'
 		        if self.debug: print "timeseriesAnalysis:\t makePlots.\tInvestigating:",filename
 			if not ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):	continue
 			    		
@@ -752,11 +752,11 @@ class timeseriesAnalysis:
 		else: 	dataZcoords = {}
 
 		title = ' '.join([getLongName(t) for t in [r,m,self.dataType]])	
-	    	hovfilename = ukp.folder(self.imageDir+'/'+self.dataType)+'_'.join(['profile',self.jobID,self.dataType,r,m,])+'.png'
+	    	hovfilename = ukp.folder(self.imageDir)+'_'.join(['profile',self.jobID,self.dataType,r,m,])+'.png'
 		if  ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename,debug=False):				
 			tsp.hovmoellerPlot(modeldata,data,hovfilename, modelZcoords = modelZcoords, dataZcoords= dataZcoords, title = title,diff=False)		
 	
-	    	hovfilename = ukp.folder(self.imageDir+'/'+self.dataType)+'_'.join(['profileDiff',self.jobID,self.dataType,r,m,])+'.png'
+	    	hovfilename = ukp.folder(self.imageDir)+'_'.join(['profileDiff',self.jobID,self.dataType,r,m,])+'.png'
 		if  ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename,debug=False):					    	
 			tsp.hovmoellerPlot(modeldata,data,hovfilename, modelZcoords = modelZcoords, dataZcoords= dataZcoords, title = title,diff=True)		
 	"""
@@ -766,7 +766,7 @@ class timeseriesAnalysis:
 	runmapplots=False
 	for r in self.regions:
 	  	for l in self.layers:	
-	 		mapfilename = ukp.folder(self.imageDir+'/'+self.dataType)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
+	 		mapfilename = ukp.folder(self.imageDir)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
 			if ukp.shouldIMakeFile(self.modelFiles[-1],mapfilename,debug=False):runmapplots = True
  	if runmapplots:
 		self.mapplotsRegionsLayers() 		

@@ -31,7 +31,8 @@
 
 """
 import ConfigParser
-from functions import functions
+#from functions.standard_functions import functions
+from functions import standard_functions
 import os
 from glob import glob
 
@@ -101,7 +102,7 @@ def findReplaceFlags(Config, section, string):
 	return string
 	
 
-def parseFilepath(Config,section, option,expecting1=True,):
+def parseFilepath(Config,section, option,expecting1=True,optional=True):
 	"""
 	This is for parsing a file path, a list of filepaths (separated by spaces), or a wildcard filepath.
 	"""
@@ -120,12 +121,17 @@ def parseFilepath(Config,section, option,expecting1=True,):
 
 	if len(filepath) >0 and len(outputFiles)==0:
 		print "parseFilepath:\tfilepath:",filepath, "\n\t\toutputFiles:",outputFiles
-		raise AssertionError("parseFilepath:\tUnable to locate the requested file.")		
+		if not optional:
+			raise AssertionError("parseFilepath:\tUnable to locate the requested file.")		
 	
 	if expecting1:
 		if len(outputFiles) == 1: return outputFiles[0]
-		if len(outputFiles) == 0: return ''
+		if len(outputFiles) == 0 and optional: return ''
 		raise AssertionError("parseFilepath:\tExpecting a single file, but found multiple files.")
+		
+	if optional and len(outputFiles) ==0:
+		return ''
+	
 	return outputFiles
 
 	
@@ -136,7 +142,11 @@ def parseList(Config,section,option):
 	This tool loads an string from config file and returns it as a list.
 	"""
 	Config = checkConfig(Config)
-	list1 = Config.get(section, option)
+	try:	list1 = Config.get(section, option)
+	except: 
+		print "No option ",option," in section: ",section
+		return ''
+		
 	list1 = findReplaceFlags(Config,section, list1)	
 	list1.replace(',', ' ')
 	list1.replace('  ', ' ')
@@ -149,15 +159,28 @@ def parseFunction(Config,section,option):
 	"""
 	This tool loads a function from the list of accepted functions.
 	or loads a customFunction from a specified file with the following format:
-	/full/path/to/file.py
+	relative/path/to/file.py:function
 	"""
 	Config = checkConfig(Config)
-	functionname = Config.get(section, option)
+	try:	functionname = Config.get(section, option)
+	except: 
+		print "No option ",option," in section: ",section
+		return ''
 	if functionname in functions.keys():
-		print "Function Found:",functionname
+		print "Standard Function Found:",functionname
 		return functions[functionname]
-	if os.path.exists(functionname):
-		print "Function NOT Found:",functionname
+
+	if functionname.find(':') > -1:		
+		[functionFileName,functionname] = functionname.split(':')
+		lst = functionFileName.replace('.py','').replace('/', '.').split('.')		
+		modulename =  '.'.join(lst)
+		
+		print "parseFunction:\tAttempting to load the function:",functionname, "from the:",modulename
+		mod = __import__(modulename, fromlist=[functionname,])
+		func = getattr(mod, functionname)
+		return func
+	
+	raise AssertionError("parseFunction:\tNot able to load the function. From custom functions, try using filepath(no .py):function in your config file.")		
 		
 
 						
@@ -169,7 +192,7 @@ def get_str(Config, section, option):
 		print "Unable to load:",section, option
 	return ''
 
-def parseOptionOrDefault(Config,section,option,parsetype='',debug=True, optional=False):
+def parseOptionOrDefault(Config,section,option,parsetype='',debug=True, optional=True):
 	"""#####
 	This tool lets you create a Defaults section, and set some fields as defaults.
 	 	ie: model_lat is always nav_lat, unless other specified.
@@ -183,11 +206,6 @@ def parseOptionOrDefault(Config,section,option,parsetype='',debug=True, optional
 	if parsetype in ['', 'string','str']:
 		value   = findReplaceFlags(Config,section,get_str(Config, section, option))	
 		default = findReplaceFlags(Config,section, get_str(Config, defaultSection, option))	
-		#try:	
-		#except: default = ''
-
-		#try:	value = findReplaceFlags(Config,Config.get(section, option))
-		#except: value = ''
 		
 	if parsetype.lower() in ['list', ]:
 		try:	default = parseList(Config,defaultSection,option)
@@ -203,7 +221,14 @@ def parseOptionOrDefault(Config,section,option,parsetype='',debug=True, optional
 		try:	value = Config.getint(section,option)
 		except: value = ''
 		
-		
+	if parsetype.lower() in ['bool', 'boolean','TrueOrFalse']:
+		try:	
+			value = Config.getboolean(section,option)
+			return value
+		except:
+			default = Config.getboolean(defaultSection,option)
+			return 	default
+				
 	#####
 	# Value overrides global default
 	
@@ -258,7 +283,34 @@ def parseDetails(Config,section,m_or_d='model'):
 	details['convert'] 	= parseFunction(Config,section,m_or_d+'_convert')
 	return details
 
+class GlobalSectionParser:
+  def __init__(self,
+  		fn,
+  		defaultSection = 'Global',
+  		debug=True):
+	if debug: 
+		print "------------------------------------------------------------------"
+		print "GlobalKeyParser:\tBeginning to call GlobalSectionParser for ", fn
+	self.__cp__ = checkConfig(fn)    
+	self.__fn__ = fn	
 
+	self.jobID = self.__cp__.get(defaultSection, 'jobID')
+	self.clean = self.__cp__.get(defaultSection, 'clean')
+	self.year  = self.__cp__.get(defaultSection, 'year')	
+	self.model = self.__cp__.get(defaultSection, 'model')	
+
+	self.images_ts		= parseOptionOrDefault(self.__cp__, defaultSection, 'images_ts',  )
+	self.images_p2p 	= parseOptionOrDefault(self.__cp__, defaultSection, 'images_p2p', )
+	self.postproc_ts  	= parseOptionOrDefault(self.__cp__, defaultSection, 'postproc_ts',  )
+	self.postproc_p2p 	= parseOptionOrDefault(self.__cp__, defaultSection, 'postproc_p2p', )
+	self.reportdir 		= parseOptionOrDefault(self.__cp__, defaultSection, 'reportdir', )
+	
+	self.ActiveKeys 	= linkActiveKeys(self.__cp__)
+				
+			
+  
+  
+  	
 class AnalysisKeyParser:
   def __init__(self,fn,key,debug=True):
 	self.__fn__ = fn
@@ -270,14 +322,17 @@ class AnalysisKeyParser:
 	section = key
 	self.jobID		= parseOptionOrDefault(self.__cp__, section, 'jobID')
 	self.year		= parseOptionOrDefault(self.__cp__, section, 'year')	
+	self.clean		= parseOptionOrDefault(self.__cp__, section, 'clean',parsetype='bool')
+	
 	self.name		= self.__cp__.get(section, 'name')	
 	self.units		= self.__cp__.get(section, 'units')		
 	self.dimensions		= self.__cp__.getint(section, 'dimensions')
 		
-	self.modelFiles 	= parseFilepath(self.__cp__, section, 'modelFiles',expecting1=False)
-	self.modelFile_p2p 	= parseFilepath(self.__cp__, section, 'modelFile_p2p',expecting1=True)	
-	self.dataFile   	= parseFilepath(self.__cp__, section, 'dataFile',  expecting1=True)
-	self.gridFile 		= parseFilepath(self.__cp__, section, 'gridFile',  expecting1=True)
+	self.modelFiles_ts 	= parseFilepath(self.__cp__, section, 'modelFiles',expecting1=False, )#optional=False)
+	self.modelFile_p2p 	= parseFilepath(self.__cp__, section, 'modelFile_p2p',expecting1=True,)# optional=True)	
+	
+	self.dataFile   	= parseFilepath(self.__cp__, section, 'dataFile',  expecting1=True, )#optional=False)
+	self.gridFile 		= parseFilepath(self.__cp__, section, 'gridFile',  expecting1=True, optional=False)
 
 	self.modelcoords	 = parseCoordinates(self.__cp__, section, 'model')
 	self.datacoords 	 = parseCoordinates(self.__cp__, section, 'data' )
@@ -309,7 +364,8 @@ class AnalysisKeyParser:
 	print "AnalysisKeyParser."
 	print "File:		", self.__fn__
 	print "jobID:		", self.jobID
-	
+	print "clean:		", self.clean
+		
 	print "timeseries image folder:		", self.images_ts
 	print "P2P image folder:		", self.images_p2p	
 	print "timeseries postprocessed files:	", self.postproc_ts
@@ -322,8 +378,8 @@ class AnalysisKeyParser:
 	print "model:		", self.model
 	print "dimensions:	", self.dimensions
 			
-	print "model Files:	", self.modelFiles
-	print "model Files:	", self.modelFile_p2p
+	print "model Files (ts):", self.modelFiles_ts
+	print "model Files (p2p):", self.modelFile_p2p
 	print "data File:	", self.dataFile
 	
 	print "grid File:	", self.gridFile	

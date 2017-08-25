@@ -641,7 +641,9 @@ class makePlots:
 		dx = np.ma.masked_where(mask, np.ma.array(self.xnc.variables[xkey][:])).compressed()
 		dy = np.ma.masked_where(mask, np.ma.array(self.ync.variables[ykey][:])).compressed()
 				
-		print "CompareCoords:\t",xkey,':', len(dx),"\t:",ykey,':',len(dy), dx.min(),dx.max(), dy.min(), dy.max()		
+		print "CompareCoords:\t",xkey,':', len(dx)
+		print "CompareCoords:\t",ykey,':', len(dy)
+		print [dx.min(),dx.max()], [dy.min(), dy.max()]
 	
 		fig = pyplot.figure()
 		fig.set_size_inches(8, 12)		

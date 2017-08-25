@@ -395,32 +395,40 @@ class matchDataAndModel:
 	#if maxIndex+1 <len(is_i):
 	zdict={}
 	tdict={}
-  	is_t	= ncIS.variables[self.datacoords['t']][:]
+  	is_t		= ncIS.variables[self.datacoords['t']][:]
+  	is_index_t	= ncIS.variables['index_t'][:]  	
   	is_z 	= ncIS.variables[self.datacoords['z']][:]
   	is_la	= ncIS.variables[self.datacoords['lat']][:]
-	is_lo 	= ncIS.variables[self.datacoords['lon']][:]	
+	is_lo 	= ncIS.variables[self.datacoords['lon']][:]
+
 	tdict   = self.datacoords['tdict']
+	if is_index_t.min() == is_index_t.max():
+		#tdict[is_index_t.min()] = is_t.min()
+		tdict[is_t.min()]	= is_index_t.min()
+		
 	#tdict   = {i:i for i in xrange(12)}
 	ncIS.close()	     
+
 
 	print "tdict:", tdict
 	#####
 	# This list could be removed by adding a check dimensionality of data after it was been pruned.	
-	flatDataOnly =  ['pCO2','seawifs','Seawifs','mld_DT02', 'mld_DR003','mld_DReqDTm02','mld',
-			  'dms_and','dms_ara','dms_hal','dms_sim',]
-	for d in ['dms_p_and','dms_p_ara','dms_p_hal','dms_p_sim',]:
-	  for i in ['','1','2']:
-		flatDataOnly.append(d+i)
+	#flatDataOnly =  ['pCO2','seawifs','Seawifs','mld_DT02', 'mld_DR003','mld_DReqDTm02','mld',
+	#		  'dms_and','dms_ara','dms_hal','dms_sim',]
+	#for d in ['dms_p_and','dms_p_ara','dms_p_hal','dms_p_sim',]:
+	#  for i in ['','1','2']:
+	#	flatDataOnly.append(d+i)
 		
-	if self.dataType in flatDataOnly: 
-  	   	is_z 	= np.ma.zeros(len(is_t))[:]
-	   	zdict = {0:0, 0.:0}  
+	#if self.dataType in flatDataOnly: 
+  	#   	is_z 	= np.ma.zeros(len(is_t))[:]
+	#   	zdict = {0:0, 0.:0}  
 
 	if not self._meshLoaded_:self.loadMesh()
 	    
 	for i,ii in enumerate(is_i[maxIndex:]):
 		i+=maxIndex
 		wt  = is_t[i]
+		wt_index  = is_index_t[i]
 		wz  = is_z[i]
 		wla = is_la[i]
 		wlo = is_lo[i] 
@@ -456,16 +464,19 @@ class matchDataAndModel:
 
 		#####			
 		#Match Time	
-		try:
-			t = tdict[wt]	
+		try: 
+			t = tdict[wt_index]
 		except:
-			print "matchModelToData:\tunable to find time match in pftnames, mt[",self.dataType,"]['tdict']", wt
-			print "tdict:",tdict
-			assert False 
+			try:
+				t = tdict[wt]	
+			except:
+				print "matchModelToData:\tunable to find time match in pftnames, mt[",self.dataType,"]['tdict']", wt
+				print "tdict:",tdict
+				assert False 
 			
-			t = getMonthFromSecs(wt)
-			tdict[wt] = t
-			if self.debug:	print "matchModelToData:\t",i, 'Found new month:', wt, '-->',t
+				t = getMonthFromSecs(wt)
+				tdict[wt] = t
+				if self.debug:	print "matchModelToData:\t",i, 'Found new month:', wt, '-->',t
 
 		#####
 		# Add match into array

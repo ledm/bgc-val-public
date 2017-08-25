@@ -1327,8 +1327,8 @@ def histsPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel=
 	"""
 	
 	fig = pyplot.figure()		
-	ax = pyplot.subplot(311)
-	fig.set_size_inches(8,14)	
+
+	fig.set_size_inches(10,10)	
 	xmin =  np.ma.min([np.ma.min(datax),np.ma.min(datay)])
 	xmax =  np.ma.max([np.ma.max(datax),np.ma.max(datay)])
 	
@@ -1340,31 +1340,37 @@ def histsPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel=
 		print "UKESMpython:\thistsPlot:\tThere aren't enough points for a sensible dataplot: ", datax.size
 		return		
 
-	
+	ax = pyplot.subplot(221)	
 	if logx:
 		n, bins, patchesx = pyplot.hist(datax,  histtype='stepfilled', bins=10.**np.linspace(np.log10(xmin), np.log10(xmax), nbins),range=[xmin,xmax])
-		n, bins, patchesy = pyplot.hist(datay,  histtype='stepfilled', bins=10.**np.linspace(np.log10(xmin), np.log10(xmax), nbins),range=[xmin,xmax])
 	else: 
 		n, bins, patchesx = pyplot.hist(datax,  bins=np.linspace(xmin, xmax, nbins), histtype='stepfilled',range=[xmin,xmax] )
-		n, bins, patchesy = pyplot.hist(datay,  bins=np.linspace(xmin, xmax, nbins), histtype='stepfilled',range=[xmin,xmax])
 			
 	pyplot.setp(patchesx, 'facecolor', 'g', 'alpha', 0.5)	
-	pyplot.setp(patchesy, 'facecolor', 'b', 'alpha', 0.5)
-	
-	#if logx:
-	#	bins = range(xmin, xmax)
-	#	pyplot.xticks(bins, ["2^%s" % i for i in bins])
-	#	plt.hist(numpy.log2(data), log=True, bins=bins)
 	
 	if logx: ax.set_xscale('log')
 	if logy: ax.set_yscale('log')
 	pyplot.legend([labelx,labely],loc='upper left')
 	
-	pyplot.title(Title)	
-	#pyplot.xlabel(xaxislabel)
-	#pyplot.ylabel(labely)
+	pyplot.title(labelx +' '+Title)	
 
-	ax = pyplot.subplot(312)
+	ax = pyplot.subplot(222)	
+	if logx:
+		n, bins, patchesy = pyplot.hist(datay,  histtype='stepfilled', bins=10.**np.linspace(np.log10(xmin), np.log10(xmax), nbins),range=[xmin,xmax])
+	else: 
+		n, bins, patchesy = pyplot.hist(datay,  bins=np.linspace(xmin, xmax, nbins), histtype='stepfilled',range=[xmin,xmax])
+			
+	pyplot.setp(patchesy, 'facecolor', 'b', 'alpha', 0.5)
+	
+	if logx: ax.set_xscale('log')
+	if logy: ax.set_yscale('log')
+	pyplot.legend([labelx,labely],loc='upper left')
+	
+	pyplot.title(labely +' '+Title)
+	
+	
+
+	ax = pyplot.subplot(223)
 	pyplot.title('Difference: '+labelx+' - '+labely )	
 	d = datax-datay
 	maxd = np.max(np.abs(d))
@@ -1375,7 +1381,7 @@ def histsPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel=
 	y = pyplot.axvline(x=np.ma.median(d), c = 'k',ls='--',label= 'Median Bias: '+str(round(np.ma.median(d),2)))		
 	pyplot.legend(loc='upper left')
 	
-	ax = pyplot.subplot(313)
+	ax = pyplot.subplot(224)
 	pyplot.title('Quotient: '+labelx+' / '+labely)	
 	d = datax/np.ma.masked_where(datay==0.,datay)
 
