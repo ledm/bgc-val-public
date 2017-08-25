@@ -31,12 +31,10 @@
 
 """
 import ConfigParser
-#from functions.standard_functions import functions
-from functions import standard_functions
 import os
 from glob import glob
 
-   
+from functions.stdfunctions import std_functions  
 from bgcvaltools.tdicts import tdicts
     
     
@@ -166,9 +164,9 @@ def parseFunction(Config,section,option):
 	except: 
 		print "No option ",option," in section: ",section
 		return ''
-	if functionname in functions.keys():
+	if functionname in std_functions.keys():
 		print "Standard Function Found:",functionname
-		return functions[functionname]
+		return std_functions[functionname]
 
 	if functionname.find(':') > -1:		
 		[functionFileName,functionname] = functionname.split(':')
@@ -185,11 +183,11 @@ def parseFunction(Config,section,option):
 
 						
 #currrently working on getting findReplaceFlags to work, so that I can add $NAME to image directories.
-def get_str(Config, section, option):
+def get_str(Config, section, option,debug=False):
 	Config = checkConfig(Config)	
 	try: return Config.get(section, option)
 	except:
-		print "Unable to load:",section, option
+		if debug: print "Unable to load:",section, option
 	return ''
 
 def parseOptionOrDefault(Config,section,option,parsetype='',debug=True, optional=True):

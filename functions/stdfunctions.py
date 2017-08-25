@@ -22,7 +22,7 @@
 # ledm@pml.ac.uk
 #
 """
-.. module:: tdicts
+.. module:: stdfunctions
    :platform: Unix
    :synopsis: This module is a dictionairy of functions that can be applied to the data.
    	The expectation is that users will either add to this list.
@@ -34,7 +34,6 @@
 #####
 # These are the default evaluation functions.
 
-functions = {}
 
 ####
 # Some functions for maniulating data:
@@ -107,20 +106,20 @@ def convertkgToM3(nc,keys):
 	return nc.variables[keys[0]][:]* 1.027
 	
 	
-
-functions[''] 			= ''
-functions['NoChange'] 		= NoChange	
-functions['N2Biomass'] 		= N2Biomass	
-functions['KtoC'] 		= KtoC
-functions['mul1000'] 		= mul1000
-functions['mul1000000'] 	= mul1000000		
-functions['div1000'] 		= div1000	
-functions['div1e6'] 		= div1e6
-functions['applymask'] 		= applymask
-functions['sums'] 		= sums
-functions['sum'] 		= sums
-functions['oxconvert'] 		= oxconvert
-functions['convertkgToM3'] 	= convertkgToM3
+std_functions 				= {}
+std_functions[''] 			= ''
+std_functions['NoChange'] 		= NoChange	
+std_functions['N2Biomass'] 		= N2Biomass	
+std_functions['KtoC'] 			= KtoC
+std_functions['mul1000'] 		= mul1000
+std_functions['mul1000000'] 		= mul1000000		
+std_functions['div1000'] 		= div1000	
+std_functions['div1e6'] 		= div1e6
+std_functions['applymask'] 		= applymask
+std_functions['sums'] 			= sums
+std_functions['sum'] 			= sums
+std_functions['oxconvert'] 		= oxconvert
+std_functions['convertkgToM3'] 		= convertkgToM3
 
 
 

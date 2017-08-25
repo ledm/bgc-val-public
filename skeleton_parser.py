@@ -52,7 +52,6 @@ from timeseries import timeseriesTools as tst
 
 from p2p.testsuite_p2p import testsuite_p2p_noAV as testsuite_p2p
 
-from functions.standard_functions import functions
 from bgcvaltools.dataset import dataset
 from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
 
