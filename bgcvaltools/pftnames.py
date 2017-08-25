@@ -505,6 +505,7 @@ def makeLongNameDict():
 		
 
 longNameDict = makeLongNameDict()
+
 def getLongName(text,debug=False):
 
 	if debug: print "Getting long name:",text

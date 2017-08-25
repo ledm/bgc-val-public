@@ -269,7 +269,8 @@ class makePlots:
 	self.xt = np.ma.array(self.xnc.variables[self.modelcoords['t']][:])
 	self.yt = np.ma.array(self.ync.variables[self.datacoords['t']][:])
 	self.xz = np.ma.array(self.xnc.variables[self.modelcoords['z']][:])
-	self.yz = np.ma.array(self.ync.variables[self.datacoords['z']][:])
+	try: 	self.yz = np.ma.array(self.ync.variables[self.datacoords['z']][:])
+	except: self.yz = np.zeros_like(self.xt)
 
 	#lat and lon
 	self.xy = np.ma.array(self.xnc.variables[self.modelcoords['lat']][:])

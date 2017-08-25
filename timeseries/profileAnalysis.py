@@ -46,8 +46,8 @@ from bgcvaltools.dataset import dataset
 
 class profileAnalysis:
   def __init__(self,
-  		modelFiles, 
-		dataFile,
+  		modelFiles	= '', 
+		dataFile	= '',
 		dataType	= '',
 		modelcoords 	= '',
 		modeldetails 	= '',
@@ -98,7 +98,7 @@ class profileAnalysis:
 	self.shelvefn_insitu	= ukp.folder(self.workingDir)+'_'.join(['profile',self.jobID,self.dataType,])+'_insitu.shelve'
 
 	self._masksLoaded_ 	= False
-	self.doHov		= False
+	self.doHov		= True
 	#####
 	# Load Data file
         self.__madeDataArea__ = False		
@@ -281,12 +281,12 @@ class profileAnalysis:
   def loadMasks(self):
   	#####
 	# Here we load the masks file.
-	self.maskfn = 'data/'+self.grid+'_masks.nc'
+	self.maskfn = ukp.folder(self.workingDir+'/masks')+self.grid+'_masks.nc'
 	
 	if not os.path.exists(self.maskfn):
 		print "Making mask file",self.maskfn
 
-		makeMaskNC(self.maskfn, self.regions, self.grid)
+		makeMaskNC(self.maskfn, self.regions, self.grid,gridfn= self.gridFile)
 	
 	self.modelMasks= {}
 	
@@ -298,10 +298,10 @@ class profileAnalysis:
 			self.modelMasks[r] = ncmasks.variables[r][:]
 			
 		else:
-			newmask = 'data/'+self.grid+'_masks_'+r+'.nc'
+			newmask = ukp.folder(self.workingDir+'/masks')+self.grid+'_masks_'+r+'.nc'
 
 			if not os.path.exists(newmask):
-				makeMaskNC(newmask, [r,], self.grid)
+				makeMaskNC(newmask, [r,], self.grid,gridfn= self.gridFile)
 			nc = dataset(newmask,'r')
 			self.modelMasks[r] = nc.variables[r][:]
 			nc.close()			
@@ -349,17 +349,16 @@ class profileAnalysis:
 	needtoLoad = False
 	self.setdlayers()
 	for r in self.regions:
-	    #if needtoLoad:continue
-	#    for l in self.dlayers:
+	     if needtoLoad:continue
 	     for l in sorted(self.dlayers)[:]:	    
+ 	      for m in sorted(self.metrics)[:]:
 		#if needtoLoad:continue
 	    	try:	
-	    		dat = self.dataD[(r,l)]
-	    		#test = (len(),self.dataD[(r,l)].shape)
-	    		print "profileAnalysis:\t loadData\t",(r,l)#,dat
+	    		dat = self.dataD[(r,l,m)]
+	    		print "profileAnalysis:\t loadData\t",(r,l,m)#,dat
 	    	except: 
 			needtoLoad=True
-			print "profileAnalysis:\t loadData\tUnable to load",(r,l)
+			print "profileAnalysis:\t loadData\tUnable to load",(r,l,m)
 
 	if needtoLoad: pass	
 	else:
@@ -378,95 +377,101 @@ class profileAnalysis:
 	# Loading data for each region.
 	dl = tst.DataLoader(self.dataFile,'',self.datacoords,self.datadetails, regions = self.regions, layers = self.dlayers[:],)
 	
-#	#for r in self.regions:
-#	 #   for l in self.dlayers:
-#	    	dataD[(r,l)] = dl.load[(r,l,)]	
-#	    	dataD[(r,l,'lat')] = dl.load[(r,l,'lat')]		    	
-#	    	dataD[(r,l,'lon')] = dl.load[(r,l,'lon')]
-#		if len(dataD[(r,l)])==0  or np.ma.is_masked(dataD[(r,l)]):
-#			dataD[(r,l)]  = np.ma.masked
-#			dataD[(r,l,'lat')]  = np.ma.masked
-#			dataD[(r,l,'lon')]  = np.ma.masked
 									    	
-
-	AreaNeeded = len(ukp.intersection(['mean','median','sum',], self.metrics))
-	
 	maskedValue = np.ma.masked # -999.# np.ma.array([-999.,],mask=[True,])
 	#maskedValue = np.ma.array([-999.,],mask=[True,])
 	#maskedValue  = -999 #np.ma.array([-999.,],mask=[True,])	
-	
+	count =0
     	for l in sorted(self.dlayers)[:]:
 	    for r in self.regions:
-	    	dataD[(r,l)] = dl.load[(r,l,)]	
+	    	dataDarray = dl.load[(r,l,)]	
 	    	try:   	
-	    		meandatad = dataD[(r,l)].mean()
-	    		datadmask = (~np.ma.array(dataD[(r,l)]).mask).sum()
+	    		meandatad = dataDarray.mean()
+	    		datadmask = (~np.ma.array(dataDarray).mask).sum()
 	    	except: 
 	    		meandatad = False
 	    		datadmask = False
 	    		
-		if np.isnan(meandatad) or np.isinf(meandatad) or dataD[(r,l)].mask.all() or np.ma.is_masked(meandatad):
+		if np.isnan(meandatad) or np.isinf(meandatad) or dataDarray.mask.all() or np.ma.is_masked(meandatad):
 	    		meandatad = False
 	    		datadmask = False			
 
 	    		
-    		#print "profileAnalysis:\t load in situ data,\tloaded ",(r,l),  'mean:',meandatad  
 
 		if False in [meandatad, datadmask]: 
-			dataD[(r,l)]  = maskedValue	
-			dataD[(r,l,'lat')]  = maskedValue    	
-			dataD[(r,l,'lon')]  = maskedValue
-			if AreaNeeded:	dataD[(r,l,'area')] = maskedValue
-    			print "profileAnalysis:\t loadData\tproblem with ",(r,l),  'data:\t',dataD[(r,l)] 		
+			for m in self.metrics:		
+				dataD[(r,l,m)] = maskedValue
+			continue
+    			print "profileAnalysis:\t loadData\tproblem with ",(r,l)
     			
-		else:
 				
-		    	dataD[(r,l,'lat')] = dl.load[(r,l,'lat')]		    	
-		    	dataD[(r,l,'lon')] = dl.load[(r,l,'lon')]		
-			if AreaNeeded:	    	
-			    	dataD[(r,l,'area')] = self.loadDataAreas(dataD[(r,l,'lat')],dataD[(r,l,'lon')])
-			else:	dataD[(r,l,'area')] = np.ones_like(dataD[(r,l,'lon')])
-	    		print "profileAnalysis:\t loadData,\tloading ",(r,l),  'mean:\t',meandatad    	
+	    	dataDlat = dl.load[(r,l,'lat')]		    	
+	    	dataDlon = dl.load[(r,l,'lon')]		
+	    	dataDarea = self.loadDataAreas(dataDlat,dataDlon)
+		    	
+    		print "profileAnalysis:\t loadData,\tloading ",(r,l), '\tmean (non weighted):\t',meandatad
 
-    			
-	    print "profileAnalysis:\t loadData.\tSaving shelve: (layer",l,")", self.shelvefn_insitu			
-	    sh = shOpen(self.shelvefn_insitu)
-	    sh['dataD'] 	= dataD
-	    sh.close()
+		if 'mean' in self.metrics:
+			dataD[(r,l,'mean')] = np.average(dataDarray, weights = dataDarea)
+		
+		if 'median' in self.metrics:
+			out_pc = ukp.weighted_percentiles(dataDarray, [50.,], weights = dataDarea)
+			
+			for pc,dat in zip(percentiles, out_pc):
+				if pc==50.: dataD[(r,l,'median')][meantime] = dat
+				
+		if 'min' in self.metrics:
+			dataD[(r,l,'min')] = np.ma.min(dataslice)
+			
+		if 'max' in self.metrics:
+			dataD[(r,l,'max')] = np.ma.max(dataslice)
+			
+				
+				
+				
+
+    	    count+=1
+    	    if count%20==0 and count >0:	
+		    print "profileAnalysis:\t loadData.\tSaving shelve: (layer",l,")", self.shelvefn_insitu			
+		    sh = shOpen(self.shelvefn_insitu)
+		    sh['dataD'] 	= dataD
+		    sh.close()
+		    count=0
 
     		
 	###############
 	# Savng shelve		
-	print "profileAnalysis:\t loadData.\tSaving shelve:", self.shelvefn_insitu			
-	try:
-		sh = shOpen(self.shelvefn_insitu)
-		sh['dataD'] 	= dataD
-		sh.close()
+	print "profileAnalysis:\t loadData.\tSaving shelve:", self.shelvefn_insitu
+	if count>0:			
+		try:
+			sh = shOpen(self.shelvefn_insitu)
+			sh['dataD'] 	= dataD
+			sh.close()
 
-		print "profileAnalysis:\t loadData.\tSaved shelve:", self.shelvefn_insitu
+			print "profileAnalysis:\t loadData.\tSaved shelve:", self.shelvefn_insitu
 		
-	except:
-		print "profileAnalysis:\t WARNING.\tSaving shelve failed, trying again.:", self.shelvefn_insitu			
-		print "Data is", dataD.keys()
+		except:
+			print "profileAnalysis:\t WARNING.\tSaving shelve failed, trying again.:", self.shelvefn_insitu			
+			print "Data is", dataD.keys()
 		
-		for key in sorted(dataD.keys()): 
+			for key in sorted(dataD.keys()): 
 
 			
-			print key, ':\t', dataD[key]
-			sh = shOpen(ukp.folder('./tmpshelves')+'tmshelve.shelve')
-			sh['dataD'] 	= dataD[key]
-			sh.close()
-			print "saved fine:\t./tmpshelves/tmshelve.shelve"
+				print key, ':\t', dataD[key]
+				sh = shOpen(ukp.folder('./tmpshelves')+'tmshelve.shelve')
+				sh['dataD'] 	= dataD[key]
+				sh.close()
+				print "saved fine:\t./tmpshelves/tmshelve.shelve"
 		
-		shutil.move(self.shelvefn_insitu, self.shelvefn_insitu+'.broken')
+			shutil.move(self.shelvefn_insitu, self.shelvefn_insitu+'.broken')
 
-#		try:
-		sh = shOpen(self.shelvefn_insitu)
-		sh['dataD'] 	= dataD
-		sh.close()
-#		except:
-#			print "profileAnalysis:\t WARNING.\tUnable to Save in situ shelve.\tYou'll have to input it each time.",self.shelvefn_insitu	
-	 	
+	#		try:
+			sh = shOpen(self.shelvefn_insitu)
+			sh['dataD'] 	= dataD
+			sh.close()
+	#		except:
+	#			print "profileAnalysis:\t WARNING.\tUnable to Save in situ shelve.\tYou'll have to input it each time.",self.shelvefn_insitu	
+		 	
 	self.dataD = dataD
 
   def AddDataArea(self,):
@@ -504,50 +509,7 @@ class profileAnalysis:
 	return 	np.ma.array(areas)			
  	
 
-  def mapplotsRegionsLayers(self,):
-  
-  	"""	Makes a map plot of model vs data for each string-named layer (not numbered layers). 
-  	"""
-  	newlayers = [l for l in self.layers if type(l) not in [type(0),type(0.) ]]
-	mDL = tst.DataLoader(self.modelFiles[-1],'',self.modelcoords,self.modeldetails, regions = self.regions, layers = newlayers,)
-	for r in self.regions:
-	    for l in self.layers:	
-		if type(l) in [type(0),type(0.)]:continue
- 		mapfilename = ukp.folder(self.imageDir+'/'+self.dataType)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
-   		modeldata	= mDL.load[(r,l)]
-   		modellat	= mDL.load[(r,l,'lat')]
-   		modellon	= mDL.load[(r,l,'lon')]
-		  	
-		if not len(modeldata): continue
-		
-	  	print "mapplotsRegionsLayers:\t",r,l, "model contains",len(modeldata),'model data'
-	  	print "mapplotsRegionsLayers:\t",r,l, "model lat:",modellat.min(),modellat.mean(),modellat.max()
-	  	print "mapplotsRegionsLayers:\t",r,l, "model lon:",modellon.min(),modellon.mean(),modellon.max() 
-  	  	
-		if self.dataFile:
-		    	datadata	= self.dataD[(r,l)] 
-		    	datalat		= self.dataD[(r,l,'lat')]
-		    	datalon		= self.dataD[(r,l,'lon')]
-		    	
-		else:
-			datadata = np.ma.array([-1000,],mask=[True,])
-			datalat  = np.ma.array([-1000,],mask=[True,])
-			datalon  = np.ma.array([-1000,],mask=[True,])
 
-	  	print "mapplotsRegionsLayers:\t",r,l, "contains",len(datadata),'in situ data'
-	  	print "mapplotsRegionsLayers:\t",r,l, "data lat:",len(datalat),datalat.min(),datalat.mean(),datalat.max()
-	  	print "mapplotsRegionsLayers:\t",r,l, "data lon:",len(datalon),datalon.min(),datalon.mean(),datalon.max() 	
-	
-		titles = [' '.join([getLongName(t) for t in [self.model,'('+self.jobID+')',str(l),self.modeldetails['name']]]),
-			  ' '.join([getLongName(t) for t in [self.datasource,str(l),self.datadetails['name']]])]
-			  
-	  	tsp.mapPlotPair(modellon, modellat, modeldata,
-	  			datalon,datalat,datadata,
-	  			mapfilename,
-	  			titles	= titles,
-	  			lon0=0.,drawCbar=True,cbarlabel='',dpi=100,)
-
-	
 	
   def makePlots(self):
 	if self.debug: print "profileAnalysis:\t makePlots."	  
@@ -584,27 +546,11 @@ class profileAnalysis:
 	  		
 	  		if type(l) == type('str'):continue	# no strings, only numbered layers.
 	  		if l > max(dataZcoords.keys()): continue
-			#####
-			# Test for presence/absence of in situ data.
-			try:	
-				dataslice = self.dataD[(r,l)]	  
-				dataslice = dataslice.compressed()				
-			except:	dataslice = np.ma.array([-1000,],mask=[True,])
-		
-			if m == 'mean': 
-				try:	data[l] = np.ma.mean(dataslice)
-				except:	data[l] = np.ma.array([-1000,],mask=[True,])				
-			elif m == 'median':
-				try: 	data[l] = np.ma.median(dataslice)
-				except:	data[l] = np.ma.array([-1000,],mask=[True,])
-			elif m == 'min': 
-				try: 	data[l] = np.ma.min(dataslice)
-				except:	data[l] = np.ma.array([-1000,],mask=[True,])
-			elif m == 'max':
-				try:	data[l] = np.ma.max(dataslice)
-				except:	data[l] = np.ma.array([-1000,],mask=[True,])				
+	  		
+			data[l] = self.dataD[(r,l,m)]	
 			
-	#		if self.debug: print "profileAnalysis:\tmakePlots:\tHovmoeller plots:",r,m,l,'\tdata'#,data[l]								
+		
+				
 
 	   	#####
 	   	# Load model layers:
@@ -623,17 +569,17 @@ class profileAnalysis:
 
 
 		title = ' '.join([getLongName(t) for t in [r,m,self.dataType]])	
-	    	profilefn = ukp.folder(self.imageDir+'/'+self.dataType)+'_'.join(['profile',self.jobID,self.dataType,r,m,])+'.png'
+	    	profilefn = ukp.folder(self.imageDir)+'_'.join(['profile',self.jobID,self.dataType,r,m,])+'.png'
 	    	axislabel = getLongName(self.modeldetails['name'])+', '+getLongName(self.modeldetails['units'])
 		if  ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],profilefn,debug=False):					    	
 			tsp.profilePlot(modeldata,data,profilefn, modelZcoords = modelZcoords, dataZcoords= dataZcoords, xaxislabel = axislabel,title = title,)			
 			
 		if self.doHov:	
-		    	hovfilename = ukp.folder(self.imageDir+'/'+self.dataType)+'_'.join(['profilehov',self.jobID,self.dataType,r,m,])+'.png'
+		    	hovfilename = ukp.folder(self.imageDir)+'_'.join(['profilehov',self.jobID,self.dataType,r,m,])+'.png'
 			if  ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename,debug=False):				
 				tsp.hovmoellerPlot(modeldata,data,hovfilename, modelZcoords = modelZcoords, dataZcoords= dataZcoords, title = title,zaxislabel =axislabel, diff=False)		
 	
-		    	hovfilename_diff = ukp.folder(self.imageDir+'/'+self.dataType)+'_'.join(['profileDiff',self.jobID,self.dataType,r,m,])+'.png'
+		    	hovfilename_diff = ukp.folder(self.imageDir)+'_'.join(['profileDiff',self.jobID,self.dataType,r,m,])+'.png'
 			if  ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename_diff,debug=False):					    	
 				tsp.hovmoellerPlot(modeldata,data,hovfilename_diff, modelZcoords = modelZcoords, dataZcoords= dataZcoords, title = title,zaxislabel =axislabel,diff=True)		
 	

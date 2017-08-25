@@ -35,9 +35,11 @@
 import numpy as np
 
 from bgcvaltools.dataset import dataset
+from bgcvaltools.configparser import GlobalSectionParser
 
 
-nc = dataset("/data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc",'r')
+gsp = GlobalSectionParser("runconfig.ini")
+nc = dataset(gsp.gridFile,'r')
 try:	
 	model_area = nc.variables['area'][:]
 except:
@@ -50,12 +52,14 @@ def TotalAirSeaFluxCO2(nc,keys):
 	This function calculated the total Air Sea FLux for the MEDUSA model in the eORCA grid.
 	"""
 	factor =  365.25 * 12./1000. / 1.E15
-	arr = nc.variables['CO2FLUX'][:].squeeze() * factor	# mmolC/m2/d
-#	if arr.ndim ==3:
-#		for i in np.arange(arr.shape[0]):
-#			arr[i] = arr[i]*area
+	
+	try:	arr = nc.variables[keys[0]][:].squeeze() * factor	# mmolC/m2/d
+	except: 
+		raise AssertionError("TotalAirSeaFluxCO2:\tNot able to load "+str(keys[0])+" from netcdf "+str(nc.filename))		
+	
 	if arr.ndim ==2: arr = arr*model_area
-	else: assert 0
+	else: 
+		raise AssertionError("TotalAirSeaFluxCO2:\t"+str(keys[0])+" from netcdf "+str(nc.filename) +" has an unexpected number of dimensions: "+str(arr.ndim))
 	return arr.sum()
 
 #def takaTotal(nc,keys):

@@ -76,8 +76,6 @@ class matchDataAndModel:
   			modeldetails = '',
   			datacoords = '',
   			datadetails = '', 
-  			#DataVars = '', 
-  			#ModelVars = '',  
   			datasource = '',
   			model = '', 
   			jobID = '', 
@@ -205,8 +203,14 @@ class matchDataAndModel:
 	  	return
 	  	
 	  	
-	  	
-	mmask = np.ones(nc.variables[self.DataVars[0]].shape)	  		
+	if self.datacoords['z'] in ['', None,"''"]:
+		print 'matchDataAndModel:\tconvertDataTo1D:\tNo data depth level coordinate',self.dataType
+		convertToOneDNC(self.DataFilePruned, self.DataFile1D, debug=True, variables = self.DataVars)
+		nc.close()
+		return
+		
+	mmask = np.ones(nc.variables[self.DataVars[0]].shape)	  
+			
 	if self.depthLevel in ['Surface','100m','200m','500m','1000m','2000m',]:	
 		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along depth direction.'	
 		if self.depthLevel == 'Surface':z = 0.
@@ -216,6 +220,7 @@ class matchDataAndModel:
 		if self.depthLevel == '1000m': 	z = 1000.
 		if self.depthLevel == '2000m': 	z = 2000.
 		
+		print self.datacoords['z']
 		if nc.variables[self.datacoords['z']].ndim ==1:
 			k =  ukp.getORCAdepth(np.abs(z),np.abs(nc.variables[self.datacoords['z']][:]),debug=True)
 			mmask[:,k,:,:] = 0
@@ -397,7 +402,9 @@ class matchDataAndModel:
 	tdict={}
   	is_t		= ncIS.variables[self.datacoords['t']][:]
   	is_index_t	= ncIS.variables['index_t'][:]  	
-  	is_z 	= ncIS.variables[self.datacoords['z']][:]
+  	
+	if self.datacoords['z']  in ['', None,"''"]:  	pass		# No Depth in data file.
+	else:  	is_z 	= ncIS.variables[self.datacoords['z']][:]
   	is_la	= ncIS.variables[self.datacoords['lat']][:]
 	is_lo 	= ncIS.variables[self.datacoords['lon']][:]
 
@@ -429,7 +436,8 @@ class matchDataAndModel:
 		i+=maxIndex
 		wt  = is_t[i]
 		wt_index  = is_index_t[i]
-		wz  = is_z[i]
+		try:	wz  = is_z[i]
+		except:	wz = 0
 		wla = is_la[i]
 		wlo = is_lo[i] 
 

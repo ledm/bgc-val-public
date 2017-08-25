@@ -1013,9 +1013,9 @@ def hovmoellerPlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords=
 	else:
 		ax2max	= rbma
 		ax2min	= rbmi
-		if defcmfareaapstr =='viridis':
+		if defcmapstr =='viridis':
 			cmapax2 = discrete_viridis(bins)
-		else:	cmapax2 = pyplot.cm.get_cmap(defcmap, bins)    
+		else:	cmapax2 = pyplot.cm.get_cmap(defcmap, bins) 
 		title = 'Model: '+title
 	#####
 	# Start drawing

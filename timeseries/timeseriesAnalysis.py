@@ -48,8 +48,8 @@ import timeseriesPlots as tsp
 
 class timeseriesAnalysis:
   def __init__(self,
-  		modelFiles, 
-		dataFile,
+  		modelFiles	= '', 
+		dataFile	= '',
 		dataType	= '',
 		modelcoords 	= '',
 		modeldetails 	= '',

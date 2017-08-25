@@ -68,21 +68,16 @@ def analysis_skeleton(
 
 	globalKeys =  GlobalSectionParser(configfile)
 	
-	for k, key in globalKeys.ActiveKeys.items():
+	for key in globalKeys.ActiveKeys:
 		akp = AnalysisKeyParser(configfile, key, debug=True)
 	
-
-	
-		
-	
-		
 		if akp.dimensions in  [2, 3]:
 			metricList = ['mean','median', '10pc','20pc','30pc','40pc','50pc','60pc','70pc','80pc','90pc','min','max']
 		else:	metricList = ['metricless',]	
 		
                 tsa = timeseriesAnalysis(
-                        akp.modelFiles_ts,
-                        akp.dataFile,
+                        modelFiles	= akp.modelFiles_ts,
+                        dataFile 	= akp.dataFile,
                         jobID           = akp.jobID,
                         dataType        = akp.name,
                         workingDir      = akp.postproc_ts,
@@ -106,8 +101,8 @@ def analysis_skeleton(
 		# Profile plots
 		if akp.dimensions == 3:
 			profa = profileAnalysis(
-				akp.modelFiles_ts,
-				akp.dataFile,
+				modelFiles 	= akp.modelFiles_ts,
+				dataFile	= akp.dataFile,
 				jobID           = akp.jobID,
 				dataType        = akp.name,
 				workingDir      = akp.postproc_ts,
@@ -125,27 +120,30 @@ def analysis_skeleton(
 				metrics	 	= ['mean',],								
 				clean 		= akp.clean,
 			)
-
-	    	testsuite_p2p(
-                        modelFile	= akp.modelFile_p2p,
-                        dataFile 	= akp.dataFile,    		
-			model 		= akp.model,
-			jobID 		= akp.jobID,
-			year  		= akp.year,
-			modelcoords     = akp.modelcoords,
-                        modeldetails    = akp.modeldetails,
-                        datacoords      = akp.datacoords,
-                        datadetails     = akp.datadetails,
-                        datasource      = akp.datasource,
-			plottingSlices	= akp.regions,		# set this so that testsuite_p2p reads the slice list from the av.
-			workingDir 	= akp.postproc_p2p, 
-			imageFolder	= akp.images_p2p,
-                        grid            = akp.modelgrid,			
-			gridFile	= akp.gridFile,	# enforces custom gridfile.
-			noPlots		= False,	# turns off plot making to save space and compute time.
-			annual		= True,
-			noTargets	= True,
-	 	)	
+		
+		if akp.dimensions not in  [1,]:
+		    	testsuite_p2p(
+		                modelFile	= akp.modelFile_p2p,
+		                dataFile 	= akp.dataFile,    		
+				model 		= akp.model,
+				jobID 		= akp.jobID,
+		    		dataType        = akp.name,						
+				year  		= akp.year,
+				modelcoords     = akp.modelcoords,
+		                modeldetails    = akp.modeldetails,
+		                datacoords      = akp.datacoords,
+		                datadetails     = akp.datadetails,
+		                datasource      = akp.datasource,
+				plottingSlices	= akp.regions,		# set this so that testsuite_p2p reads the slice list from the av.
+				layers		= akp.layers,
+				workingDir 	= akp.postproc_p2p, 
+				imageFolder	= akp.images_p2p,
+		                grid            = akp.modelgrid,			
+				gridFile	= akp.gridFile,	# enforces custom gridfile.
+				noPlots		= False,	# turns off plot making to save space and compute time.
+				annual		= True,
+				noTargets	= True,
+		 	)	
 
 	html5MakerFromConfig(configfile)
 	

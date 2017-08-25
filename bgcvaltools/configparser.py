@@ -76,10 +76,13 @@ def linkActiveKeys(Config,):
 
 	activeKeys = parseBooleanSection(Config,section='ActiveKeys')
 	sectionsdict = {sec.lower():sec for sec in Config.sections()}
-	dict1 = {}
+	#dict1 = {}
+	actives = []
 	for key in activeKeys:
-		dict1[key] = sectionsdict[key.lower()]
-	return dict1
+		#dict1[key] = sectionsdict[key.lower()]
+		actives.append(sectionsdict[key.lower()])
+	return actives		
+	#return dict1
 
 
 def findReplaceFlags(Config, section, string):
@@ -302,7 +305,7 @@ class GlobalSectionParser:
 	self.postproc_ts  	= parseOptionOrDefault(self.__cp__, defaultSection, 'postproc_ts',  )
 	self.postproc_p2p 	= parseOptionOrDefault(self.__cp__, defaultSection, 'postproc_p2p', )
 	self.reportdir 		= parseOptionOrDefault(self.__cp__, defaultSection, 'reportdir', )
-	
+	self.gridFile 		= parseFilepath(self.__cp__, defaultSection, 'gridFile',  )#expecting1=True, optional=False)	
 	self.ActiveKeys 	= linkActiveKeys(self.__cp__)
 				
 			

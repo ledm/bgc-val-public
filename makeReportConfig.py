@@ -41,8 +41,9 @@ from UKESMpython import folder, shouldIMakeFile,round_sig
 from html5 import html5Tools, htmltables
 from bgcvaltools.pftnames import getLongName
 
-
 from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
+
+package_directory = os.path.dirname(os.path.abspath(__file__))
 
 def copytree(src, dst, symlinks=False, ignore=None):
     for item in os.listdir(src):
@@ -95,7 +96,7 @@ def addSections(
 	#####
 	# href is the name used for the html 
 
-	SectionTitle= key
+	SectionTitle= getLongName(key)
 	hrefs 	= []
 	Titles	= {}
 	SidebarTitles = {}
@@ -157,7 +158,6 @@ def html5MakerFromConfig(
 		doZip = False
 	):
 
-#	analysiskeys =  linkActiveKeys(configfile)
 
 	globalkeys = GlobalSectionParser(configfn)
 
@@ -176,7 +176,7 @@ def html5MakerFromConfig(
 	####
 	# Copy all necceasiry objects and templates to the report location:
 	print "Copying html and js assets to", reportdir
-	copytree('html5/html5Assets', reportdir)
+	copytree(package_directory+'/html5/html5Assets', reportdir)
 	indexhtmlfn 	= reportdir+"index.html"
 	try:os.rename(reportdir+'index-template.html', indexhtmlfn)
 	except: pass
@@ -195,7 +195,7 @@ def html5MakerFromConfig(
 				descriptionText,
 				)
 
-	for k, key in globalkeys.ActiveKeys.items():
+	for key in globalkeys.ActiveKeys:
 		addSections(
 			configfn,
 			indexhtmlfn,

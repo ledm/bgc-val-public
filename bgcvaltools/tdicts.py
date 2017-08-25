@@ -29,8 +29,11 @@
 
 """
 
-tdicts = {	'ZeroToZero': {i  :i     for i in xrange(12)},		
-		'OneToOne':   {i+1:i+1   for i in xrange(12)},
-		'OneToZero':  {i+1:i     for i in xrange(12)},
-		'ZeroToOne':  {i  :i+1   for i in xrange(12)},			
+tdicts = {
+		''	   	: '',
+		'Annual'	: {0:0,},
+		'ZeroToZero'	: {i  :i     for i in xrange(12)},		
+		'OneToOne'	: {i+1:i+1   for i in xrange(12)},
+		'OneToZero'	: {i+1:i     for i in xrange(12)},
+		'ZeroToOne'	: {i  :i+1   for i in xrange(12)},	
 	}	

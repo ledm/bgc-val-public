@@ -32,6 +32,7 @@
 import os
 from bgcvaltools.pftnames import getLongName
 
+package_directory = os.path.dirname(os.path.abspath(__file__))
 
 def AddtoFile(filepath,linenumber,text):
 	"""	Adds "text" at line "linenumber" in the file "filepath"
@@ -118,7 +119,7 @@ def fnToTitle(fn,jobID='u-a'):
 def addImagesText(imagePath,title = ''):
 	""" Creates the appropriate text to insert an image onto the page.
 	"""
-	f = open("html5/figure-template.html", "r")
+	f = open(package_directory+"/figure-template.html", "r")
 	contents = f.readlines()
 	f.close()
 	if title == '': title = fnToTitle(imagePath)
@@ -146,7 +147,7 @@ def AddSection(filepath,href,Title, Description='',Files=[]):
 
 	##### 
 	# Copy the template and add the images.
-	f = open("html5/section-template.html", "r")
+	f = open(package_directory+"/section-template.html", "r")
 	contents = f.readlines()
 	f.close()
 	if type(Files) == type(['a','list',]):
@@ -182,7 +183,7 @@ def AddTableSection(filepath,href,Title, Description='',Caption='',tablehtml=[])
 
 	##### 
 	# Copy the template and add the images.
-	f = open("html5/section-template.html", "r")
+	f = open(package_directory+"/section-template.html", "r")
 	contents = f.readlines()
 	f.close()
 
@@ -229,7 +230,7 @@ def AddSubSections(filepath,hrefs,SectionTitle,SidebarTitles = {},Titles={}, Des
 
 		##### 
 		# Copy the template and add the images.
-		f = open("html5/section-template.html", "r")
+		f = open(package_directory+"/section-template.html", "r")
 		contents = f.readlines()
 		f.close()
 		if type(Files) == type(['a','list',]):

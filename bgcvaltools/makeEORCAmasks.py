@@ -30,12 +30,13 @@
 
 """
 
-from netCDF4 import Dataset
+#from netCDF4 import Dataset
 import UKESMpython as ukp
 import numpy as np
 from changeNC import changeNC, AutoVivification
 #import paths
 from bgcvaltools.makeMask import makeMask
+from bgcvaltools.dataset import dataset
 
 """ 	This code makes a mask netcdf for the regions written below.
 	this code is needed for profileAnalysis.py
@@ -48,7 +49,7 @@ def makeMaskNC(outFile, regions, grid,gridfn=''):
 	#	orcaGridfn	= paths.orcaGridfn
 	#####
 	# load mask and coordinates.
-	ncmesh = Dataset(orcaGridfn,'r')
+	ncmesh = dataset(gridfn,)#'r')
 	landmask = ncmesh.variables['tmask'][:]
 	lats 	 = ncmesh.variables['nav_lat'][:]
 	lons 	 = ncmesh.variables['nav_lon'][:]
@@ -139,7 +140,7 @@ def makeMaskNC(outFile, regions, grid,gridfn=''):
 		av[rem]['name']='False'
 	print "makeMaskNC:\tmaking new mask file", outFile
 	
-	c = changeNC(orcaGridfn, outFile, av)
+	c = changeNC(gridfn, outFile, av)
 
 def main():
 	regions	= ['Global', 
