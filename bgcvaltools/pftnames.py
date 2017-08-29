@@ -29,10 +29,13 @@
 """
 
 from calendar import month_name
-from UKESMpython import AutoVivification,AutoVivToYaml,folder,YamlToDict
 #from itertools import product
-from os.path import exists
-import numpy as np
+
+import os
+from itertools import product
+from bgcvaltools.configparser import checkConfig
+
+package_directory = os.path.dirname(os.path.abspath(__file__))
 
 
 
@@ -76,7 +79,7 @@ SouthHemispheresMonths = [h+m for h in ['SouthHemisphere',] for m in months]
 NorthHemispheresMonths = [h+m for h in ['NorthHemisphere',] for m in months] 	
 
 
-def makeLongNameDict():
+def makeLongNameDict_old():
 	lnd = {}
 	SameSame = ['temperature', "salinity", "nitrate", "phosphate" ,'silicate','oxygen',
 			'iron','chlorophyll','chl','alkalinity',
@@ -503,8 +506,35 @@ def makeLongNameDict():
 		
 	return lnd		   
 		
+def parseLongNames():
+	lnd = {}
+	config = checkConfig(package_directory+'/longnames.ini')
+	for section in config.sections():
+		options = config.options(section)
+		for option in options:lnd[option] = config.get(section, option)
+	####
+	# Combinatorial stuff
+	for field,region  in product(['BGC', 'Physics'],['Times', 'Regions']):
+	    	field_options  = config.options(field)
+	    	region_options = config.options(region)	    		    	
+	    	for field_option,region_option in product(field_options,region_options):
+	    		ln_f = config.get(field,  field_option)
+	    		ln_r = config.get(region, region_option)
+			lnd[field_option+region_option] = ' '.join([ln_f, ln_r])	    		
+			lnd[field_option.lower()+region_option.lower()] = ' '.join([ln_f, ln_r])
+			lnd[field_option.title()+region_option.title()] = ' '.join([ln_f, ln_r])			
+			lnd[field_option.upper()+region_option.upper()] = ' '.join([ln_f, ln_r])	
+			
+	for txt in lnd.keys():
+		longname	 = lnd[txt]
+		lnd[longname]	 = longname
+		lnd[txt.lower()] = longname
+		lnd[txt.upper()] = longname
+		lnd[txt.title()] = longname	
+	return lnd
 
-longNameDict = makeLongNameDict()
+#longNameDict = makeLongNameDict()
+longNameDict = parseLongNames()
 
 def getLongName(text,debug=False):
 

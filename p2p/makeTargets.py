@@ -49,7 +49,7 @@ from shelve import open as shOpen
 from calendar import month_name
 
 import UKESMpython as ukp
-from bgcvaltools.pftnames import AutoVivification,getLongName
+from bgcvaltools.pftnames import getLongName
 
 from bgcvaltools.StatsDiagram import TaylorDiagram, TargetDiagram,TaylorDiagramMulti
 from bgcvaltools.robust import TargetDiagram as robustTargetDiagram #, TargetDiagram,TaylorDiagramMulti
@@ -134,7 +134,7 @@ class makeTargets:
 
 
   def loadShelves(self,):
-  	self.data = AutoVivification()
+  	self.data = ukp.AutoVivification()
   	
   	for sh in self.matchedShelves:
   		print "loadShelves:\tINFO:\tLOADING:",sh
