@@ -49,7 +49,7 @@ from bgcvaltools.StatsDiagram import StatsDiagram
 from bgcvaltools.robust import StatsDiagram as robustStatsDiagram
 import bgcvaltools.unbiasedSymmetricMetrics as usm
 import UKESMpython as ukp 
-from bgcvaltools.pftnames import getLongName, fancyUnits,CMIP5models # getmt
+from bgcvaltools.pftnames import getLongName, fancyUnits # getmt
 from bgcvaltools.makeMask import makeMask
 from p2p.slicesDict import populateSlicesList, slicesDict
 

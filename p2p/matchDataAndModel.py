@@ -43,7 +43,6 @@ import numpy as np
 ######
 # local imports
 import UKESMpython as ukp 
-from bgcvaltools.pftnames import CMIP5models
 
 
 #####	
