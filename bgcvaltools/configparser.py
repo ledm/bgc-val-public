@@ -183,6 +183,37 @@ def parseFunction(Config,section,option):
 	
 	raise AssertionError("parseFunction:\tNot able to load the function. From custom functions, try using filepath(no .py):function in your config file.")		
 		
+def parseRegions(Config,section,option):
+	"""
+	This tool loads a list of regions, which are later provided to the makeMask.py code.
+	The regions can be from the defaults in makeMask, or a custom region defined in a standalone python file.
+	To load a custom regional map from a specified file, use the following format in your .ini file:
+	relative/path/to/file.py:regionmask
+	where the "regionmask" is both the name of the regional mask and the custom function.
+	"""
+	Config = checkConfig(Config)
+	try:	functionname = Config.get(section, option)
+	except: 
+		print "No option ",option," in section: ",section
+		return ''
+	if functionname in std_masks.keys():
+		print "Standard Function Found:",functionname
+		return std_functions[functionname]
+
+	if functionname.find(':') > -1:		
+		[functionFileName,functionname] = functionname.split(':')
+		lst = functionFileName.replace('.py','').replace('/', '.').split('.')		
+		modulename =  '.'.join(lst)
+		
+		print "parseFunction:\tAttempting to load the function:",functionname, "from the:",modulename
+		mod = __import__(modulename, fromlist=[functionname,])
+		func = getattr(mod, functionname)
+		return func
+	
+	raise AssertionError("parseFunction:\tNot able to load the function. From custom functions, try using filepath(no .py):function in your config file.")		
+		
+
+
 
 						
 #currrently working on getting findReplaceFlags to work, so that I can add $NAME to image directories.
@@ -268,6 +299,12 @@ def parseCoordinates(Config,section,m_or_d='model'):
 	return coords
 
 
+def parseBoolean(Config, section, option, default= True):
+	"""
+	This tool parses a boolean, but returns the defult, if a boolean is not found. 
+	"""
+	try:	return Config.getboolean(section, option)
+	except:	return default
 
 def parseDetails(Config,section,m_or_d='model'):
 	"""
@@ -296,19 +333,48 @@ class GlobalSectionParser:
 	self.__fn__ = fn	
 
 	self.jobID = self.__cp__.get(defaultSection, 'jobID')
-	self.clean = self.__cp__.get(defaultSection, 'clean')
 	self.year  = self.__cp__.get(defaultSection, 'year')	
-	self.model = self.__cp__.get(defaultSection, 'model')	
-
+	self.model = self.__cp__.get(defaultSection, 'model')
+		
+	self.makeReport 	= parseBoolean(self.__cp__, defaultSection, 'makeReport',	default=True)	
+	self.makeProfiles 	= parseBoolean(self.__cp__, defaultSection, 'makeProfiles',	default=True)	
+	self.makeP2P 		= parseBoolean(self.__cp__, defaultSection, 'makeP2P',		default=True)	
+	self.makeTS	 	= parseBoolean(self.__cp__, defaultSection, 'makeTS',		default=True)	
+	self.clean 		= parseBoolean(self.__cp__, defaultSection, 'clean',		default=False)
+		
 	self.images_ts		= parseOptionOrDefault(self.__cp__, defaultSection, 'images_ts',  )
 	self.images_p2p 	= parseOptionOrDefault(self.__cp__, defaultSection, 'images_p2p', )
 	self.postproc_ts  	= parseOptionOrDefault(self.__cp__, defaultSection, 'postproc_ts',  )
 	self.postproc_p2p 	= parseOptionOrDefault(self.__cp__, defaultSection, 'postproc_p2p', )
 	self.reportdir 		= parseOptionOrDefault(self.__cp__, defaultSection, 'reportdir', )
 	self.gridFile 		= parseFilepath(self.__cp__, defaultSection, 'gridFile',  )#expecting1=True, optional=False)	
+	self.modelgrid		= parseOptionOrDefault(self.__cp__, defaultSection, 'modelgrid')		
 	self.ActiveKeys 	= linkActiveKeys(self.__cp__)
 				
-			
+  def __print__(self):
+	print "------------------------------------------------------------------"
+	print "GlobalSectionParser."
+	print "File:				", self.__fn__
+	print "model:				", self.model	
+	print "jobID:				", self.jobID
+	print "year:				", self.year	
+	print "makeTS:				", self.makeTS
+	print "makeP2P:				", self.makeP2P
+	print "makeProfiles:			", self.makeProfiles
+	print "makeReport:			", self.makeReport
+							
+	print "timeseries image folder:		", self.images_ts
+	print "P2P image folder:		", self.images_p2p	
+	print "timeseries postprocessed files:	", self.postproc_ts
+	print "p2p postprocessed files:		", self.postproc_p2p
+
+	print "grid File:			", self.gridFile	
+	print "model grid:			", self.modelgrid
+	print "ActiveKeys:			", self.ActiveKeys
+	
+	return''
+  def __repr__(self): return self.__print__()
+  def __str__( self): return self.__print__()				
   
   
   	

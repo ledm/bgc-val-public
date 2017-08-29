@@ -65,7 +65,8 @@ def analysis_skeleton(
 			configfile = 'runconfig.ini',
 			):
 
-
+	#####
+	# Load global level keys from the config file.
 	globalKeys =  GlobalSectionParser(configfile)
 	
 	for key in globalKeys.ActiveKeys:
@@ -75,31 +76,33 @@ def analysis_skeleton(
 			metricList = ['mean','median', '10pc','20pc','30pc','40pc','50pc','60pc','70pc','80pc','90pc','min','max']
 		else:	metricList = ['metricless',]	
 		
-                tsa = timeseriesAnalysis(
-                        modelFiles	= akp.modelFiles_ts,
-                        dataFile 	= akp.dataFile,
-                        jobID           = akp.jobID,
-                        dataType        = akp.name,
-                        workingDir      = akp.postproc_ts,
-                        imageDir        = akp.images_ts,
-                        metrics         = metricList,
-                        modelcoords     = akp.modelcoords,
-                        modeldetails    = akp.modeldetails,
-                        datacoords      = akp.datacoords,
-                        datadetails     = akp.datadetails,
-                        datasource      = akp.datasource,
-                        model           = akp.model,
-                        layers          = akp.layers,
-                        regions         = akp.regions,
-                        grid            = akp.modelgrid,
-                        gridFile        = akp.gridFile,
-                        clean           = akp.clean,
-                )
-               # assert 0
+		#####
+		# Time series plots		
+		if globalKeys.makeTS: 
+		        tsa = timeseriesAnalysis(
+		                modelFiles	= akp.modelFiles_ts,
+		                dataFile 	= akp.dataFile,
+		                jobID           = akp.jobID,
+		                dataType        = akp.name,
+		                workingDir      = akp.postproc_ts,
+		                imageDir        = akp.images_ts,
+		                metrics         = metricList,
+		                modelcoords     = akp.modelcoords,
+		                modeldetails    = akp.modeldetails,
+		                datacoords      = akp.datacoords,
+		                datadetails     = akp.datadetails,
+		                datasource      = akp.datasource,
+		                model           = akp.model,
+		                layers          = akp.layers,
+		                regions         = akp.regions,
+		                grid            = akp.modelgrid,
+		                gridFile        = akp.gridFile,
+		                clean           = akp.clean,
+		        )
 
 		#####
 		# Profile plots
-		if akp.dimensions == 3:
+		if globalKeys.makeProfiles and akp.dimensions == 3:
 			profa = profileAnalysis(
 				modelFiles 	= akp.modelFiles_ts,
 				dataFile	= akp.dataFile,
@@ -120,8 +123,10 @@ def analysis_skeleton(
 				metrics	 	= ['mean',],								
 				clean 		= akp.clean,
 			)
-		
-		if akp.dimensions not in  [1,]:
+			
+		#####
+		# Point to point plots		
+		if globalKeys.makeP2P and  akp.dimensions not in  [1,]:
 		    	testsuite_p2p(
 		                modelFile	= akp.modelFile_p2p,
 		                dataFile 	= akp.dataFile,    		
@@ -143,10 +148,15 @@ def analysis_skeleton(
 				noPlots		= False,	# turns off plot making to save space and compute time.
 				annual		= True,
 				noTargets	= True,
-		 	)	
-
-	html5MakerFromConfig(configfile)
-	
+		 	)
+	print globalKeys	 		
+	#####
+	# Make HTML Report
+	if globalKeys.makeReport:
+		assert 0
+		html5MakerFromConfig(configfile)
+	else:
+		print "Report maker  is switched Off. To turn it on, use the makeReport boolean flag in "
 
 def main():
 	analysis_skeleton()

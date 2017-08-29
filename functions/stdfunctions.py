@@ -122,7 +122,13 @@ std_functions['sum'] 			= sums
 std_functions['oxconvert'] 		= oxconvert
 std_functions['convertkgToM3'] 		= convertkgToM3
 
-
+#####
+# Add lower case, upper, Title, etc...
+for key in std_functions.keys():
+	func	 = std_functions[key]
+	std_functions[key.lower()] = func
+	std_functions[key.upper()] = func
+	std_functions[key.title()] = func	
 
 
 

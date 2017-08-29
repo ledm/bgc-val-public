@@ -43,34 +43,22 @@ package_directory = os.path.dirname(os.path.abspath(__file__))
 #	
 """
 regions 	= ['Surface','200m','100m','500m','1000m','Transect','All','',]
-
 MaredatTypes 	= ['chl','diatoms','bac','mesozoo','picophyto','microzoo']
-
 Ocean_names	= ['SouthPacificOcean',  'ArcticOcean',  'AntarcticOcean',
 			'NorthAtlanticOcean','SouthAtlanticOcean', 
 			'NorthPacificOcean','IndianOcean',
 			'EquatorialPacificOcean','EquatorialAtlanticOcean',]
-
 IFREMERTypes 	= ['mld','mld_DT02','mld_DR003','mld_DReqDTm02', ]
-
 WOATypes 	= ['silicate','nitrate','phosphate','salinity','temperature','oxygen']
-
 CMIP5models = [ 'MEDUSA','ERSEM','BNU-ESM', 'IPSL-CM5A-LR', 'CESM1-BGC', 'IPSL-CM5A-MR', 
 		'CMCC-CESM', 'IPSL-CM5B-LR', 'CNRM-CM5', 'MPI-ESM-LR', 
 		'GFDL-ESM2G', 'MPI-ESM-MR', 'GFDL-ESM2M', 'MRI-ESM1', 
 		'HadGEM2-CC', 'NorESM1-ME', 'HadGEM2-ES',]
-			
-
 TAKAHASHITypes 	= ['pCO2',]
-
 GEOTRACESTypes 	= ['iron',]
-
 BGCmodels 	= ['Diat-HadOCC', 'ERSEM','HadOCC', 'MEDUSA','PlankTOM6','PlankTOM10',]
-
 Seasons		= ['JFM','AMJ','JAS','OND'] 
-
 Hemispheres	= ['NorthHemisphere','SouthHemisphere',]
-
 months = [m for m in month_name if m]	# Because months starts at 1, and 0 is empty.
 OceanMonth_names = [o+m for o in Ocean_names for m in months]
 OceanSeason_names = [o+s for o in Ocean_names for s in Seasons]
@@ -82,8 +70,11 @@ NorthHemispheresMonths = [h+m for h in ['NorthHemisphere',] for m in months]
 	   
 		
 def parseLongNames():
+	# Creates a longname dictionary from a 
+	fn = package_directory+'/longnames.ini'
+	print "parseLongNames:\tloading long name dict:",fn
 	lnd = {}
-	config = checkConfig(package_directory+'/longnames.ini')
+	config = checkConfig(fn)
 	for section in config.sections():
 		options = config.options(section)
 		for option in options:lnd[option] = config.get(section, option)
