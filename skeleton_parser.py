@@ -55,7 +55,7 @@ from p2p.testsuite_p2p import testsuite_p2p_noAV as testsuite_p2p
 from bgcvaltools.dataset import dataset
 from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
 
-from makeReportConfig import html5MakerFromConfig
+from html5.makeReportConfig import html5MakerFromConfig
 
 
 

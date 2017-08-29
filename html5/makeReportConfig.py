@@ -176,7 +176,7 @@ def html5MakerFromConfig(
 	####
 	# Copy all necceasiry objects and templates to the report location:
 	print "Copying html and js assets to", reportdir
-	copytree(package_directory+'/html5/html5Assets', reportdir)
+	copytree(package_directory+'/html5Assets', reportdir)
 	indexhtmlfn 	= reportdir+"index.html"
 	try:os.rename(reportdir+'index-template.html', indexhtmlfn)
 	except: pass
