@@ -50,7 +50,7 @@ from bgcvaltools.robust import StatsDiagram as robustStatsDiagram
 import bgcvaltools.unbiasedSymmetricMetrics as usm
 import UKESMpython as ukp 
 from bgcvaltools.pftnames import getLongName, fancyUnits # getmt
-from bgcvaltools.makeMask import makeMask
+from regions.makeMask import makeMask,loadMaskMakers
 from p2p.slicesDict import populateSlicesList, slicesDict
 
 #from bgcvaltools.pftnames import MaredatTypes,IFREMERTypes,WOATypes,GEOTRACESTypes
@@ -117,6 +117,8 @@ class makePlots:
   	self.datacoords 	= datacoords
   	self.datadetails 	= datadetails
   	self.dpi 		= dpi
+  	
+  	self.maskingfunctions	= loadMaskMakers(regions = self.newSlices)
 	#self.mt = getmt()
 	#Models = [m.upper() for m in ['Diat-HadOCC', 'ERSEM','HadOCC', 'MEDUSA','PlankTOM6','PlankTOM10','NEMO','IMARNET','CMIP5',]] # skip these to find in situ data types.
 	#Models.extend(['IMARNET_' +m.upper() for m in ['Diat-HadOCC', 'ERSEM','HadOCC', 'MEDUSA','PlankTOM6','PlankTOM10','NEMO',]])	
@@ -317,19 +319,19 @@ class makePlots:
 	
 	if type(newSlice) in [type(['a',]),type(('a',))]:    	# newSlice is actaully a list of multiple slices.
 	   	for n in newSlice:
-	  		fullmask += makeMask(self.name,n,self.xt,self.xz,self.xy,self.xx,xd).astype(int)	  
-		  	fullmask += makeMask(self.name,n,self.yt,self.yz,self.yy,self.yx,yd).astype(int)	  
+	  		fullmask += makeMask(self.maskingfunctions,self.name,n,self.xt,self.xz,self.xy,self.xx,xd).astype(int)	  
+		  	fullmask += makeMask(self.maskingfunctions,self.name,n,self.yt,self.yz,self.yy,self.yx,yd).astype(int)	  
 		  	
 	elif newSlice == 'Standard':				# Standard is a shorthand for my favourite cuts.
 	  	for stanSlice in slicesDict['StandardCuts']: 
 			if self.name in ['tempSurface','tempTransect', 'tempAll'] and stanSlice in ['aboveZero',]:continue 
 				    						
-	  		fullmask += makeMask(self.name,stanSlice,self.xt,self.xz,self.xy,self.xx,xd).astype(int)
-	  	 	fullmask += makeMask(self.name,stanSlice,self.yt,self.yz,self.yy,self.yx,yd).astype(int)	
+	  		fullmask += makeMask(self.maskingfunctions,self.name,stanSlice,self.xt,self.xz,self.xy,self.xx,xd).astype(int)
+	  	 	fullmask += makeMask(self.maskingfunctions,self.name,stanSlice,self.yt,self.yz,self.yy,self.yx,yd).astype(int)	
 	  	 	
 	else:  	# newSlice is a simple slice.
-	  	fullmask += makeMask(self.name,newSlice,self.xt,self.xz,self.xy,self.xx,xd).astype(int)
-	  	fullmask += makeMask(self.name,newSlice,self.yt,self.yz,self.yy,self.yx,yd).astype(int)
+	  	fullmask += makeMask(self.maskingfunctions,self.name,newSlice,self.xt,self.xz,self.xy,self.xx,xd).astype(int)
+	  	fullmask += makeMask(self.maskingfunctions, self.name,newSlice,self.yt,self.yz,self.yy,self.yx,yd).astype(int)
 	  	print 'plotWithSlices:\t',fullmask.sum()
 
 	  

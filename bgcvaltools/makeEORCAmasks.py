@@ -35,7 +35,7 @@ import UKESMpython as ukp
 import numpy as np
 from changeNC import changeNC, AutoVivification
 #import paths
-from bgcvaltools.makeMask import makeMask
+from regions.makeMask import makeMask,loadMaskMakers
 from bgcvaltools.dataset import dataset
 
 """ 	This code makes a mask netcdf for the regions written below.
@@ -97,9 +97,13 @@ def makeMaskNC(outFile, regions, grid,gridfn=''):
 	######
 	# Calculate 1D mask
 	oneDmasks = {}	
+	maskingfunctions = loadMaskMakers(regions = regions)
 	for r in regions:
 		print 'Calculate 1D mask',r
-		mask = makeMask('mask name', r, 
+		mask = makeMask(
+					maskingfunctions,
+					'mask name', 
+					r, 
 	  				arr_t,
 	  				arr_z,
 	  				arr_lat,

@@ -96,7 +96,9 @@ def parseLongNames():
 		lnd[longname]	 = longname
 		lnd[txt.lower()] = longname
 		lnd[txt.upper()] = longname
-		lnd[txt.title()] = longname	
+		lnd[txt.title()] = longname
+		if len(txt)>1:	
+			lnd[txt[0].upper()+txt[1:]] = longname			
 	return lnd
 
 #longNameDict = makeLongNameDict()

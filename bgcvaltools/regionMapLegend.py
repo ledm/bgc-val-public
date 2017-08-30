@@ -38,7 +38,7 @@ from matplotlib import pyplot
 import cartopy.crs as ccrs
 from cartopy import img_transform, feature as cfeature	
 from bgcvaltools.pftnames import getLongName
-from bgcvaltools.makeMask import makeMask
+from regions.makeMask import makeMask,loadMaskMakers
 
 
 
@@ -223,8 +223,9 @@ def makeRegionMap(regionList):
 	####
 	# Calculate masks, based on lat/lon.
 	masks = {}
+	maskingfunctions = loadMaskMakers(regions = regionList)	
 	for r in regionList:
-		masks[r] = ~makeMask('',r, xt,xz,xy,xx,cbathy,debug=True)
+		masks[r] = ~makeMask(maskingfunctions,'',r, xt,xz,xy,xx,cbathy,debug=True)
 	
 	#####
 	# Turn mask into one field.

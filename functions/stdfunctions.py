@@ -128,8 +128,9 @@ for key in std_functions.keys():
 	func	 = std_functions[key]
 	std_functions[key.lower()] = func
 	std_functions[key.upper()] = func
-	std_functions[key.title()] = func	
-
+	std_functions[key.title()] = func
+	if len(key)>1:
+		std_functions[key[0].upper()+key[1:]] = func
 
 
 

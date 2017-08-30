@@ -31,7 +31,7 @@ import os
 import UKESMpython as ukp
 from convertToOneDNC import convertToOneDNC
 from bgcvaltools.dataset import dataset
-from bgcvaltools.makeMask import makeMask
+from regions.makeMask import loadMaskMakers, makeMask
 """
 .. module:: timeseriesTools
    :platform: Unix
@@ -184,6 +184,7 @@ class DataLoader:
 	if data == '': data = ukp.extractData(nc,self.details)
   	self.Fulldata 	= data
   	self.__lay__ 	= -999.
+  	self.maskingfunctions = loadMaskMakers(regions = self.regions )
 	self.run()
 	
   def run(self):
@@ -270,7 +271,9 @@ class DataLoader:
   	
   	self.createOneDDataArray(layer)
   	  	
-  	m = makeMask(self.details['name'],region, 
+  	m = makeMask(
+  				self.maskingfunctions,
+  				self.details['name'],region, 
   				self.oneDData['arr_t'],
   				self.oneDData['arr_z'],
   				self.oneDData['arr_lat'],

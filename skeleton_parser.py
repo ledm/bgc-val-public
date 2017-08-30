@@ -71,7 +71,6 @@ def analysis_skeleton(
 	
 	for key in globalKeys.ActiveKeys:
 		akp = AnalysisKeyParser(configfile, key, debug=True)
-	
 		if akp.dimensions in  [2, 3]:
 			metricList = ['mean','median', '10pc','20pc','30pc','40pc','50pc','60pc','70pc','80pc','90pc','min','max']
 		else:	metricList = ['metricless',]	
@@ -153,7 +152,6 @@ def analysis_skeleton(
 	#####
 	# Make HTML Report
 	if globalKeys.makeReport:
-		assert 0
 		html5MakerFromConfig(configfile)
 	else:
 		print "Report maker  is switched Off. To turn it on, use the makeReport boolean flag in "

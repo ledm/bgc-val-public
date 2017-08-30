@@ -183,40 +183,8 @@ def parseFunction(Config,section,option):
 	
 	raise AssertionError("parseFunction:\tNot able to load the function. From custom functions, try using filepath(no .py):function in your config file.")		
 		
-def parseRegions(Config,section,option):
-	"""
-	This tool loads a list of regions, which are later provided to the makeMask.py code.
-	The regions can be from the defaults in makeMask, or a custom region defined in a standalone python file.
-	To load a custom regional map from a specified file, use the following format in your .ini file:
-	relative/path/to/file.py:regionmask
-	where the "regionmask" is both the name of the regional mask and the custom function.
-	"""
-	Config = checkConfig(Config)
-	try:	functionname = Config.get(section, option)
-	except: 
-		print "No option ",option," in section: ",section
-		return ''
-	if functionname in std_masks.keys():
-		print "Standard Function Found:",functionname
-		return std_functions[functionname]
-
-	if functionname.find(':') > -1:		
-		[functionFileName,functionname] = functionname.split(':')
-		lst = functionFileName.replace('.py','').replace('/', '.').split('.')		
-		modulename =  '.'.join(lst)
-		
-		print "parseFunction:\tAttempting to load the function:",functionname, "from the:",modulename
-		mod = __import__(modulename, fromlist=[functionname,])
-		func = getattr(mod, functionname)
-		return func
-	
-	raise AssertionError("parseFunction:\tNot able to load the function. From custom functions, try using filepath(no .py):function in your config file.")		
-		
-
-
 
 						
-#currrently working on getting findReplaceFlags to work, so that I can add $NAME to image directories.
 def get_str(Config, section, option,debug=False):
 	Config = checkConfig(Config)	
 	try: return Config.get(section, option)
