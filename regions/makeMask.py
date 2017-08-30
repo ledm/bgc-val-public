@@ -478,14 +478,15 @@ def loadMaskMakersList(regions = []):
 		# The region requestion is a custom region, defined as:
 		# path/to/file/filename.py:region		
 		if region.find(':') > -1:
-			[functionFileName,region] = region.split(':')
+			[functionFileName,regionfunc] = region.split(':')
 			lst = functionFileName.replace('.py','').replace('/', '.').split('.')		
 			modulename =  '.'.join(lst)
 		
-			print "loadMaskMakers:\tAttempting to load the regional mask:",region, "from the:",modulename
-			mod = __import__(modulename, fromlist=[region,])
-			func = getattr(mod, region)
-			maskingfunctions[region] = func
+			print "loadMaskMakers:\tAttempting to load the regional mask:",regionfunc, "from the:",modulename
+			mod = __import__(modulename, fromlist=[regionfunc,])
+			func = getattr(mod, regionfunc)
+			maskingfunctions[regionfunc] = func
+			maskingfunctions[region] = func			
 	return maskingfunctions	
 	
 def loadMaskMakers(configfile = '', regions = []):

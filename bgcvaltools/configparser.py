@@ -136,8 +136,6 @@ def parseFilepath(Config,section, option,expecting1=True,optional=True):
 	return outputFiles
 
 	
-			
-
 def parseList(Config,section,option):
 	"""
 	This tool loads an string from config file and returns it as a list.
