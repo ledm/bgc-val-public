@@ -30,7 +30,7 @@
 """
 
 import os
-from bgcvaltools.pftnames import getLongName
+from longnames.pftnames import getLongName
 
 package_directory = os.path.dirname(os.path.abspath(__file__))
 

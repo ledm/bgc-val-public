@@ -49,7 +49,7 @@ from shelve import open as shOpen
 from calendar import month_name
 
 import UKESMpython as ukp
-from bgcvaltools.pftnames import getLongName
+from longnames.pftnames import getLongName
 
 from bgcvaltools.StatsDiagram import TaylorDiagram, TargetDiagram,TaylorDiagramMulti
 from bgcvaltools.robust import TargetDiagram as robustTargetDiagram #, TargetDiagram,TaylorDiagramMulti

@@ -357,7 +357,11 @@ class AnalysisKeyParser:
 	section = key
 	self.jobID		= parseOptionOrDefault(self.__cp__, section, 'jobID')
 	self.year		= parseOptionOrDefault(self.__cp__, section, 'year')	
-	self.clean		= parseOptionOrDefault(self.__cp__, section, 'clean',parsetype='bool')
+
+	self.clean		= parseOptionOrDefault(self.__cp__, section, 'clean',		parsetype='bool')
+	self.makeProfiles 	= parseOptionOrDefault(self.__cp__, section, 'makeProfiles',	parsetype='bool')	
+	self.makeP2P 		= parseOptionOrDefault(self.__cp__, section, 'makeP2P',		parsetype='bool')	
+	self.makeTS	 	= parseOptionOrDefault(self.__cp__, section, 'makeTS',		parsetype='bool')
 	
 	self.name		= self.__cp__.get(section, 'name')	
 	self.units		= self.__cp__.get(section, 'units')		
@@ -400,7 +404,10 @@ class AnalysisKeyParser:
 	print "File:		", self.__fn__
 	print "jobID:		", self.jobID
 	print "clean:		", self.clean
-		
+	print "makeProfiles:	", self.makeProfiles
+	print "makeP2P:		", self.makeP2P
+	print "makeTS:		", self.makeTS
+					
 	print "timeseries image folder:		", self.images_ts
 	print "P2P image folder:		", self.images_p2p	
 	print "timeseries postprocessed files:	", self.postproc_ts

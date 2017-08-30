@@ -37,7 +37,7 @@ import UKESMpython as ukp
 from matplotlib import pyplot
 import cartopy.crs as ccrs
 from cartopy import img_transform, feature as cfeature	
-from bgcvaltools.pftnames import getLongName
+from longnames.pftnames import getLongName
 from regions.makeMask import makeMask,loadMaskMakers
 
 

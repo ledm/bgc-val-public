@@ -49,11 +49,11 @@ from bgcvaltools.StatsDiagram import StatsDiagram
 from bgcvaltools.robust import StatsDiagram as robustStatsDiagram
 import bgcvaltools.unbiasedSymmetricMetrics as usm
 import UKESMpython as ukp 
-from bgcvaltools.pftnames import getLongName, fancyUnits # getmt
+from longnames.pftnames import getLongName, fancyUnits # getmt
 from regions.makeMask import makeMask,loadMaskMakers
 from p2p.slicesDict import populateSlicesList, slicesDict
 
-#from bgcvaltools.pftnames import MaredatTypes,IFREMERTypes,WOATypes,GEOTRACESTypes
+#from longnames.pftnames import MaredatTypes,IFREMERTypes,WOATypes,GEOTRACESTypes
 
 #import seaborn as sb
     
@@ -71,7 +71,7 @@ noXYLogs 	= [ 'pCO2',
 		'tempSurface',		'tempAll',	'tempTransect',	'temp100m',	'temp200m','temp1000m',	'temp500m',
 		'salSurface', 		'salAll',	'salTransect',	'sal100m',	'sal200m','sal1000m',	'sal500m',]
 		
-transectSlices = ['All','Global',]
+#transectSlices = ['All','Global',]
 
 class makePlots:
   def __init__(self,matchedDataFile,
@@ -199,7 +199,7 @@ class makePlots:
 
 	print "plotWithSlices:\txkeys:", xkeys,'\tykeys:', ykeys
 	if [{}] in [xkeys, ykeys]:
-		print "plotWithSlices:\tERROR\t This data type  is not defined in pftnames.py getmt()"
+		print "plotWithSlices:\tERROR\t This data type  is not defined in pftnames.py"
 		print "plotWithSlices:\tx:\t['"+self.xtype+"'\t]['"+self.name+"'] = ",  xkeys
 		print "plotWithSlices:\ty:\t['"+self.ytype+"'\t]['"+self.name+"'] = ",  ykeys	
 		assert False
@@ -230,20 +230,23 @@ class makePlots:
 		
 		#####
 		# Don't make Plots for transects with two spacial cuts.
-		if self.depthLevel.lower().find('transect') >-1 and newSlice not in transectSlices: continue
+		#if self.depthLevel.lower().find('transect') >-1 and newSlice not in transectSlices: continue
 			
 		#####
 		# Does the image exist?	
 		filename = self.getFileName(newSlice,xk,yk)
 		if ukp.shouldIMakeFile([self.xfn,self.yfn],filename,debug=False):
 			plotsToMake+=1
-		
+		else:
+			print "No need to make: ",filename
+			
 		#####
 		#Does the shelve file exist?		
 		shelveName = self.shelveDir +self.name+'_'+ns+'_'+xk+'vs'+yk+'.shelve'
 		if ukp.shouldIMakeFile([self.xfn,self.yfn],shelveName,debug=False):
 			plotsToMake+=1
-			
+		else:
+			print "No need to make: ",shelveName			
 		#####
 		# Make a list of shelve meta data, to aid post processing.
 		she = ukp.shelveMetadata(model=self.model,
@@ -284,7 +287,7 @@ class makePlots:
 
 	    #####
 	    # Don't make Plots for transects with two spacial cuts.
-	    if self.depthLevel.lower().find('transect') >-1 and newSlice not in transectSlices: continue	
+	    #if self.depthLevel.lower().find('transect') >-1 and newSlice not in transectSlices: continue	
 	    
 	    for xkey,ykey in product(xkeys,ykeys):
 	    	print "plotWithSlices:\t", newSlice, xkey,ykey
@@ -432,7 +435,8 @@ class makePlots:
 				doLog=True
 			print "plotWithSlices:\tROBIN QUAD:",[ti1,ti2],False,dmin,dmax
 			ukp.robinPlotQuad(nmxx, nmxy, 
-					datax,datay,
+					datax,
+					datay,
 					robfnquad,
 					titles=[ti1,ti2],
 					title  = ' '.join([getLongName(newSlice),getLongName(self.name),getLongName(self.depthLevel),self.year]),
@@ -456,7 +460,8 @@ class makePlots:
 			print "plotWithSlices:\tROBIN QUAD:",[ti1,ti2],False,dmin,dmax
 			try:
 				ukp.robinPlotQuad(nmxx, nmxy, 
-					datax,datay,
+					datax,
+					datay,
 					robfncartopy,
 					titles=[ti1,ti2],
 					title  = ' '.join([getLongName(self.name),getLongName(self.depthLevel),self.year]),
@@ -480,7 +485,8 @@ class makePlots:
 			print "plotWithSlices:\ttransect quad:",[ti1,ti2],False,dmin,dmax
 			if self.depthLevel in ['ArcTransect','AntTransect','CanRusTransect',]:
 				ukp.ArcticTransectPlotQuad(nmxx,nmxy, nmxz, 
-					datax,datay,
+					datax,
+					datay,
 					transectquadfn,
 					titles=[ti1,ti2],
 					title  = ' '.join([getLongName(self.name),getLongName(self.depthLevel),self.year]),
@@ -488,13 +494,14 @@ class makePlots:
 					doLog=doLog,
 					vmin=dmin,
 					vmax=dmax,
-					scatter = False,
-					logy=True,
-					transectName  = self.depthLevel,
+					scatter 	= False,
+					logy		= True,
+					transectName  	= self.depthLevel,
 					)			
 			else:
 				ukp.HovPlotQuad(nmxx,nmxy, nmxz, 
-					datax,datay,
+					datax,
+					datay,
 					transectquadfn,
 					titles=[ti1,ti2],
 					title  = ' '.join([getLongName(self.name),getLongName(self.depthLevel),self.year]),
@@ -629,7 +636,7 @@ class makePlots:
   	for xkey,ykey in zip(xcoords,ycoords):
 	    	if xkey not in self.xnc.variables.keys():continue  	    
 	    	if ykey not in self.ync.variables.keys():continue
-		filename = self.imageDir+'CompareCoords'+self.name+xkey+'vs'+ykey+'.png'	    	
+		filename = ukp.folder(self.imageDir+'CompareCoords')+'CompareCoords'+self.name+self.depthLevel+xkey+'vs'+ykey+'.png'	    	
 		if not ukp.shouldIMakeFile([self.xfn,self.yfn],filename,debug=False):continue
 		print "CompareCoords:\tx:",xkey, "\ty:",ykey
 		if xkey not in self.xnc.variables.keys():
@@ -689,19 +696,19 @@ class makePlots:
 
 	file_suffix = '_'+self.xtype+'_'+self.year+'.png'
 	
-	for dictkey,dictlist in slicesDict.items():
-		if dictkey=='AllSlices':continue
-		if newSlice not in dictlist: continue
-		if type(newSlice) in [type(['a','b',]),type(('a','b',))]: 
-			newSlice = list(newSlice)
-			for i,n in enumerate(newSlice):
-			   if n in slicesDict['Months']:
-			   	newSlice[i] = ukp.mnStr(self.months[n]+1)+n
-			newSlice = ''.join(newSlice)			
-		if newSlice in slicesDict['Months']:
-			 newSlice = ukp.mnStr(self.months[newSlice]+1)+newSlice	
-		if dictkey == 'Default': dictkey=''
-		filename = ukp.folder([file_prefix,dictkey])+self.name+self.depthLevel+'_'+newSlice+'_'+xkey+'vs'+ykey+file_suffix
+	#for dictkey,dictlist in slicesDict.items():
+	#	if dictkey=='AllSlices':continue
+	#	if newSlice not in dictlist: continue
+	#	if type(newSlice) in [type(['a','b',]),type(('a','b',))]: 
+	#		newSlice = list(newSlice)
+	#		for i,n in enumerate(newSlice):
+	#		   if n in slicesDict['Months']:
+	#		   	newSlice[i] = ukp.mnStr(self.months[n]+1)+n
+	#		newSlice = ''.join(newSlice)			
+	#	if newSlice in slicesDict['Months']:
+	#		 newSlice = ukp.mnStr(self.months[newSlice]+1)+newSlice	
+	#	if dictkey == 'Default': dictkey=''
+	filename = ukp.folder([file_prefix])+self.name+self.depthLevel+'_'+newSlice+'_'+xkey+'vs'+ykey+file_suffix
 
 	return filename
 

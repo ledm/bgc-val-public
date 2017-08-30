@@ -930,7 +930,7 @@ def ArcticTransectPlotQuad(lons,lats, depths,
 		titles=['',''],title='',
 		lon0=0.,marble=False,drawCbar=True,cbarlabel='',doLog=False,scatter=True,dpi=100,vmin='',vmax='',
 		logy = False,
-		maskSurface=True,
+		maskSurface=False,
 		transectName  = 'ArcTransect',
 		):#,**kwargs):
 	"""
@@ -943,9 +943,7 @@ def ArcticTransectPlotQuad(lons,lats, depths,
 	(data 1, data 2, difference and quotient), then saves the figure.
 	This only applies to the Arctic Transect plot
 	"""
-	
-	fig = pyplot.figure()
-	fig.set_size_inches(10,6)
+
 	depths = np.array(depths)
 	if depths.max() * depths.min() >0. and depths.max()  >0.: depths = -depths
 	
@@ -970,9 +968,14 @@ def ArcticTransectPlotQuad(lons,lats, depths,
 	if maskSurface:
 		data1 = np.ma.masked_where(depths>-10.,data1)
 		data2 = np.ma.masked_where(depths>-10.,data2)
-						
+		
+	if 0 in [len(data1),len(data2)]:
+		return
+		
 	doLog, vmin,vmax = determineLimsFromData(data1,data2)
-			
+	
+	fig = pyplot.figure()
+	fig.set_size_inches(10,6)			
 	axs,bms,cbs,ims = [],[],[],[]
 	doLogs = [doLog,doLog,False,True]
 	print "ArcticTransectPlotQuad:\t",len(depths),len(lats),len(data1),len(data2)
@@ -1460,15 +1463,18 @@ def round_sig(x, sig=2):
 	
 	rounds a value to a specific number of significant figures.
 	"""
-	if x ==0.:	return 0.
-	if x<0.:	return -1.* round(abs(x), sig-int(math.floor(math.log10(abs(x))))-1)	
-	else: 		return      round(x, sig-int(math.floor(math.log10(x)))-1)
+	if np.isnan(x): return "NaN"
+	if np.isinf(x): return "Inf"	
+	if x == 0. :	return 0.
+	if x <  0. :	return -1.* round(abs(x), sig-int(math.floor(math.log10(abs(x))))-1)	
+	if x >  0. :	return      round(x, sig-int(math.floor(math.log10(x)))-1)
 
 	
 def addStraightLineFit(ax, x,y,showtext=True, addOneToOne=False,extent = [0,0,0,0]):
 	"""
 	Adds a straight line fit to an axis.
 	"""
+	if 0 in [len(x), len(y)]: return
 	def getLinRegText(ax, x, y, showtext=True):
 		x = [a for a in x if (a is np.ma.masked)==False]
 		y = [a for a in y if (a is np.ma.masked)==False]

@@ -30,7 +30,7 @@ from string import ascii_lowercase
 from re import findall
 import os
 #Specific local code:
-#from bgcvaltools.pftnames import pftnames as pn
+#from longnames.pftnames import pftnames as pn
 from UKESMpython import folder,getFileList
 
 

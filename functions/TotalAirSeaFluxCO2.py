@@ -1,6 +1,3 @@
-
-#!/usr/bin/ipython
-
 #
 # Copyright 2015, Plymouth Marine Laboratory
 #

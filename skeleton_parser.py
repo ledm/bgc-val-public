@@ -50,7 +50,7 @@ from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesTools as tst
 
-from p2p.testsuite_p2p import testsuite_p2p_noAV as testsuite_p2p
+from p2p.testsuite_p2p import testsuite_p2p
 
 from bgcvaltools.dataset import dataset
 from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
@@ -77,7 +77,7 @@ def analysis_skeleton(
 		
 		#####
 		# Time series plots		
-		if globalKeys.makeTS: 
+		if akp.makeTS: 
 		        tsa = timeseriesAnalysis(
 		                modelFiles	= akp.modelFiles_ts,
 		                dataFile 	= akp.dataFile,
@@ -101,7 +101,7 @@ def analysis_skeleton(
 
 		#####
 		# Profile plots
-		if globalKeys.makeProfiles and akp.dimensions == 3:
+		if akp.makeProfiles and akp.dimensions == 3:
 			profa = profileAnalysis(
 				modelFiles 	= akp.modelFiles_ts,
 				dataFile	= akp.dataFile,
@@ -125,7 +125,8 @@ def analysis_skeleton(
 			
 		#####
 		# Point to point plots		
-		if globalKeys.makeP2P and  akp.dimensions not in  [1,]:
+		if akp.makeP2P and  akp.dimensions not in  [1,]:
+		
 		    	testsuite_p2p(
 		                modelFile	= akp.modelFile_p2p,
 		                dataFile 	= akp.dataFile,    		

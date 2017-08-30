@@ -39,7 +39,7 @@ import shutil
 # Load specific local code:
 from UKESMpython import folder, shouldIMakeFile,round_sig
 from html5 import html5Tools, htmltables
-from bgcvaltools.pftnames import getLongName
+from longnames.pftnames import getLongName
 
 from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
 
@@ -91,7 +91,7 @@ def addSections(
 		reportdir,
 		key):
 
-	akp = AnalysisKeyParser(configfn, key, debug=True)	
+	akp = AnalysisKeyParser(configfn, key, debug=False)	
 	
 	#####
 	# href is the name used for the html 
@@ -127,9 +127,21 @@ def addSections(
 		# Determine the list of files:
 		vfiles = []
 	
-		vfiles.extend(glob(akp.images_ts+'/*'+region+'*.png'))
-		vfiles.extend(glob(akp.images_p2p+'/*/*'+region+'*.png'))
-		
+		if akp.makeTS:	
+			files = {}
+			for layer in akp.layers:		
+				files.update({f:1 for f in glob(akp.images_ts +'/*'+region+'*'+layer+'*.png')})
+				files.update({f:1 for f in glob(akp.images_ts +'/*'+layer+'*'+region+'*.png')})
+				
+			vfiles.extend(sorted(files.keys()))
+			
+		if akp.makeP2P:
+			files = {}
+			for layer in akp.layers:		
+				files.update({f:1 for f in glob(akp.images_p2p +'/*'+region+'*'+layer+'*.png')})
+				files.update({f:1 for f in glob(akp.images_p2p +'/*'+layer+'*'+region+'*.png')})
+			vfiles.extend(sorted(files.keys()))
+					
 		#####
 		# Create plot headers for each file.
 		for fn in vfiles:

@@ -129,8 +129,8 @@ class matchDataAndModel:
 	print "matchDataAndModel:\tINFO:\tGrid:  \t",grid			
 	print "matchDataAndModel:\tINFO:\tGrid File:  \t",gridFile
 	
-	self.matchedShelve 	= ukp.folder(self.workingDir)+self.model+'-'+self.jobID+'_'+self.year+'_'+'_'+self.dataType+'_'+self.depthLevel+'_matched.shelve'
-	self.matchesShelve 	= ukp.folder(self.workingDir)+self.model+'-'+self.jobID+'_'+self.year+'_'+'_'+self.dataType+'_'+self.depthLevel+'_matches.shelve'
+	self.matchedShelve 	= ukp.folder(self.workingDir)+self.model+'-'+self.jobID+'_'+self.year+'_'+self.dataType+'_'+self.depthLevel+'_matched.shelve'
+	self.matchesShelve 	= ukp.folder(self.workingDir)+self.model+'-'+self.jobID+'_'+self.year+'_'+self.dataType+'_'+self.depthLevel+'_matches.shelve'
 	
 	self.workingDirTmp = 	ukp.folder(self.workingDir+'tmp')
 	self.DataFilePruned=	self.workingDirTmp+'Data_' +self.dataType+'_'+self.depthLevel+'_'+self.model+'-'+self.jobID+'-'+self.year+'_pruned.nc'
@@ -233,7 +233,6 @@ class matchDataAndModel:
 		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along longitude direction.'		
 		if self.depthLevel == 'Transect':	x = -28.
 		if self.depthLevel == 'PTransect': 	x = 200.
-
 		if nc.variables[self.datacoords['lon']].ndim ==1:						
 			k =  ukp.getclosestlon(x,nc.variables[self.datacoords['lon']][:],debug=True)
 			if mmask.ndim == 4:	mmask[:,:,:,k] = 0

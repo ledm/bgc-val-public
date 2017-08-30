@@ -123,11 +123,14 @@ def makeMaskNC(outFile, regions, grid,gridfn=''):
 	plotting = 1
 	if plotting:
 		from matplotlib import pyplot
-		for r in regions:	
+		for r in regions:
+		     	
 			pyplot.pcolormesh(threeDmasks[r].sum(0),cmap='jet')
 			pyplot.colorbar()
-			pyplot.savefig('images/mask_'+r+'.png' )
-			print "Saved", r, 'map image'
+			try:
+				pyplot.savefig('images/mask_'+r+'.png' )
+				print "Saved", r, 'map image'
+			except: pass
 			pyplot.close()
 
 	av = AutoVivification()

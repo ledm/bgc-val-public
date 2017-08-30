@@ -48,7 +48,7 @@ import UKESMpython as ukp
 from p2p import makePatternStatsPlots, testsuite_p2p
 from p2p.summaryTargets import summaryTargets
 from p2p.patternAnalyses import InterAnnualPatterns,BGCvsPhysics
-from bgcvaltools.pftnames import months
+from longnames.pftnames import months
 from p2p.shelveToDictionary import shelveToDictionary
 
 #####

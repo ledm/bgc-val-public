@@ -39,7 +39,7 @@ import shutil
 # Load specific local code:
 from UKESMpython import folder, shouldIMakeFile,round_sig
 from html5 import html5Tools, htmltables
-from bgcvaltools.pftnames import getLongName
+from longnames.pftnames import getLongName
 from timeseries.analysis_level0 import analysis_level0,analysis_level0_insitu
 
 from paths import imagedir
