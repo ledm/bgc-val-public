@@ -195,7 +195,7 @@ Note that:
   For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses. 
   More details below in the [Global Section](#Global_Section_of_the_runconfig.ini) section.
   
-* The operations in the `data_convert` and `model_convert` options can be any of the operations in bgc-val-public/functions.py
+* The operations in the `data_convert` and `model_convert` options can be any of the operations in `bgc-val-public/stdfunctions.py`
   or they can be taken from a localfuntion in the localfunction directory. More details below in the [Functions](#Functions) section.
 
 * Layers can be selected from a small list of specific depths, such as `Surface`, `100m`, `500m`, `All` etc... Or from a specific list of 
@@ -282,11 +282,33 @@ dataFile         :
 ```
 
 
-#
+
 
 # Functions
 
+The `data_convert` and `model_convert` options in the analysis section of the `runconfig.ini` file are used 
+to give apply a python function to the data as it is loaded. 
 
+Typically, this is a quick way to convert the model or data so that they use the same units.
+With this is mind, most of the standard functions are basic convertions such as 
+* multiply by 100.
+* Divide by 1000
+* Add multple fields together
+* Or simply do nothing, just load one field as is.
+
+
+However, more complex functions can also be applied, for instance:
+* Depth integtation
+* Global Total sum
+* Flux through a certain cross section.
+
+
+
+The operations in the `data_convert` and `model_convert` options can be any of the operations in `bgc-val-public/stdfunctions.py`.
+They can be also taken from a localfuntion in the localfunction directory. More details below in the [Functions](#Functions) section.
+
+These functions take the netcdf as a dataset object. 
+The dataset class defined in bgcvaltools/dataset.py and based on netCDF4.Dataset with added functionaility. 
 
 
 
@@ -325,9 +347,10 @@ Each regional masking function has access to the following fields:
 * xd: A one-dimensional array of the data.
 
 
-Also note that is is possible stack masks, by adding the masks together. 
+It is possible stack masks, simply by adding the masks together. 
 For instance, the masking function here excludes all
 data outside the equatorial region and below 200m depth.
+
 ```python
 from regions.makeMask import Shallow, Equator10
 def ShallowEquator(name,newSlice, xt,xz,xy,xx,xd,debug=False):
@@ -336,6 +359,7 @@ def ShallowEquator(name,newSlice, xt,xz,xy,xx,xd,debug=False):
 	newmask += Equator10(name,newSlice, xt,xz,xy,xx,xd)	
  	return newmask	
 ```
+
 However, more complex masking is also possible, for instance in the file `regions/maskOnShelf.py`
 which loads a bathymetry file and masks all points in water columns shallower than 500m.
 
