@@ -35,10 +35,12 @@ To use this code, the following python packages are required:
 * Cartopy 
 * https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/netcdf_manip
 
-Most of these packages can be installed with the command :
+Most of these packages can be installed with the command:
 
+```bash
  	pip install --user packagename
- 	
+```
+	
 Please note that cartopy can be difficult to install, with many requirements: such as geos, geos-python, geos-devel, proj4, cython etc… (http://scitools.org.uk/cartopy/)
 
 ## Installation
@@ -51,8 +53,9 @@ Note that the package name here is subject to change, and that you should check 
 
 In the local copy, use the following pip command to make a local installation of this package:
 
+```bash
 	pip install -e . --user
-
+```
 
 ## Running
 
@@ -70,9 +73,9 @@ The run config file contains all information, flags, paths and settings needed t
 
 Note that config files use the following convention:
 ```ini
-	[Section]
-	option : value
-	; comment
+[Section]
+option : value
+; comment
 ```
 
 When loading the config file into python's module `ConfigParser`, beware that:
@@ -84,6 +87,23 @@ When loading the config file into python's module `ConfigParser`, beware that:
 
 The parser expects an `[ActiveKeys]` section, a `[Global]` section,
 and a section for each key in `[ActiveKeys]`.
+
+#### Active Keys
+
+The `[ActiveKeys]` section contains the boolean switches that activate the analysis sections described elsewhere in the `runconfig.ini` file.
+The order of the active keys here determines the order that the analysis runs and also the order each field appears in the final html report.
+Keys are switched on by being set to `True` and are switched off by being set to `False` or being commented out with a leading ';'.
+
+Each live key in the `[ActiveKeys]` section requires another section with the same name in `runconfig.ini`. ie:
+```ini
+[ActiveKeys]
+Chlorophyll : True
+[Chlorophyll]
+...
+```
+
+
+#### Global Section
 
 The values used in `[Global]` for jobID, year, model can be put into paths using `$JOBID`, `$YEAR` or `$MODEL`.
 Similarly, `$NAME` can be used as a stand in for the name option for of each analysis. 
