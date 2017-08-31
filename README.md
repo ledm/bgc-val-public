@@ -152,21 +152,85 @@ regions 	: Global 		; The regional cuts to make.
 Note that:
 * Many of these fields can be defined in the `[Global]` section, and ommited here, as long as they are the same between all the analyses.
   For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses. 
+  More details below in the [Global Section](#Global_Section_of_the_runconfig.ini) section.
   
 * The operations in the `data_convert` and `model_convert` options can be any of the operations in bgc-val-public/functions
-  or they can be taken from a localfuntion in the localfunction directory. More details below in [create an anchor](#Functions) section.
+  or they can be taken from a localfuntion in the localfunction directory. More details below in the [Functions](#Functions) section.
 
 * Layers
+
 * Regions
 
-#### Global Section
 
-The values used in `[Global]` for jobID, year, model can be put into paths using `$JOBID`, `$YEAR` or `$MODEL`.
+
+
+
+#### Global Section of the runconfig.ini
+
+The `[Global]` section of the `runconfig.ini` file contains the global flags and the default settings for each field.
+
+For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses, so it can safely
+be set in the `[Global]` section and ommited elsewhere. 
+
+Some values can not be set in the `[Global]`, for instance the `name`, `data_vars` and `model_vars`, `data_convert` and `model_convert` fields. 
+
+The values used in `[Global]` for `jobID`, `year`, `model` can be put into paths using `$JOBID`, `$YEAR` or `$MODEL`.
 Similarly, `$NAME` can be used as a stand in for the name option for of each analysis. 
 
+The following is an typical `[Global]` section:
 
+```ini
+[Global]
 
+jobID		: u-am927		; Unique run/simulation/job identifier
+year		: 2055			; Year to look at for p2p.
+model		: MEDUSA		; model name
 
+; -------------------------------
+; Boolean flags
+clean		: False ;			; Boolean flag to make a run from scratch.
+makeTS		: True ;			; Boolean flag to make the time series plots.
+makeProfiles	: True ;			; Boolean flag to make the 3D profile.
+makeP2P		: True ;			; Boolean flag to make the P2P plots.
+makeReport	: True ; 			; Boolean flag to make the report.
+
+; -------------------------------
+; Output Images folders
+images_ts	: images/$JOBID/timeseries/$NAME
+images_p2p	: images/$JOBID/p2p/$MODEL-$YEAR/$NAME
+
+; -------------------------------
+; Working directories
+postproc_ts	: workingdir/$JOBID/timeseries
+postproc_p2p	: workingdir/$JOBID/p2p/$MODEL-$NAME-$YEAR
+
+; -------------------------------
+; location to put the html report 
+reportdir	: reports/$JOBID
+
+; -------------------------------
+; These are the default model coordinates
+model_t		: time_centered		; model time dimension
+model_cal	: 360_day		; model calendar
+model_z		: deptht		; model depth dimension
+model_lat	: nav_lat		; model latitude dimension 
+model_lon	: nav_lon		; model latitude dimension 
+
+; -------------------------------
+; Default model grid file
+modelgrid	: eORCA1		; model grid name
+gridFile	: /data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc	; grid file
+
+; -------------------------------
+; The default data details. (empty)
+data_t		: 
+data_cal	: 
+data_z		: 
+data_lat	: 
+data_lon	: 
+data_tdict	: 
+dataFile	: 
+```
 
 ## Regions
 
