@@ -27,7 +27,7 @@ This package utilises:
 
 # Requirements
 
-To use this code, the following python packages are required:
+To use this package, the following python packages are required:
 * matplotlib
 * netCDF4
 * numpy 
@@ -77,7 +77,11 @@ The command to  run the evaluation is:
 ```
 `run.py` is a simple wrapper which calls the script, [analysis_parser.py](#Analysis_Parser), and passes it the path to the [runconfig.ini](#Run_Config_Initialisation_File) file.
 
-
+Using default settings, this will produce a workingdir directory, an images directory, and a reports directory. 
+These three directories will hold:
+* workingdir: Post processed files for each of the analyses.
+* images: The .png image files that are produced.
+* reports: the html report which can be viewed using a web browser.
 
 ## Analysis Parser
 
