@@ -8,6 +8,41 @@ BGC-val has since expanded to become a generic tool for comparing model data aga
 The toolkit is 100% python, and is freely available, and distributed with the BSD 3 clause license, via our in-house gitlab server. Registration is required, via this link.
 
 
+The goal was to make the evaluation framework as generic as possible:
+* Model independent.
+* Grid independent.
+* Coordinate independent. 
+* Dataset independent.
+* Field independent.
+
+
+This package utilises:
+* python parallelization. 
+* Front-loading analysis function
+* Regular save points + shelve files.
+* Versioning in git (using gitlab)
+* Web visible html summary reports.
+
+
+
+## Requirements
+To use this code, the following packages are required:
+* Matplotlib
+* netCDF4
+* numpy 
+* scipy
+* Cartopy 
+* https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/netcdf_manip
+
+Most of these packages can be installed with the command :
+
+ 	pip install –e . --user
+ 	
+Please note that cartopy can be difficult to install, with many requirements: such as geos, geos-python, geos-devel, proj4, cython etc… (http://scitools.org.uk/cartopy/)
+
+
+
+## 
 
 
 
@@ -17,12 +52,7 @@ The toolkit is 100% python, and is freely available, and distributed with the BS
 
 
 
-
-
-
-
-
-README:
+## README:
 	BGC-val The Toolkit for
 	Marine Biogeochemical and physical ciruclationanalysis tools for earth 
 	The bulk of the tools were written for the ERSEM model, then subsequently patched for performing analsysis of MEDUSA (or other iMarNet Models).
