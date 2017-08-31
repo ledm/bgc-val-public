@@ -54,7 +54,14 @@ In the local copy, use the following pip command to make a local installation of
 	pip install -e . --user
 
 
-## 
+## Running:
+
+Once the package has been installed, make a copy of the bgc-val-public/run directory in your working directory.
+
+The run directory will contain:
+* run.py: The main script that runs the analysis.
+* runconfig.ini: The main configuration script that contains all information, flags, paths and settings needed to produce the analysis.
+* localfunctions directory: This directory is where you should put any custom analysis functions that you may want to use to load or manipuate your data.
 
 
 
