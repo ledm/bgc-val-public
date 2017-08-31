@@ -178,13 +178,12 @@ class DataLoader:
   	self.nc 	= nc
   	self.coords 	= coords
   	self.details 	= details
-  	self.regions 	= regions
   	self.layers 	= layers
   	self.name	= self.details['name']
 	if data == '': data = ukp.extractData(nc,self.details)
   	self.Fulldata 	= data
   	self.__lay__ 	= -999.
-  	self.maskingfunctions = loadMaskMakers(regions = self.regions )
+  	self.regions, self.maskingfunctions = loadMaskMakers(regions = regions )
 	self.run()
 	
   def run(self):

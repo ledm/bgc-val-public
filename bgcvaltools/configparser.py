@@ -80,7 +80,9 @@ def linkActiveKeys(Config,):
 	actives = []
 	for key in activeKeys:
 		#dict1[key] = sectionsdict[key.lower()]
-		actives.append(sectionsdict[key.lower()])
+		try:	actives.append(sectionsdict[key.lower()])
+		except:
+			raise AssertionError("configparser.py:\tThe \""+str(key)+"\" key in the activeKeys list does not have a corresponding [Section] in the config file.")
 	return actives		
 	#return dict1
 

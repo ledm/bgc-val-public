@@ -28,11 +28,16 @@
 
 """
 import numpy as np
+import os, inspect
 from calendar import month_name
+from glob import glob
 
 import UKESMpython as ukp
 from bgcvaltools.dataset import dataset
 from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
+
+package_directory = os.path.dirname(os.path.abspath(__file__))
+
 ####
 
 
@@ -397,34 +402,74 @@ std_maskers['Shallow'] 		= Shallow
 std_maskers['Deep'] 		= Deep
 
 # Times
-std_maskers['January'] 	= January
-std_maskers['February'] = February
-std_maskers['March'] 	= March
-std_maskers['April'] 	= April
-std_maskers['May'] 	= May
-std_maskers['June'] 	= June
-std_maskers['July'] 	= July
-std_maskers['August'] 	= August
-std_maskers['September'] = September
-std_maskers['October'] 	= October
-std_maskers['November'] = November
-std_maskers['December'] = December
-std_maskers['JFM'] 	= JFM
-std_maskers['AMJ'] 	= AMJ
-std_maskers['JAS'] 	= JAS
-std_maskers['OND'] 	= OND
-
-
+std_maskers['January'] 		= January
+std_maskers['February'] 	= February
+std_maskers['March'] 		= March
+std_maskers['April'] 		= April
+std_maskers['May'] 		= May
+std_maskers['June'] 		= June
+std_maskers['July'] 		= July
+std_maskers['August'] 		= August
+std_maskers['September']	= September
+std_maskers['October'] 		= October
+std_maskers['November'] 	= November
+std_maskers['December'] 	= December
+std_maskers['JFM'] 		= JFM
+std_maskers['AMJ'] 		= AMJ
+std_maskers['JAS'] 		= JAS
+std_maskers['OND'] 		= OND
 
 #####
 # Add lower case, upper, Title, etc...
-for key in std_maskers.keys():
-	func	 = std_maskers[key]
-	std_maskers[key.lower()] = func
-	std_maskers[key.upper()] = func
-	std_maskers[key.title()] = func	
-	if len(key)>1:
-		std_maskers[key[0].upper()+key[1:]] = func	
+std_maskers = ukp.altSpellingDict(std_maskers)
+
+
+def loadCustomMasks(debug=False):
+	"""
+	This function loads all the custom modules in the regions folder, and adds them to the std_maskers dict.
+	This means that users can add custom regional definitions to their runconfig.ini file, 
+	as long as the function name 
+	"""
+	outDict = {}
+	modules = {}
+	all_modules = {}
+	for functionFileName in glob(package_directory+'/*.py'):
+		#####
+		# Skip this file (don't load twice!) and skip __init__.py
+		if functionFileName == os.path.realpath(__file__):	continue
+		if functionFileName.find('__init__.py')>-1: 		continue
+
+		#####
+		# Determine the filename			
+		functionFileName = 'regions.'+os.path.basename(functionFileName)
+		lst = functionFileName.replace('.py','').replace('/', '.').split('.')		
+		modulename =  '.'.join(lst)
+		
+		#####
+		# Load the file as a module
+		if debug: print "\nmakeMask.py:\timporting ",modulename
+		modules[modulename] = __import__(modulename)
+
+		#####
+		# Look at the contents of the file
+		all_modules[modulename] = inspect.getmembers(modules[modulename], inspect.ismodule)
+		for (modname,mod) in all_modules[modulename]:
+			all_functions = inspect.getmembers(mod, inspect.isfunction)			
+			for (funcname,func) in all_functions:
+				if debug: print "Module:",modname," has the functions:", funcname
+				if funcname in std_maskers.keys(): 	print "loadCustomMasks:\tWARNING:\tOverwriting previous mask:",funcname
+				outDict[funcname] = func
+	if debug: print "Successfully added keys:",outDict.keys()
+	outDict = ukp.altSpellingDict(outDict)	
+	return outDict			
+
+std_maskers.update(loadCustomMasks())
+
+
+
+
+
+
 
 def loadMaskMakersConfig(configfile = ''):
 	#####
@@ -438,58 +483,51 @@ def loadMaskMakersConfig(configfile = ''):
 	#####
 	# Cast to dictionary to remove duplicates.
 	maskingfunctions = {region:'' for region in maskingfunctions}
-	
+
+	outRegions = []	
 	#####
 	# Create a dictionairy of the masking functions.
 	for region in maskingfunctions.keys():
 		#####
-		# The region requestion is one of the standard regions, defined above.
+		# The region requestion is one of the standard regions, defined above,
+		# or in another file in this folder.
 		if region in std_maskers.keys():
 			maskingfunctions[region] = std_maskers[region]
-			continue
+			outRegions.append(region)
+			#continue
+		else:
+			raise AssertionError("loadMaskMakersConfig:\tNot able to find this region name: "+str(region)+\
+					"\nIs the region function in the bgcval/region folder?"+\
+					"\nIs the filename the same as the function?")
 
-		#####
-		# The region requestion is a custom region, defined as:
-		# path/to/file/filename.py:region		
-		if region.find(':') > -1:
-			[functionFileName,region] = region.split(':')
-			lst = functionFileName.replace('.py','').replace('/', '.').split('.')		
-			modulename =  '.'.join(lst)
-		
-			print "loadMaskMakers:\tAttempting to load the regional mask:",region, "from the:",modulename
-			mod = __import__(modulename, fromlist=[region,])
-			func = getattr(mod, region)
-			maskingfunctions[region] = func
-	return maskingfunctions		
+	return outRegions, maskingfunctions		
 
 def loadMaskMakersList(regions = []):
-	
 	#####
 	# Create a dictionairy of the masking functions.
 	maskingfunctions = {}
+	outRegions = []
+	
 	for region in regions:
 		#####
-		# The region requestion is one of the standard regions, defined above.
+		# The region requestion is one of the standard regions, defined above,
+		# or in another file in this folder.
 		if region in std_maskers.keys():
 			maskingfunctions[region] = std_maskers[region]
-			continue
+			outRegions.append(region)
+		else:
+			raise AssertionError("loadMaskMakersConfig:\tNot able to find this region name: "+str(region)+\
+				"\n\t\tIs the region function in the bgcval/region folder?"+\
+				"\n\t\tIs the filename the same as the function name?")
+					
+	return outRegions, maskingfunctions	
 
-		#####
-		# The region requestion is a custom region, defined as:
-		# path/to/file/filename.py:region		
-		if region.find(':') > -1:
-			[functionFileName,regionfunc] = region.split(':')
-			lst = functionFileName.replace('.py','').replace('/', '.').split('.')		
-			modulename =  '.'.join(lst)
-		
-			print "loadMaskMakers:\tAttempting to load the regional mask:",regionfunc, "from the:",modulename
-			mod = __import__(modulename, fromlist=[regionfunc,])
-			func = getattr(mod, regionfunc)
-			maskingfunctions[regionfunc] = func
-			maskingfunctions[region] = func			
-	return maskingfunctions	
+
+
 	
 def loadMaskMakers(configfile = '', regions = []):
+	#####
+	# Create a dictionairy of the masking functions, either from a list of a config file.
 	print "loadMaskMakers:\tconfigfile", configfile,"\tregions:",regions, len(regions)
 	if len(regions) == 0:
 		return loadMaskMakersConfig(configfile = configfile)

@@ -223,7 +223,7 @@ def makeRegionMap(regionList):
 	####
 	# Calculate masks, based on lat/lon.
 	masks = {}
-	maskingfunctions = loadMaskMakers(regions = regionList)	
+	regionList, maskingfunctions = loadMaskMakers(regions = regionList)	
 	for r in regionList:
 		masks[r] = ~makeMask(maskingfunctions,'',r, xt,xz,xy,xx,cbathy,debug=True)
 	

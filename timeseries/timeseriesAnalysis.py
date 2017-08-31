@@ -39,6 +39,7 @@ import shutil
 import UKESMpython as ukp
 from longnames.pftnames import getLongName
 from bgcvaltools.dataset import dataset
+from regions.makeMask import loadMaskMakers
 import timeseriesTools as tst 
 import timeseriesPlots as tsp 
 #getTimes, loadData
@@ -99,7 +100,7 @@ class timeseriesAnalysis:
 		if strictFileCheck: assert 0
 			
 			
-	
+	regions, maskingfunctions = loadMaskMakers(regions = regions)
 	if debug: print "timeseriesAnalysis:\t init."	
 	self.modelFiles 	= modelFiles 		
 	self.dataFile		= dataFile
@@ -273,7 +274,7 @@ class timeseriesAnalysis:
 		    	#####
 		    	# can't skip it, need to load it.
 			layerdata = DL.load[(r,l)]
-			print "0 len(layerdata):",len(layerdata)
+			#print "0 len(layerdata):",len(layerdata)
 			#####
 			# get Weights:
 			volumeWeightedLayers = ['All', 'Transect']
@@ -296,7 +297,7 @@ class timeseriesAnalysis:
 			else:	weights = np.ones_like(layerdata)
 			
 			
-			print "1 len(layerdata):",len(layerdata),'\tlen(weights):', len(weights)
+			#print "1 len(layerdata):",len(layerdata),'\tlen(weights):', len(weights)
 			
 			if type(layerdata) == type(np.ma.array([1,-999,],mask=[False, True,])):
 				weights = np.ma.array(weights)
@@ -309,7 +310,7 @@ class timeseriesAnalysis:
 					print "1.b len(	layerdata)!= len(weights)", len(layerdata),'!=', len(weights)
 					assert 0				
 
-			print "2 len(layerdata):",len(layerdata),'\tlen(weights):', len(weights)
+			#print "2 len(layerdata):",len(layerdata),'\tlen(weights):', len(weights)
 							
 			if len(layerdata)==0:
 				for m in self.metrics:

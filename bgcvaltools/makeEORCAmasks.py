@@ -97,7 +97,7 @@ def makeMaskNC(outFile, regions, grid,gridfn=''):
 	######
 	# Calculate 1D mask
 	oneDmasks = {}	
-	maskingfunctions = loadMaskMakers(regions = regions)
+	regions, maskingfunctions = loadMaskMakers(regions = regions)
 	for r in regions:
 		print 'Calculate 1D mask',r
 		mask = makeMask(

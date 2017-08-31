@@ -224,7 +224,18 @@ def maenumerate(marr):
     	for i, m in izip(np.ndenumerate(marr), mask):
         	if m: yield i
         
-        
+def altSpellingDict(dict1):
+	"""	Takes a dictionary, and returns the same dict, but with all keys duplicated with alternative spellings.
+	"""
+	for key in dict1.keys():
+		val	 = dict1[key]
+		dict1[key.lower()] = val
+		dict1[key.upper()] = val
+		dict1[key.title()] = val	
+		if len(key)>1:
+			dict1[key[0].upper()+key[1:]] = val	
+	return dict1
+	        
 
 class AutoVivification(dict):
     """Implementation of perl's autovivification feature.
