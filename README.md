@@ -25,7 +25,7 @@ This package utilises:
 
 
 
-## Requirements
+# Requirements
 
 To use this code, the following python packages are required:
 * Matplotlib
@@ -38,26 +38,27 @@ To use this code, the following python packages are required:
 Most of these packages can be installed with the command:
 
 ```bash
-         pip install --user packagename
+pip install --user packagename
 ```
         
 Please note that cartopy can be difficult to install, with many requirements: such as geos, geos-python, geos-devel, proj4, cython etc… (http://scitools.org.uk/cartopy/)
 
-## Installation
+# Installation
 
 Once the previously mentionned packages have been installed, make a local copy of the trunk of this package with something like:
-        
-        git clone git@gitlab.ecosystem-modelling.pml.ac.uk:ledm/bgc-val-public.git
+```bash       
+git clone git@gitlab.ecosystem-modelling.pml.ac.uk:ledm/bgc-val-public.git
+```
 
 Note that the package name here is subject to change, and that you should check the path at the top of this page.
 
 In the local copy, use the following pip command to make a local installation of this package:
 
 ```bash
-        pip install -e . --user
+pip install -e . --user
 ```
 
-## Running
+# Running
 
 Once the package has been installed, make a copy of the bgc-val-public/run directory in your working directory.
 
@@ -70,9 +71,9 @@ The command to  run the evaluation is:
 ```bash
 ./run.py
 ```
-`run.py` is a simple wrapper which calls the script, `analysis_parser.py`.
+`run.py` is a simple wrapper which calls the script, [analysis_parser.py], and passes it the path to the `runconfig.ini` file.
 
-### analysis_parser.py
+## analysis_parser.py
 
 `analysis_parser.py` is a script which parsers the runconfig.ini file, and then sends the relevant flags, paths, filenames
 and settings to each of the main analyses packages. 
@@ -85,7 +86,7 @@ The analysis packages called are:
 The location of the model and data files, the description of the files, the regions, times, depth layers under investgation
 are all set in the runconfig.ini file. 
 
-###  runconfig.ini
+##  runconfig.ini
 
 The run config file contains all information, flags, paths and settings needed to produce the analysis.
 
@@ -177,9 +178,14 @@ Note that:
 * The operations in the `data_convert` and `model_convert` options can be any of the operations in bgc-val-public/functions.py
   or they can be taken from a localfuntion in the localfunction directory. More details below in the [Functions](#Functions) section.
 
-* Layers
+* Layers can be selected from a small list of specific depths, such as `Surface`, `100m`, `500m`, `All` etc... Or from a specific list of 
+  Ocean transects, such as `Equator`, more details in the [Layers](#Layers) section, below.
 
-* Regions
+* Regions here is a portmanteau for any selection of data based on it's coordinates, or data values.
+  Typically, these are spatial regional cuts, such as `NorthernHemisphere`, but the regional cut is not limited to spatial regions.
+  For instance, the "January" "region" removes all data which are not in the first month of the year.
+  In addition, it is straightforward to add a custom region if the defaults are not suitable for your analysis.
+  More details area availalbe in the [Regions](#Regions) section, below.
 
 
 
