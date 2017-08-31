@@ -54,7 +54,7 @@ In the local copy, use the following pip command to make a local installation of
 	pip install -e . --user
 
 
-## Running:
+## Running
 
 Once the package has been installed, make a copy of the bgc-val-public/run directory in your working directory.
 
@@ -64,7 +64,28 @@ The run directory will contain:
 * localfunctions directory: This directory is where you should put any custom analysis functions that you may want to use to load or manipuate your data.
 
 
+###  runconfig.ini
 
+The run config file contains all information, flags, paths and settings needed to produce the analysis.
+
+Note that config files use the following convention:
+	[Section]
+	option 	: value
+	; comment
+;
+; When loading the config file into ConfigParser.py:
+; Beware that:
+; 	Sections hold capitalisation
+; 	Options all become lowercase
+; 	Values are parsed as strings
+;	; denotes a comment, but if you place it at the end of a line, it requires a space before. 
+;
+; The parser expects an [ActiveKeys] section, a [Global] section,
+; and a section for each key in [ActiveKeys]
+;
+; The values used in [Global] for jobID, year, model can be put into paths using $JOBID,$YEAR or $MODEL.
+; Similarly, $NAME can be used as a stand in for the name option for of each analysis. 
+; 
 
 
 
