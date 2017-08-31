@@ -33,7 +33,7 @@ from glob import glob
 from os.path import basename,exists
 from sys import argv
 import numpy as np
-import UKESMpython as ukp 
+from bgcvaltools import bgcvalpython as bvp 
 #from UKESMpython import folder
 #from UKESMpython import getFileList,shouldIMakeFile#,getCalendar
 from netCDF4 import Dataset
@@ -107,13 +107,13 @@ def setup(jobID,key,runType,foldIn,foldOut):
 	filesIn = sorted(glob(fns))
 		
 	print "filesIn:", fns, filesIn
-	filenameOut 	= ukp.folder(foldOut+key)+jobID+'_'+key+'_'+runType+'.nc'	
+	filenameOut 	= bvp.folder(foldOut+key)+jobID+'_'+key+'_'+runType+'.nc'	
 	run(jobID,key,keys,runType,filesIn,foldOut)
 	
 def run(jobID,key,keys,runType,filesIn,filenameOut):
 
-	#filenameOut 	= ukp.folder(foldOut+key)+jobID+'_'+key+'_'+runType+'.nc'
-	#ukp.folder(foldOut+key+'-annual')+jobID+'_'+key+'-annual'+'_'+runType+'.nc'
+	#filenameOut 	= bvp.folder(foldOut+key)+jobID+'_'+key+'_'+runType+'.nc'
+	#bvp.folder(foldOut+key+'-annual')+jobID+'_'+key+'-annual'+'_'+runType+'.nc'
 	filenameAnnual	= filenameOut.replace(key,key+'-annual')
 
 	if exists(filenameOut) and exists(filenameAnnual): 
@@ -122,7 +122,7 @@ def run(jobID,key,keys,runType,filesIn,filenameOut):
 				
 	for fn in filesIn:
 
-		prunedfn = ukp.folder('/tmp/outNetCDF/tmp-Clims')+basename(fn)[:-3]+'_'+key+'_'+runType+'.nc'
+		prunedfn = bvp.folder('/tmp/outNetCDF/tmp-Clims')+basename(fn)[:-3]+'_'+key+'_'+runType+'.nc'
 		print fn, '--->', prunedfn
 
 		if not exists(prunedfn):
@@ -149,12 +149,12 @@ def run(jobID,key,keys,runType,filesIn,filenameOut):
 		
 	if runType == 'CHL':	 keys = ['CHL',]
 		
-	if  ukp.shouldIMakeFile(mergedFiles,filenameOut): 
+	if  bvp.shouldIMakeFile(mergedFiles,filenameOut): 
 		m = mergeNC( mergedFiles, filenameOut, keys, timeAverage=False,debug=True,calendar=cal)
 	
 
 	
-	if  ukp.shouldIMakeFile(mergedFiles,filenameAnnual): 
+	if  bvp.shouldIMakeFile(mergedFiles,filenameAnnual): 
 		m = mergeNC( mergedFiles, filenameAnnual, keys, timeAverage=True,debug=True,calendar=cal)
 		
 
@@ -177,7 +177,7 @@ def main():
 		  for r in runTypes:
 			#foldIn = '/data/euryale7/scratch/ledm/iMarNet/'+j+'/MEANS/'		  
 			foldIn = '/data/euryale7/scratch/ledm/UKESM/MEDUSA-ORCA025/'+j
-			foldOut= ukp.folder('/data/euryale7/scratch/ledm/UKESM/MEDUSA/'+j+'_postProc/')
+			foldOut= bvp.folder('/data/euryale7/scratch/ledm/UKESM/MEDUSA/'+j+'_postProc/')
 		  	run(j,key,r,foldIn,foldOut)
 		return
 	
@@ -186,7 +186,7 @@ def main():
 	for r in runTypes: 
 		#foldIn = '/data/euryale7/scratch/ledm/iMarNet/'+jobID+'/MEANS/'	
 		foldIn = '/data/euryale7/scratch/ledm/UKESM/MEDUSA/'+jobID		  					
-		foldOut= ukp.folder('/data/euryale7/scratch/ledm/UKESM/MEDUSA/'+jobID+'_postProc/')
+		foldOut= bvp.folder('/data/euryale7/scratch/ledm/UKESM/MEDUSA/'+jobID+'_postProc/')
 		setup(jobID,key,r,foldIn,foldOut)
 if __name__=="__main__":
 	main()

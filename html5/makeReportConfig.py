@@ -37,7 +37,7 @@ import shutil
 
 #####	
 # Load specific local code:
-from UKESMpython import folder, shouldIMakeFile,round_sig
+from bgcvaltools import bgcvalpython as bvp
 from html5 import html5Tools, htmltables
 from longnames.pftnames import getLongName
 
@@ -75,7 +75,7 @@ def addImageToHtml(fn,imagesfold,reportdir,debug=True):
 		if os.path.getmtime(fn) == os.path.getmtime(newfn): return relfn
 		####
 		# Check if file is newer than the one in images.		
-		if shouldIMakeFile(fn, newfn,):
+		if bvp.shouldIMakeFile(fn, newfn,):
 			if debug: print "removing old file",fn
 			os.remove(newfn)
 			shutil.copy2(fn, newfn)			
@@ -183,7 +183,7 @@ def html5MakerFromConfig(
 		try:shutil.rmtree(globalkeys.reportdir)
 		except: pass
 
-	reportdir = folder(globalkeys.reportdir)
+	reportdir = bvp.folder(globalkeys.reportdir)
 	
 	####
 	# Copy all necceasiry objects and templates to the report location:
@@ -193,7 +193,7 @@ def html5MakerFromConfig(
 	try:os.rename(reportdir+'index-template.html', indexhtmlfn)
 	except: pass
 
-	imagesfold 	= folder(reportdir+'images/')
+	imagesfold 	= bvp.folder(reportdir+'images/')
 	def newImageLocation(fn):
 		return imagesfold+os.path.basename(fn)
 	

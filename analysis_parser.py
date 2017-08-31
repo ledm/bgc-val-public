@@ -45,7 +45,7 @@ from getpass import getuser
 
 #####
 # Load specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesTools as tst

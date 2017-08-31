@@ -47,7 +47,7 @@ from getpass import getuser
 
 #####	
 # Load specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesPlots as tsp 
@@ -58,7 +58,7 @@ import paths
 
 
 medusaCoords 	= {'t':'time_counter', 'z':'deptht', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day',}	# model doesn't need time dict.
-dmsCoords	= {'t':'time',    'z':'depth',  'lat':'Latitude',  'lon': 'Longitude','cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}	
+dmsCoords	= {'t':'time',    'z':'depth',  'lat':'Latitude',  'lon': 'Longitude','cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}	
 
 
 
@@ -66,8 +66,8 @@ def analysis_dms(jobID=''):
 	annual = True
 	
 	analysisDict = {}
-	imagedir	 = ukp.folder(paths.imagedir+'/'+jobID+'/Level3/DMS')
-	shelvedir 	= ukp.folder(paths.shelvedir+'/'+jobID+'/Level3/DMS')
+	imagedir	 = bvp.folder(paths.imagedir+'/'+jobID+'/Level3/DMS')
+	shelvedir 	= bvp.folder(paths.shelvedir+'/'+jobID+'/Level3/DMS')
 
 	regionList	= ['Global', 'ignoreInlandSeas',
 	  		'SouthernOcean','ArcticOcean',
@@ -98,7 +98,7 @@ def analysis_dms(jobID=''):
 		if name == 'DMS_ARAN':	
 			analysisDict['modelFiles'] = dmsfiles
 		else:
-			analysisDict['modelFiles'] = ukp.listFiles(dmsfiles, want=100, listType='backloaded',first=30,last=10)
+			analysisDict['modelFiles'] = bvp.listFiles(dmsfiles, want=100, listType='backloaded',first=30,last=10)
 		
 		if annual:		
 			analysisDict['dataFile'] = paths.DMSDir+'DMSclim_mean.nc'
@@ -107,8 +107,8 @@ def analysis_dms(jobID=''):
 		analysisDict['modelcoords'] 	= medusaCoords 	
 		analysisDict['datacoords'] 	= dmsCoords
 	
-		analysisDict['modeldetails'] 	= {'name': name, 'vars':['DMS_ARAN',], 'convert': ukp.mul1000000,'units':'umol/m3'}
-		analysisDict['datadetails']  	= {'name': name, 'vars':['DMS',],      'convert': ukp.NoChange,'units':'umol/m3'}
+		analysisDict['modeldetails'] 	= {'name': name, 'vars':['DMS_ARAN',], 'convert': bvp.mul1000000,'units':'umol/m3'}
+		analysisDict['datadetails']  	= {'name': name, 'vars':['DMS',],      'convert': bvp.NoChange,'units':'umol/m3'}
 	
 		analysisDict['layers'] 		= ['layerless',]
 		analysisDict['regions'] 	= regionList	
@@ -172,7 +172,7 @@ def analysis_dms(jobID=''):
 			arrD,			# model time series
 			data 	= -999,		# in situ data distribution
 			title 	= title,
-			filename=ukp.folder(imagedir)+'DMS_'+region+'_'+ls+'.png',
+			filename=bvp.folder(imagedir)+'DMS_'+region+'_'+ls+'.png',
 			units = '',
 			plotStyle 	= 'Together',
 			lineStyle	= ls,

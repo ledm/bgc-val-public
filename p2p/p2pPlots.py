@@ -48,7 +48,7 @@ import numpy as np
 from bgcvaltools.StatsDiagram import StatsDiagram
 from bgcvaltools.robust import StatsDiagram as robustStatsDiagram
 import bgcvaltools.unbiasedSymmetricMetrics as usm
-import UKESMpython as ukp 
+from bgcvaltools import bgcvalpython as bvp 
 from longnames.pftnames import getLongName, fancyUnits # getmt
 from regions.makeMask import makeMask,loadMaskMakers
 from p2p.slicesDict import populateSlicesList, slicesDict
@@ -123,13 +123,13 @@ class makePlots:
 		
 	
 
-  	if self.shelveDir == '':self.shelveDir = ukp.folder(['shelves',self.xtype,self.year,self.ytype, 'Slices',self.name+self.depthLevel])
-  	else:			self.shelveDir = ukp.folder(self.shelveDir)		
+  	if self.shelveDir == '':self.shelveDir = bvp.folder(['shelves',self.xtype,self.year,self.ytype, 'Slices',self.name+self.depthLevel])
+  	else:			self.shelveDir = bvp.folder(self.shelveDir)		
 
 	if imageDir=='':	
-		self.imageDir = ukp.folder(['images',self.xtype,'P2P_plots',self.year,self.name+self.depthLevel])
+		self.imageDir = bvp.folder(['images',self.xtype,'P2P_plots',self.year,self.name+self.depthLevel])
 		print "Using default image folder:",self.imageDir
-	else: 			self.imageDir = ukp.folder(imageDir)
+	else: 			self.imageDir = bvp.folder(imageDir)
 
 	self.run()
 	
@@ -209,7 +209,7 @@ class makePlots:
 		#####
 		# Does the image exist?	
 		filename = self.getFileName(newSlice,xk,yk)
-		if ukp.shouldIMakeFile([self.xfn,self.yfn],filename,debug=False):
+		if bvp.shouldIMakeFile([self.xfn,self.yfn],filename,debug=False):
 			plotsToMake+=1
 		else:
 			print "No need to make: ",filename
@@ -217,13 +217,13 @@ class makePlots:
 		#####
 		#Does the shelve file exist?		
 		shelveName = self.shelveDir +self.name+'_'+ns+'_'+xk+'vs'+yk+'.shelve'
-		if ukp.shouldIMakeFile([self.xfn,self.yfn],shelveName,debug=False):
+		if bvp.shouldIMakeFile([self.xfn,self.yfn],shelveName,debug=False):
 			plotsToMake+=1
 		else:
 			print "No need to make: ",shelveName			
 		#####
 		# Make a list of shelve meta data, to aid post processing.
-		she = ukp.shelveMetadata(model=self.model,
+		she = bvp.shelveMetadata(model=self.model,
 					name=self.name,
 					year=self.year,
 					depthLevel=self.depthLevel,
@@ -280,14 +280,14 @@ class makePlots:
  	filename = self.getFileName(newSlice,xkey,ykey)
  	
 	print "plotWithSlices:\tINFO:\tinvestigating:",(newSlice), filename
-	if not ukp.shouldIMakeFile([self.xfn,self.yfn],self.shelveName,debug=False) \
-		and not ukp.shouldIMakeFile([self.xfn,self.yfn],filename,debug=False): return
+	if not bvp.shouldIMakeFile([self.xfn,self.yfn],self.shelveName,debug=False) \
+		and not bvp.shouldIMakeFile([self.xfn,self.yfn],filename,debug=False): return
 	
 	
 	#####
 	# Extract remaining data (already know lat,lon,time,depth)
-	xd = ukp.extractData(self.xnc,self.modeldetails,key = xkey)	
-	yd = ukp.extractData(self.ync,self.datadetails, key = ykey)
+	xd = bvp.extractData(self.xnc,self.modeldetails,key = xkey)	
+	yd = bvp.extractData(self.ync,self.datadetails, key = ykey)
  
 	
 	#####
@@ -399,7 +399,7 @@ class makePlots:
 		# Robinson projection plots - Basemap
 		mptbasemap = True	# Don't need both.			
 		if mptbasemap:
-		  if ukp.shouldIMakeFile([self.xfn,self.yfn],robfnquad,debug=False):
+		  if bvp.shouldIMakeFile([self.xfn,self.yfn],robfnquad,debug=False):
 			ti1 = getLongName(self.xtype)
 			ti2 =  getLongName(self.ytype)
 			cbarlabel=xunits
@@ -408,7 +408,7 @@ class makePlots:
 			else:	
 				doLog=True
 			print "plotWithSlices:\tROBIN QUAD:",[ti1,ti2],False,dmin,dmax
-			ukp.robinPlotQuad(nmxx, nmxy, 
+			bvp.robinPlotQuad(nmxx, nmxy, 
 					datax,
 					datay,
 					robfnquad,
@@ -423,7 +423,7 @@ class makePlots:
 		if newSlice=='Global' and self.depthLevel in ['Surface','100m','200m','500m','1000m',] :
 		   # ####
 		   # Global, as we have interpollation turned on here.
-		   if ukp.shouldIMakeFile([self.xfn,self.yfn],robfncartopy,debug=False):
+		   if bvp.shouldIMakeFile([self.xfn,self.yfn],robfncartopy,debug=False):
 			ti1 = getLongName(self.xtype)
 			ti2 =  getLongName(self.ytype)
 			cbarlabel=xunits
@@ -433,7 +433,7 @@ class makePlots:
 				doLog=True
 			print "plotWithSlices:\tROBIN QUAD:",[ti1,ti2],False,dmin,dmax
 			try:
-				ukp.robinPlotQuad(nmxx, nmxy, 
+				bvp.robinPlotQuad(nmxx, nmxy, 
 					datax,
 					datay,
 					robfncartopy,
@@ -448,7 +448,7 @@ class makePlots:
 				print "Cartopy is broken again, can't make: ",robfncartopy
 	
 		if self.depthLevel not in ['Surface','100m','200m','500m','1000m',]:# No point in making these.
-		  if ukp.shouldIMakeFile([self.xfn,self.yfn],transectquadfn,debug=False):
+		  if bvp.shouldIMakeFile([self.xfn,self.yfn],transectquadfn,debug=False):
 			ti1 = getLongName(self.xtype)
 			ti2 =  getLongName(self.ytype)
 			cbarlabel=xunits			
@@ -458,7 +458,7 @@ class makePlots:
 				doLog=True
 			print "plotWithSlices:\ttransect quad:",[ti1,ti2],False,dmin,dmax
 			if self.depthLevel in ['ArcTransect','AntTransect','CanRusTransect',]:
-				ukp.ArcticTransectPlotQuad(nmxx,nmxy, nmxz, 
+				bvp.ArcticTransectPlotQuad(nmxx,nmxy, nmxz, 
 					datax,
 					datay,
 					transectquadfn,
@@ -473,7 +473,7 @@ class makePlots:
 					transectName  	= self.depthLevel,
 					)			
 			else:
-				ukp.HovPlotQuad(nmxx,nmxy, nmxz, 
+				bvp.HovPlotQuad(nmxx,nmxy, nmxz, 
 					datax,
 					datay,
 					transectquadfn,
@@ -489,7 +489,7 @@ class makePlots:
 		
 		#####
 		# Simultaneous histograms plot	- single
-		if ukp.shouldIMakeFile([self.xfn,self.yfn],histfnxy,debug=False):
+		if bvp.shouldIMakeFile([self.xfn,self.yfn],histfnxy,debug=False):
 			xaxislabel= getLongName(self.name)+', '+ xunits
 			labelx = self.xtype
 			labely = self.ytype
@@ -502,20 +502,20 @@ class makePlots:
 				histxaxis = 'DMS, '+ xunits
 				
 			if self.name in noXYLogs or dmin*dmax <=0.:				
-				ukp.histPlot(datax, datay,  histfnxy, Title=histtitle, labelx=labelx,labely=labely,dpi=self.dpi,xaxislabel =histxaxis)	
-			else:	ukp.histPlot(datax, datay,  histfnxy, Title=histtitle, labelx=labelx,labely=labely,dpi=self.dpi,xaxislabel =histxaxis, logx = True, )
+				bvp.histPlot(datax, datay,  histfnxy, Title=histtitle, labelx=labelx,labely=labely,dpi=self.dpi,xaxislabel =histxaxis)	
+			else:	bvp.histPlot(datax, datay,  histfnxy, Title=histtitle, labelx=labelx,labely=labely,dpi=self.dpi,xaxislabel =histxaxis, logx = True, )
 
 		# Simultaneous histograms plot	- triple
-		if ukp.shouldIMakeFile([self.xfn,self.yfn],histsfnxy,debug=False):
+		if bvp.shouldIMakeFile([self.xfn,self.yfn],histsfnxy,debug=False):
 			xaxislabel= getLongName(self.name)+', '+ xunits
 			if self.name in noXYLogs or dmin*dmax <=0.:				
-				ukp.histsPlot(datax, datay,  histsfnxy, Title=title, labelx=self.xtype,labely=self.ytype,xaxislabel =xaxislabel)	
-			else:	ukp.histsPlot(datax, datay,  histsfnxy, Title=title, labelx=self.xtype,labely=self.ytype,xaxislabel =xaxislabel, logx = True, )
+				bvp.histsPlot(datax, datay,  histsfnxy, Title=title, labelx=self.xtype,labely=self.ytype,xaxislabel =xaxislabel)	
+			else:	bvp.histsPlot(datax, datay,  histsfnxy, Title=title, labelx=self.xtype,labely=self.ytype,xaxislabel =xaxislabel, logx = True, )
 							
 			
 		#####
 		# Scatter  (hexbin) plot
-		if ukp.shouldIMakeFile([self.xfn,self.yfn],scatterfn,debug=False):		
+		if bvp.shouldIMakeFile([self.xfn,self.yfn],scatterfn,debug=False):		
 			gs = 50	
 			scattitle = title
 			slabelx = labelx
@@ -528,8 +528,8 @@ class makePlots:
 				pass
 			
 			if self.name in noXYLogs or dmin*dmax <=0.:
-				ukp.scatterPlot(datax, datay,  scatterfn, Title=scattitle, labelx=slabelx,labely=slabely,dpi=self.dpi, bestfitLine=True,gridsize=gs)
-			else:	ukp.scatterPlot(datax, datay,  scatterfn, Title=scattitle, labelx=slabelx,labely=slabely,dpi=self.dpi, bestfitLine=True,gridsize=gs,logx = True, logy=True,)
+				bvp.scatterPlot(datax, datay,  scatterfn, Title=scattitle, labelx=slabelx,labely=slabely,dpi=self.dpi, bestfitLine=True,gridsize=gs)
+			else:	bvp.scatterPlot(datax, datay,  scatterfn, Title=scattitle, labelx=slabelx,labely=slabely,dpi=self.dpi, bestfitLine=True,gridsize=gs,logx = True, logy=True,)
 
 	#####
 	# Save fit in a shelve file.		
@@ -610,8 +610,8 @@ class makePlots:
   	for xkey,ykey in zip(xcoords,ycoords):
 	    	if xkey not in self.xnc.variables.keys():continue  	    
 	    	if ykey not in self.ync.variables.keys():continue
-		filename = ukp.folder(self.imageDir+'CompareCoords')+'CompareCoords'+self.name+self.depthLevel+xkey+'vs'+ykey+'.png'	    	
-		if not ukp.shouldIMakeFile([self.xfn,self.yfn],filename,debug=False):continue
+		filename = bvp.folder(self.imageDir+'CompareCoords')+'CompareCoords'+self.name+self.depthLevel+xkey+'vs'+ykey+'.png'	    	
+		if not bvp.shouldIMakeFile([self.xfn,self.yfn],filename,debug=False):continue
 		print "CompareCoords:\tx:",xkey, "\ty:",ykey
 		if xkey not in self.xnc.variables.keys():
 			print xkey, "not in xnc"
@@ -666,7 +666,7 @@ class makePlots:
   def getFileName(self,newSlice,xkey,ykey):
   	#####
   	# This needs some work.
-	file_prefix = self.imageDir #ukp.folder(['images',self.xtype,'P2P_plots',self.year,self.name+self.region,])
+	file_prefix = self.imageDir #bvp.folder(['images',self.xtype,'P2P_plots',self.year,self.name+self.region,])
 
 	file_suffix = '_'+self.xtype+'_'+self.year+'.png'
 	
@@ -677,12 +677,12 @@ class makePlots:
 	#		newSlice = list(newSlice)
 	#		for i,n in enumerate(newSlice):
 	#		   if n in slicesDict['Months']:
-	#		   	newSlice[i] = ukp.mnStr(self.months[n]+1)+n
+	#		   	newSlice[i] = bvp.mnStr(self.months[n]+1)+n
 	#		newSlice = ''.join(newSlice)			
 	#	if newSlice in slicesDict['Months']:
-	#		 newSlice = ukp.mnStr(self.months[newSlice]+1)+newSlice	
+	#		 newSlice = bvp.mnStr(self.months[newSlice]+1)+newSlice	
 	#	if dictkey == 'Default': dictkey=''
-	filename = ukp.folder([file_prefix])+self.name+self.depthLevel+'_'+newSlice+'_'+xkey+'vs'+ykey+file_suffix
+	filename = bvp.folder([file_prefix])+self.name+self.depthLevel+'_'+newSlice+'_'+xkey+'vs'+ykey+file_suffix
 
 	return filename
 

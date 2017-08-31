@@ -36,7 +36,7 @@ import os
 import shutil
 
 #Specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from longnames.pftnames import getLongName
 from bgcvaltools.dataset import dataset
 from regions.makeMask import loadMaskMakers
@@ -125,8 +125,8 @@ class timeseriesAnalysis:
 	
 
 		
-  	self.shelvefn 		= ukp.folder(self.workingDir)+'_'.join([self.jobID,self.dataType,])+'.shelve'
-	self.shelvefn_insitu	= ukp.folder(self.workingDir)+'_'.join([self.jobID,self.dataType,])+'_insitu.shelve'
+  	self.shelvefn 		= bvp.folder(self.workingDir)+'_'.join([self.jobID,self.dataType,])+'.shelve'
+	self.shelvefn_insitu	= bvp.folder(self.workingDir)+'_'.join([self.jobID,self.dataType,])+'_insitu.shelve'
 
 	#####
 	# Load Data file
@@ -196,7 +196,7 @@ class timeseriesAnalysis:
         reDoFiles = []
 	for fn in sorted(readFiles):
                 if self.debug:print "timeseriesAnalysis:\tloadModel\tChecking: ",fn
-		if ukp.shouldIMakeFile(fn, self.shelvefn,debug=False): 
+		if bvp.shouldIMakeFile(fn, self.shelvefn,debug=False): 
 			print "timeseriesAnalysis:\tloadModel\t:this file should be re-analysed:", fn
 			readFiles.remove(fn)
 		        reDoFiles.append(fn)
@@ -204,7 +204,7 @@ class timeseriesAnalysis:
 	#####
 	# Check if the Input file has changed since the shelve file last changed.
 	for fn in sorted(readFiles):
-		if ukp.shouldIMakeFile(fn, self.shelvefn): 
+		if bvp.shouldIMakeFile(fn, self.shelvefn): 
 			print "timeseriesAnalysis:\tloadModel\t:this file should be re-analysed:", fn
 			readFiles.remove(fn)
 			
@@ -279,7 +279,7 @@ class timeseriesAnalysis:
 			# get Weights:
 			volumeWeightedLayers = ['All', 'Transect']
 			
-			if len(ukp.intersection(['mean','median','sum',], self.metrics)):
+			if len(bvp.intersection(['mean','median','sum',], self.metrics)):
 				lats = DL.load[(r,l,'lat')]
 				lons = DL.load[(r,l,'lon')]
 				if l in volumeWeightedLayers:
@@ -341,10 +341,10 @@ class timeseriesAnalysis:
 			
 			
 			if len(percentiles)==0: continue
-			out_pc = ukp.weighted_percentiles(layerdata, percentiles, weights = weights)
+			out_pc = bvp.weighted_percentiles(layerdata, percentiles, weights = weights)
 			
 			for pc,dat in zip(percentiles, out_pc):
-				modeldataD[(r,l,ukp.mnStr(pc)+'pc')][meantime] = dat
+				modeldataD[(r,l,bvp.mnStr(pc)+'pc')][meantime] = dat
 				if pc==50.:	modeldataD[(r,l,'median')][meantime] = dat
 					  		
 	  		print "timeseriesAnalysis:\tloadModel\tLoaded metric:", int(meantime),'\t',[(r,l,m)], '\t',modeldataD[(r,l,m)][meantime]
@@ -514,7 +514,7 @@ class timeseriesAnalysis:
     		print "timeseriesAnalysis:\t load in situ data,\tloaded ",(r,l),  'mean:',meandatad    	
 	    	dataD[(r,l,'lat')] = dl.load[(r,l,'lat')]		    	
 	    	dataD[(r,l,'lon')] = dl.load[(r,l,'lon')]
-		if len(ukp.intersection(['mean','median','sum',], self.metrics)):	    	
+		if len(bvp.intersection(['mean','median','sum',], self.metrics)):	    	
 		    	dataD[(r,l,'area')] = self.loadDataAreas(dataD[(r,l,'lat')],dataD[(r,l,'lon')])
 		else:	dataD[(r,l,'area')] = np.ones_like(dataD[(r,l,'lon')])
 		
@@ -561,7 +561,7 @@ class timeseriesAnalysis:
 	for r in self.regions:
 	    for l in self.layers:	
 		if type(l) in [type(0),type(0.)]:continue
- 		mapfilename = ukp.folder(self.imageDir)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
+ 		mapfilename = bvp.folder(self.imageDir)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
    		modeldata	= mDL.load[(r,l)]
    		modellat	= mDL.load[(r,l,'lat')]
    		modellon	= mDL.load[(r,l,'lon')]
@@ -649,20 +649,20 @@ class timeseriesAnalysis:
 		    	
 		    title = ' '.join([getLongName(t) for t in [r,str(l),self.datasource, self.dataType]])
 		    for greyband in  ['10-90pc',]: #'MinMax', 
-			filename = ukp.folder(self.imageDir)+'_'.join(['percentiles',self.jobID,self.dataType,r,str(l),greyband])+'.png'
+			filename = bvp.folder(self.imageDir)+'_'.join(['percentiles',self.jobID,self.dataType,r,str(l),greyband])+'.png'
                         if self.debug: print "timeseriesAnalysis:\t makePlots.\tInvestigating:",filename
 
-			if not ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):continue
+			if not bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):continue
 			tsp.percentilesPlot(timesDict,modeldataDict,dataslice,dataweights=dataweights,title = title,filename=filename,units =self.modeldetails['units'],greyband=greyband)
  	    
 	  	#####
 	    	# Percentiles plots.		  	    
 	    	for m in self.metrics: 
 	    		if m not in ['sum', ]: continue 
-			filename = ukp.folder(self.imageDir)+'_'.join([m,self.jobID,self.dataType,r,str(l),m,])+'.png'
+			filename = bvp.folder(self.imageDir)+'_'.join([m,self.jobID,self.dataType,r,str(l),m,])+'.png'
                         if self.debug: print "timeseriesAnalysis:\t makePlots.\tInvestigating:",filename
 
-			if not ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):	continue
+			if not bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):	continue
 				    		
 			modeldataDict = self.modeldataD[(r,l,m)]
 			times = sorted(modeldataDict.keys())
@@ -681,9 +681,9 @@ class timeseriesAnalysis:
 	    	# Mean plots.
 	    	for m in self.metrics:  
 	    		if m not in ['mean', 'metricless',]: continue
-			filename = ukp.folder(self.imageDir)+'_'.join([m,self.jobID,self.dataType,r,str(l),m,])+'.png'
+			filename = bvp.folder(self.imageDir)+'_'.join([m,self.jobID,self.dataType,r,str(l),m,])+'.png'
 		        if self.debug: print "timeseriesAnalysis:\t makePlots.\tInvestigating:",filename
-			if not ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):	continue
+			if not bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):	continue
 			    		
 			modeldataDict = self.modeldataD[(r,l,m)]
 			times = sorted(modeldataDict.keys())
@@ -753,12 +753,12 @@ class timeseriesAnalysis:
 		else: 	dataZcoords = {}
 
 		title = ' '.join([getLongName(t) for t in [r,m,self.dataType]])	
-	    	hovfilename = ukp.folder(self.imageDir)+'_'.join(['profile',self.jobID,self.dataType,r,m,])+'.png'
-		if  ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename,debug=False):				
+	    	hovfilename = bvp.folder(self.imageDir)+'_'.join(['profile',self.jobID,self.dataType,r,m,])+'.png'
+		if  bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename,debug=False):				
 			tsp.hovmoellerPlot(modeldata,data,hovfilename, modelZcoords = modelZcoords, dataZcoords= dataZcoords, title = title,diff=False)		
 	
-	    	hovfilename = ukp.folder(self.imageDir)+'_'.join(['profileDiff',self.jobID,self.dataType,r,m,])+'.png'
-		if  ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename,debug=False):					    	
+	    	hovfilename = bvp.folder(self.imageDir)+'_'.join(['profileDiff',self.jobID,self.dataType,r,m,])+'.png'
+		if  bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename,debug=False):					    	
 			tsp.hovmoellerPlot(modeldata,data,hovfilename, modelZcoords = modelZcoords, dataZcoords= dataZcoords, title = title,diff=True)		
 	"""
 
@@ -767,8 +767,8 @@ class timeseriesAnalysis:
 	runmapplots=False
 	for r in self.regions:
 	  	for l in self.layers:	
-	 		mapfilename = ukp.folder(self.imageDir)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
-			if ukp.shouldIMakeFile(self.modelFiles[-1],mapfilename,debug=False):runmapplots = True
+	 		mapfilename = bvp.folder(self.imageDir)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
+			if bvp.shouldIMakeFile(self.modelFiles[-1],mapfilename,debug=False):runmapplots = True
  	if runmapplots:
 		self.mapplotsRegionsLayers() 		
 

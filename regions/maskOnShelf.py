@@ -31,7 +31,7 @@
 from bgcvaltools.dataset import dataset
 import numpy as np
 import os
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 
 package_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -42,7 +42,7 @@ bathync.close()
 		
 def maskOnShelf(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
 	shelfDepth=500.
-	shelveFn = ukp.folder("shelves/MatchingMasks/")+"shelfmask.shelve"
+	shelveFn = bvp.folder("shelves/MatchingMasks/")+"shelfmask.shelve"
 	try:
 		s = shOpen(shelveFn)		
 		lldict  = s['lldict']
@@ -55,7 +55,7 @@ def maskOnShelf(name,newSlice, xt,xz,xy,xx,xd,debug=False):
 			try:
 				la,lo = lldict[(xy[i],xx[i])]
 			except:
-				la,lo = ukp.getOrcaIndexCC(xy[i],xx[i],latcc,loncc,debug=False)
+				la,lo = bvp.getOrcaIndexCC(xy[i],xx[i],latcc,loncc,debug=False)
 				lldict[(xy[i],xx[i])] = la,lo
 			
 			if la==lo==-1:

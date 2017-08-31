@@ -29,7 +29,7 @@
 """
 
 
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from p2p import makeTargets
 
 def summaryTargets(shelvesAV, imageFold, year):
@@ -42,7 +42,7 @@ def summaryTargets(shelvesAV, imageFold, year):
 	BGCVALregions = ['Global','ignoreInlandSeas','Equator10', 'ArcticOcean','NorthernSubpolarAtlantic','NorthernSubpolarPacific','SouthernOcean','Remainder',]
 	
 	for r in BGCVALregions:
-	    	shelves = ukp.reducesShelves(shelvesAV, models = ['NEMO','MEDUSA',], sliceslist =[r,])
+	    	shelves = bvp.reducesShelves(shelvesAV, models = ['NEMO','MEDUSA',], sliceslist =[r,])
 
 	  	filename = imageFold+'Summary_'+year+'_'+r+'.png'
 		print "Summary Target",shelves, '\nfilename:',filename

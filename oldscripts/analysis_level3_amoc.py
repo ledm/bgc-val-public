@@ -49,7 +49,7 @@ from shelve import open as shOpen
 
 #####	
 # Load specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesPlots as tsp 
@@ -68,8 +68,8 @@ def analysis_omz(jobID=''):
 			
 				
 	analysisDict = {}
-	imagedir	= ukp.folder(paths.imagedir +'/'+jobID+'/Level3/AMOC')
-	shelvedir 	= ukp.folder(paths.shelvedir+'/'+jobID+'/Level3/AMOC')
+	imagedir	= bvp.folder(paths.imagedir +'/'+jobID+'/Level3/AMOC')
+	shelvedir 	= bvp.folder(paths.shelvedir+'/'+jobID+'/Level3/AMOC')
 	if annual:	WOAFolder = paths.WOAFolder_annual
 	else:		WOAFolder = paths.WOAFolder	
 
@@ -101,7 +101,7 @@ def analysis_omz(jobID=''):
 	
 	medusaCoords 	= {'t':'time_counter', 'z':'deptht', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day',}	# model doesn't need time dict.
 	
-	av = ukp.AutoVivification()
+	av = bvp.AutoVivification()
 	
 	if 'AMOC_26N' in analysisKeys or 'AMOC_32S' in analysisKeys:
 		# Note that this will only work with the eORCAgrid.	
@@ -269,7 +269,7 @@ def analysis_omz(jobID=''):
 			times = [t-1000. for t in times]
 
 		if len(times)>120.:
-			filename = ukp.folder(imagedir)+'_'.join([name,jobID,])+'_first100yrs.png'		
+			filename = bvp.folder(imagedir)+'_'.join([name,jobID,])+'_first100yrs.png'		
 			tmpt = times[:120]
 			tmpmd = modeldata[:120]			
 			xlims= [tmpt[0],tmpt[-1]]
@@ -301,7 +301,7 @@ def analysis_omz(jobID=''):
 			pyplot.close()	
 
 		
-		filename = ukp.folder(imagedir)+'_'.join([name,jobID,])+'.png'				
+		filename = bvp.folder(imagedir)+'_'.join([name,jobID,])+'.png'				
 		xlims= [times[0],times[-1]]
 	
 		fig = pyplot.figure()

@@ -28,7 +28,7 @@
 """
 
 from socket import gethostname
-#import UKESMpython as ukp
+#from bgcvaltools import bgcvalpython as bvp
 from getpass import getuser
 import os 
 

@@ -29,7 +29,7 @@
 """
 
 from socket import gethostname
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from getpass import getuser
 
 #####
@@ -42,7 +42,7 @@ if gethostname().find('pmpc')>-1:
 
 	#####
 	# Post processed shelve Data location
-	shelvedir 	= ukp.folder('shelves/')
+	shelvedir 	= bvp.folder('shelves/')
 	
 	#####
 	# Post processed p2p Data location		
@@ -50,7 +50,7 @@ if gethostname().find('pmpc')>-1:
 	
 	######
 	# Output location for plots.
-	imagedir	 = ukp.folder('images/')
+	imagedir	 = bvp.folder('images/')
 
 	#####
 	# Location of model files.

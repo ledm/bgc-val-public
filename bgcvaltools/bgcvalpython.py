@@ -2021,7 +2021,7 @@ def extractData(nc, details,key = ['',],debug=False):
   	""" 	
   	This loads the data based on the instructions from details dictionairy.
   	If you want to do something funking to the data before plotting it, just create a new convert function in getMT().
-  	details dict usually contains: {'name': 'Chlorophylla', 'vars':['Chlorophylla',], 'convert': ukp.div1000,'units':'ug/L'}
+  	details dict usually contains: {'name': 'Chlorophylla', 'vars':['Chlorophylla',], 'convert': bvp.div1000,'units':'ug/L'}
   	"""
   	
 	if isinstance(details,dict): 

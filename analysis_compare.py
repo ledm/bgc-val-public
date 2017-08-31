@@ -49,7 +49,7 @@ from getpass import getuser
 
 #####	
 # Load specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesPlots as tsp 
@@ -232,14 +232,14 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 	medusaWCoords 	= {'t':'index_t', 'z':'depthw', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day',}	# model doesn't need time dict.
 	
 	icCoords 	= {'t':'time_counter', 'z':'nav_lev', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day',}	# model doesn't need time dict.	
-	maredatCoords 	= {'t':'index_t', 'z':'DEPTH',  'lat': 'LATITUDE', 'lon': 'LONGITUDE', 'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
-	takahashiCoords	= {'t':'index_t', 'z':'index_z','lat': 'LAT', 'lon': 'LON', 'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}	
-	woaCoords 	= {'t':'index_t', 'z':'depth',  'lat': 'lat', 	   'lon': 'lon',       'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}	
+	maredatCoords 	= {'t':'index_t', 'z':'DEPTH',  'lat': 'LATITUDE', 'lon': 'LONGITUDE', 'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
+	takahashiCoords	= {'t':'index_t', 'z':'index_z','lat': 'LAT', 'lon': 'LON', 'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}	
+	woaCoords 	= {'t':'index_t', 'z':'depth',  'lat': 'lat', 	   'lon': 'lon',       'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}	
 	glodapCoords	= {'t':'index_t', 'z':'depth',  'lat': 'latitude', 'lon': 'longitude', 'cal': 'standard','tdict':[] }
 	glodapv2Coords	= {'t':'time',    'z':'Pressure','lat':'lat',      'lon':'lon',        'cal': '',        'tdict':{0:0,} }
-	mldCoords	= {'t':'index_t', 'z':'index_z','lat':'lat','lon': 'lon','cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
+	mldCoords	= {'t':'index_t', 'z':'index_z','lat':'lat','lon': 'lon','cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
 	cciCoords	= {'t':'index_t', 'z':'index_z','lat': 'lat',      'lon': 'lon', 'cal': 'standard','tdict':['ZeroToZero'] }
-	dmsCoords	= {'t':'time',    'z':'depth',  'lat':'Latitude',  'lon': 'Longitude','cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
+	dmsCoords	= {'t':'time',    'z':'depth',  'lat':'Latitude',  'lon': 'Longitude','cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
 	godasCoords 	= {'t':'index_t',    'z':'level',  'lat': 'lat',      'lon': 'lon', 'cal': 'standard','tdict':['ZeroToZero'] }
 
 			
@@ -254,13 +254,13 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 		#####
 		# Location of images directory
 		# the imagedir is where the analysis images will be saved.
-		imagedir	 = ukp.folder(paths.imagedir+'/'+jobID+'/timeseries')
-		shelvedir 	= ukp.folder(paths.shelvedir+"/timeseries/"+jobID)
+		imagedir	 = bvp.folder(paths.imagedir+'/'+jobID+'/timeseries')
+		shelvedir 	= bvp.folder(paths.shelvedir+"/timeseries/"+jobID)
 		
 		
 
 
-		av = ukp.AutoVivification()							
+		av = bvp.AutoVivification()							
 		if 'DrakePassageTransport' in analysisKeys:
 			name = 'DrakePassageTransport'
 			####
@@ -619,7 +619,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaCoords 	
 			av[name]['datacoords'] 		= ''
 	
-			av[name]['modeldetails'] 	= {'name': name, 'vars':[name,], 'convert': ukp.NoChange,'units':'mg C/m^3'}
+			av[name]['modeldetails'] 	= {'name': name, 'vars':[name,], 'convert': bvp.NoChange,'units':'mg C/m^3'}
 			av[name]['datadetails']  	= {'name': '', 'units':''}
 	
 			av[name]['layers'] 		= ['Surface','100m',] 	# CCI is surface only, it's a satellite product.
@@ -641,7 +641,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaCoords
 			av[name]['datacoords'] 		= maredatCoords
 
-			av[name]['modeldetails'] 	= {'name': name, 'vars':['CHN','CHD'], 'convert': ukp.sums,'units':'mg C/m^3'}
+			av[name]['modeldetails'] 	= {'name': name, 'vars':['CHN','CHD'], 'convert': bvp.sums,'units':'mg C/m^3'}
 			av[name]['datadetails']  	= {'name': '', 'units':''}
 		
 			av[name]['layers'] 		= ['Surface','100m','200m',]
@@ -690,7 +690,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 	                av[name]['modelcoords']         = medusaCoords
                 	av[name]['datacoords']          = ''
 
-        	        av[name]['modeldetails']        = {'name': name, 'vars':[name,], 'convert': ukp.mul1000,'units':'umol-C/m3'}
+        	        av[name]['modeldetails']        = {'name': name, 'vars':[name,], 'convert': bvp.mul1000,'units':'umol-C/m3'}
 	                av[name]['datadetails']         = {'name': '', 'units':''}
 
                 	av[name]['layers']              = ['3000m',]#'100m',]         # CCI is surface only, it's a satellite product.
@@ -713,8 +713,8 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['dataFile'] 		= paths.icFold+"/UKESM_fields_1860_eORCA1_small.nc"
 			av[name]['modelcoords'] 	= medusaCoords 	
 			av[name]['datacoords'] 		= icCoords
-			av[name]['modeldetails']	= {'name': name, 'vars':['FER',], 'convert': ukp.mul1000, 'units':'umolFe/m3'}
-			av[name]['datadetails']  	= {'name': name, 'vars':['FER',], 'convert': ukp.mul1000, 'units':'umolFe/m3'}
+			av[name]['modeldetails']	= {'name': name, 'vars':['FER',], 'convert': bvp.mul1000, 'units':'umolFe/m3'}
+			av[name]['datadetails']  	= {'name': name, 'vars':['FER',], 'convert': bvp.mul1000, 'units':'umolFe/m3'}
 			av[name]['layers'] 		= layerList
 			av[name]['regions'] 		= regionList
 			av[name]['metrics']		= metricList
@@ -735,8 +735,8 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaCoords 	
 			av[name]['datacoords'] 		= woaCoords
 	
-			av[name]['modeldetails'] 	= {'name': name, 'vars':['DIN',], 'convert': ukp.NoChange,'units':'mmol N/m^3'}
-			av[name]['datadetails']  	= {'name': name, 'vars':['n_an',], 'convert': ukp.NoChange,'units':'mmol N/m^3'}
+			av[name]['modeldetails'] 	= {'name': name, 'vars':['DIN',], 'convert': bvp.NoChange,'units':'mmol N/m^3'}
+			av[name]['datadetails']  	= {'name': name, 'vars':['n_an',], 'convert': bvp.NoChange,'units':'mmol N/m^3'}
 	
 			av[name]['layers'] 		=  layerList
 			av[name]['regions'] 		= regionList
@@ -762,8 +762,8 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaCoords 	
 			av[name]['datacoords'] 		= woaCoords
 	
-			av[name]['modeldetails'] 	= {'name': name, 'vars':['SIL',],  'convert': ukp.NoChange,'units':'mmol Si/m^3'}
-			av[name]['datadetails']  	= {'name': name, 'vars':['i_an',], 'convert': ukp.NoChange,'units':'mmol Si/m^3'}
+			av[name]['modeldetails'] 	= {'name': name, 'vars':['SIL',],  'convert': bvp.NoChange,'units':'mmol Si/m^3'}
+			av[name]['datadetails']  	= {'name': name, 'vars':['i_an',], 'convert': bvp.NoChange,'units':'mmol Si/m^3'}
 		
 			av[name]['layers'] 		=  layerList
 			av[name]['regions'] 		= regionList
@@ -785,8 +785,8 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaCoords 	
 			av[name]['datacoords'] 		= woaCoords
 	
-			av[name]['modeldetails'] 	= {'name': name, 'vars':['OXY',], 'convert': ukp.NoChange,'units':'mmol O2/m^3'}	
-			av[name]['datadetails']  	= {'name': name, 'vars':['o_an',], 'convert': ukp.oxconvert,'units':'mmol O2/m^3'}
+			av[name]['modeldetails'] 	= {'name': name, 'vars':['OXY',], 'convert': bvp.NoChange,'units':'mmol O2/m^3'}	
+			av[name]['datadetails']  	= {'name': name, 'vars':['o_an',], 'convert': bvp.oxconvert,'units':'mmol O2/m^3'}
 
 			av[name]['layers'] 		=  layerList
 			av[name]['regions'] 		= regionList
@@ -964,7 +964,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 				zthick  = np.abs(nc.variables['depth_bnds'][:,0] - nc.variables['depth_bnds'][:,1])
 			
 				for y,lat in enumerate(lats):
-					area = ukp.Area([latbnds[y,0],0.],[latbnds[y,1],1.])
+					area = bvp.Area([latbnds[y,0],0.],[latbnds[y,1],1.])
 					for z,thick in enumerate(zthick):
 						pvol[z,y,:] = np.ones_like(lons)*area*thick
 					
@@ -1002,8 +1002,8 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaCoords 	
 			av[name]['datacoords'] 		= glodapv2Coords
 	
-			av[name]['modeldetails'] 	= {'name': 'DIC', 'vars':['DIC',],  'convert': ukp.NoChange,'units':'mmol C/m^3'}
-			av[name]['datadetails']  	= {'name': 'DIC', 'vars':['tco2',], 'convert': ukp.convertkgToM3,'units':'mmol C/m^3'}
+			av[name]['modeldetails'] 	= {'name': 'DIC', 'vars':['DIC',],  'convert': bvp.NoChange,'units':'mmol C/m^3'}
+			av[name]['datadetails']  	= {'name': 'DIC', 'vars':['tco2',], 'convert': bvp.convertkgToM3,'units':'mmol C/m^3'}
 	
 			av[name]['layers'] 		=  layerList
 			av[name]['regions'] 		= regionList
@@ -1031,7 +1031,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaCoords 	
 			av[name]['datacoords'] 		= glodapCoords
 	
-			av[name]['modeldetails'] 	= {'name': name, 'vars':['ALK',], 'convert': ukp.NoChange,'units':'meq/m^3',}
+			av[name]['modeldetails'] 	= {'name': name, 'vars':['ALK',], 'convert': bvp.NoChange,'units':'meq/m^3',}
 			av[name]['datadetails']  	= {'name': name, 'vars':['Alk',], 'convert': convertmeqm3TOumolkg,'units':'meq/m^3',}
 	
 		#	av[name]['layers'] 		=  ['Surface','100m','300m','1000m',]
@@ -1060,8 +1060,8 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaCoords 	
 			av[name]['datacoords'] 		= woaCoords
 	
-			av[name]['modeldetails'] 	= {'name': name, 'vars':['votemper',], 'convert': ukp.NoChange,'units':'degrees C'}
-			av[name]['datadetails']  	= {'name': name, 'vars':['t_an',], 'convert': ukp.NoChange,'units':'degrees C'}
+			av[name]['modeldetails'] 	= {'name': name, 'vars':['votemper',], 'convert': bvp.NoChange,'units':'degrees C'}
+			av[name]['datadetails']  	= {'name': name, 'vars':['t_an',], 'convert': bvp.NoChange,'units':'degrees C'}
 	
 			av[name]['layers'] 		=  layerList
 			av[name]['regions'] 		= regionList	
@@ -1217,7 +1217,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			
 			av[name]['modeldetails'] 	= {'name': name, 'vars':['soicecov','votemper',], 'convert': calcIcelessMeanSST,'units':'degrees C'}
 			av[name]['datadetails']  	= {'name': '', 'units':''}		
-			#av[name]['datadetails']  	= {'name': name, 'vars':['t_an',], 'convert': ukp.NoChange,'units':'degrees C'}
+			#av[name]['datadetails']  	= {'name': name, 'vars':['t_an',], 'convert': bvp.NoChange,'units':'degrees C'}
 	
 			av[name]['layers'] 		= ['layerless',]
 			av[name]['regions'] 		= ['regionless',]
@@ -1244,8 +1244,8 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaCoords 	
 			av[name]['datacoords'] 		= woaCoords
 	
-			av[name]['modeldetails'] 	= {'name': name, 'vars':['vosaline',], 'convert': ukp.NoChange,'units':'PSU'}	
-			av[name]['datadetails']  	= {'name': name, 'vars':['s_an',], 'convert': ukp.NoChange,'units':'PSU'}
+			av[name]['modeldetails'] 	= {'name': name, 'vars':['vosaline',], 'convert': bvp.NoChange,'units':'PSU'}	
+			av[name]['datadetails']  	= {'name': name, 'vars':['s_an',], 'convert': bvp.NoChange,'units':'PSU'}
 
 			av[name]['layers'] 		=  layerList
 			av[name]['regions'] 		= regionList		
@@ -1272,7 +1272,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 		        av[name]['modelcoords']         = medusaCoords
 		        av[name]['datacoords']          = mldCoords
 
-		        av[name]['modeldetails']        = {'name': 'mld', 'vars':['somxl010',],   'convert': ukp.NoChange,'units':'m'}
+		        av[name]['modeldetails']        = {'name': 'mld', 'vars':['somxl010',],   'convert': bvp.NoChange,'units':'m'}
 		        av[name]['datadetails']         = {'name': 'mld', 'vars':['mld','mask',], 'convert': mldapplymask,'units':'m'}
 
 		        av[name]['layers']              = ['layerless',]#'Surface - 1000m','Surface - 300m',]#'depthint']
@@ -1352,8 +1352,8 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaUCoords 	
 			av[name]['datacoords'] 		= godasCoords
 	
-			av[name]['modeldetails'] 	= {'name': name, 'vars':['vozocrtx',], 'convert': ukp.mul1000,'units':'mm/s'}	
-			av[name]['datadetails']  	= {'name': name, 'vars':['ucur',], 'convert': ukp.NoChange,'units':'mm/s'}
+			av[name]['modeldetails'] 	= {'name': name, 'vars':['vozocrtx',], 'convert': bvp.mul1000,'units':'mm/s'}	
+			av[name]['datadetails']  	= {'name': name, 'vars':['ucur',], 'convert': bvp.NoChange,'units':'mm/s'}
 
 			av[name]['layers'] 		= layerList
 			av[name]['regions'] 		= regionList		
@@ -1376,8 +1376,8 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaVCoords 	
 			av[name]['datacoords'] 		= godasCoords
 	
-			av[name]['modeldetails'] 	= {'name': name, 'vars':['vomecrty',], 'convert': ukp.mul1000,'units':'mm/s'}	
-			av[name]['datadetails']  	= {'name': name, 'vars':['vcur',], 'convert': ukp.NoChange,'units':'mm/s'}
+			av[name]['modeldetails'] 	= {'name': name, 'vars':['vomecrty',], 'convert': bvp.mul1000,'units':'mm/s'}	
+			av[name]['datadetails']  	= {'name': name, 'vars':['vcur',], 'convert': bvp.NoChange,'units':'mm/s'}
 
 			av[name]['layers'] 		= layerList
 			av[name]['regions'] 		= regionList		
@@ -1399,8 +1399,8 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaWCoords 	
 			av[name]['datacoords'] 		= godasCoords
 	
-			av[name]['modeldetails'] 	= {'name': name, 'vars':['vovecrtz',], 'convert': ukp.mul1000000,'units':'um/s'}
-			av[name]['datadetails']  	= {'name': name, 'vars':['dzdt',], 'convert': ukp.NoChange,'units':'um/s'}
+			av[name]['modeldetails'] 	= {'name': name, 'vars':['vovecrtz',], 'convert': bvp.mul1000000,'units':'um/s'}
+			av[name]['datadetails']  	= {'name': name, 'vars':['dzdt',], 'convert': bvp.NoChange,'units':'um/s'}
 
 			av[name]['layers'] 		= layerList
 			av[name]['regions'] 		= regionList		
@@ -1521,8 +1521,8 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 			av[name]['modelcoords'] 	= medusaCoords 	
 			av[name]['datacoords'] 		= dmsCoords
 	
-			av[name]['modeldetails'] 	= {'name': name, 'vars':['DMS_ARAN',], 'convert': ukp.mul1000000,'units':'umol/m3'}
-			av[name]['datadetails']  	= {'name': name, 'vars':['DMS',], 'convert': ukp.NoChange,'units':'umol/m3'}
+			av[name]['modeldetails'] 	= {'name': name, 'vars':['DMS_ARAN',], 'convert': bvp.mul1000000,'units':'umol/m3'}
+			av[name]['datadetails']  	= {'name': name, 'vars':['DMS',], 'convert': bvp.NoChange,'units':'umol/m3'}
 	
 			av[name]['layers'] 		= ['layerless',]
 			av[name]['regions'] 		= regionList	
@@ -1590,7 +1590,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 
 		        av[name]['modelcoords']         = medusaCoords
 		        av[name]['datacoords']          = medusaCoords
-		        av[name]['modeldetails']        = {'name': name, 'vars':['AEOLIAN',], 'convert': ukp.NoChange,'units':'mmol Fe/m2/d'}
+		        av[name]['modeldetails']        = {'name': name, 'vars':['AEOLIAN',], 'convert': bvp.NoChange,'units':'mmol Fe/m2/d'}
 
 		        def mahodatadust(nc,keys):
 		                #factors are:
@@ -1661,7 +1661,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 					'sossheig':'m',
 				   }
 		
-			av[name]['modeldetails'] 	= {'name': name[:], 'vars':[name[:],], 'convert': ukp.NoChange,'units':nasUnits[name][:]}
+			av[name]['modeldetails'] 	= {'name': name[:], 'vars':[name[:],], 'convert': bvp.NoChange,'units':nasUnits[name][:]}
 
 			av[name]['regions'] 		=  ['NordicSea', 'LabradorSea', 'NorwegianSea','Global',]
 
@@ -1770,7 +1770,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 					arrD,			# model time series
 					data 	= -999,		# in situ data distribution
 					title 	= title,
-					filename=ukp.folder(imageFolder+'/NAS')+'_'.join(['NAS',name,region,layer,ts,ls+'.png']),
+					filename=bvp.folder(imageFolder+'/NAS')+'_'.join(['NAS',name,region,layer,ts,ls+'.png']),
 					units = units,
 					plotStyle 	= ts,
 					lineStyle	= ls,
@@ -1805,7 +1805,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 					arrD,			# model time series
 					data 	= -999,		# in situ data distribution
 					title 	= title,
-					filename=ukp.folder(imageFolder+'/NAS')+'_'.join(['NAS',name,region,layer,ts,ls+'.png']),
+					filename=bvp.folder(imageFolder+'/NAS')+'_'.join(['NAS',name,region,layer,ts,ls+'.png']),
 					units = units,
 					plotStyle 	= ts,
 					lineStyle	= ls,
@@ -1979,7 +1979,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 				arrD,			# model time series
 				data 	= -999,		# in situ data distribution
 				title 	= title,
-				filename= ukp.folder(imageFolder)+name+'_'+ts+'_'+ls+'.png',
+				filename= bvp.folder(imageFolder)+name+'_'+ts+'_'+ls+'.png',
 				units 	= units,
 				plotStyle 	= ts,
 				lineStyle	= ls,
@@ -2036,7 +2036,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 				arrD,			# model time series
 				data 	= -999,		# in situ data distribution
 				title 	= title,
-				filename=ukp.folder(imageFolder+'/Oxygen')+'_'.join([name,region,layer,ts,ls+'.png']),
+				filename=bvp.folder(imageFolder+'/Oxygen')+'_'.join([name,region,layer,ts,ls+'.png']),
 				units = units,
 				plotStyle 	= ts,
 				lineStyle	= ls,
@@ -2106,7 +2106,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 				arrD,			# model time series
 				data 	= -999,		# in situ data distribution
 				title 	= title,
-				filename=ukp.folder(imageFolder+'/BGC')+'_'.join([name,region,layer,ts,ls+'.png']),
+				filename=bvp.folder(imageFolder+'/BGC')+'_'.join([name,region,layer,ts,ls+'.png']),
 				units = units,
 				plotStyle 	= ts,
 				lineStyle	= ls,
@@ -2136,7 +2136,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
 				arrD,			# model time series
 				data 	= -999,		# in situ data distribution
 				title 	= title,
-				filename=ukp.folder(imageFolder+'/DMS')+'_'.join([name,region,layer,ts,ls+'.png']),
+				filename=bvp.folder(imageFolder+'/DMS')+'_'.join([name,region,layer,ts,ls+'.png']),
 				units = units,
 				plotStyle 	= ts,
 				lineStyle	= ls,
@@ -2151,7 +2151,7 @@ def timeseries_compare(colours,physics=True,bio=False,debug=False,year0=False,an
      			   AllImages.append(os.path.join(root, filename))		
 	comparehtml5Maker(
 		jobIDs = jobs,
-		reportdir = ukp.folder('CompareReports/'+analysisname),
+		reportdir = bvp.folder('CompareReports/'+analysisname),
 		files = AllImages,
 		clean = False,
 		doZip= False,
@@ -2198,7 +2198,7 @@ def CompareTwoRuns(jobIDA,jobIDB,physics=True,bio=False,yearA='',yearB='',debug=
 	      
 		ncA = Dataset(filesA[ft], 'r')
 		ncB = Dataset(filesB[ft], 'r')		
-		keys = ukp.intersection(ncA.variables.keys(),ncB.variables.keys())
+		keys = bvp.intersection(ncA.variables.keys(),ncB.variables.keys())
 
 		lats = ncA.variables['nav_lat'][:]		
 		lons = ncA.variables['nav_lon'][:]
@@ -2232,8 +2232,8 @@ def CompareTwoRuns(jobIDA,jobIDB,physics=True,bio=False,yearA='',yearB='',debug=
 			print key, la.shape,lo.shape,data.shape,datb.shape
 			
 			if 0 in [len(la),len(lo),len(data),len(datb)]:continue
-			filename = ukp.folder(imageFolder+'/'+ft)+ft+'-'+key+'.png' 
-			ukp.robinPlotQuad(
+			filename = bvp.folder(imageFolder+'/'+ft)+ft+'-'+key+'.png' 
+			bvp.robinPlotQuad(
 				lo, la,
 				data,
 				datb,

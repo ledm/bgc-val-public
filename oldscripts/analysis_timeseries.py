@@ -45,7 +45,7 @@ from getpass import getuser
 
 #####
 # Load specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesTools as tst
@@ -360,7 +360,7 @@ def analysis_timeseries(jobID = "u-ab671",
 	# This allows us to put away a python open to be re-opened later.
 	# This means that we can interupt the analysis without loosing lots of data and processing time,
 	# or we can append new simulation years to the end of the analysis without starting from scratch each time.
-	#shelvedir 	= ukp.folder('shelves/timeseries/'+jobID)
+	#shelvedir 	= bvp.folder('shelves/timeseries/'+jobID)
 
 
 
@@ -381,24 +381,24 @@ def analysis_timeseries(jobID = "u-ab671",
 	if gethostname().find('pmpc')>-1:
 		print "analysis-timeseries.py:\tBeing run at PML on ",gethostname()
 
-		imagedir	 = ukp.folder(paths.imagedir+'/'+jobID+'/timeseries')
+		imagedir	 = bvp.folder(paths.imagedir+'/'+jobID+'/timeseries')
 
 		if annual:	WOAFolder = paths.WOAFolder_annual
 		else:		WOAFolder = paths.WOAFolder
 
-		#shelvedir 	= ukp.folder(paths.shelvedir+'/'+jobID+'/timeseries/'+jobID)
-		shelvedir 	= ukp.folder(paths.shelvedir+"/timeseries/"+jobID)		
+		#shelvedir 	= bvp.folder(paths.shelvedir+'/'+jobID+'/timeseries/'+jobID)
+		shelvedir 	= bvp.folder(paths.shelvedir+"/timeseries/"+jobID)		
 	#####
 	# JASMIN
 	if gethostname().find('ceda.ac.uk')>-1:
 		print "analysis-timeseries.py:\tBeing run at CEDA on ",gethostname()
 		#machinelocation = 'JASMIN'
 
-		shelvedir 	= ukp.folder("/group_workspaces/jasmin2/ukesm/BGC_data/"+getuser()+"/shelves/timeseries/"+jobID)
+		shelvedir 	= bvp.folder("/group_workspaces/jasmin2/ukesm/BGC_data/"+getuser()+"/shelves/timeseries/"+jobID)
 		if annual:	WOAFolder = paths.WOAFolder_annual
 		else:		WOAFolder = paths.WOAFolder
 
-		imagedir	 = ukp.folder(paths.imagedir+'/'+jobID+'/timeseries')
+		imagedir	 = bvp.folder(paths.imagedir+'/'+jobID+'/timeseries')
 
 
         if gethostname().find('monsoon')>-1:
@@ -412,12 +412,12 @@ def analysis_timeseries(jobID = "u-ab671",
                 #ModelFolder       = "/projects/ukesm/ldmora/UKESM"
                 #####
                 # Location of model files.
-                #MEDUSAFolder_pref       = ukp.folder(ModelFolder)
+                #MEDUSAFolder_pref       = bvp.folder(ModelFolder)
 
                 #####
                 # Location of data files.
-                #if annual:      WOAFolder       = ukp.folder(ObsFolder+"WOA/annual")
-                #else:           WOAFolder       = ukp.folder(ObsFolder+"WOA/")
+                #if annual:      WOAFolder       = bvp.folder(ObsFolder+"WOA/annual")
+                #else:           WOAFolder       = bvp.folder(ObsFolder+"WOA/")
 
                 #MAREDATFolder   = ObsFolder+"/MAREDAT/MAREDAT/"
                 #GEOTRACESFolder = ObsFolder+"/GEOTRACES/GEOTRACES_PostProccessed/"
@@ -525,16 +525,16 @@ def analysis_timeseries(jobID = "u-ab671",
 	medusaWCoords 	= {'t':timekey, 'z':'depthw', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day',}	# model doesn't need time dict.
 
 	icCoords 	= {'t':timekey, 'z':'nav_lev', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day',}	# model doesn't need time dict.
-	maredatCoords 	= {'t':'index_t', 'z':'DEPTH',  'lat': 'LATITUDE', 'lon': 'LONGITUDE', 'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
-	takahashiCoords	= {'t':'index_t', 'z':'index_z','lat': 'LAT', 'lon': 'LON', 'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
-	woaCoords 	= {'t':'index_t', 'z':'depth',  'lat': 'lat', 	   'lon': 'lon',       'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
+	maredatCoords 	= {'t':'index_t', 'z':'DEPTH',  'lat': 'LATITUDE', 'lon': 'LONGITUDE', 'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
+	takahashiCoords	= {'t':'index_t', 'z':'index_z','lat': 'LAT', 'lon': 'LON', 'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
+	woaCoords 	= {'t':'index_t', 'z':'depth',  'lat': 'lat', 	   'lon': 'lon',       'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
 	osuCoords	= {'t':'index_t', 'z':'',  	'lat': 'latitude', 'lon': 'longitude', 'cal': 'standard','tdict':[] }
 	glodapCoords	= {'t':'index_t', 'z':'depth',  'lat': 'latitude', 'lon': 'longitude', 'cal': 'standard','tdict':[] }	
 	glodapv2Coords	= {'t':'time',    'z':'Pressure','lat':'lat',      'lon':'lon',        'cal': '',        'tdict':{0:0,} }
-	mldCoords	= {'t':'index_t', 'z':'index_z','lat':'lat',       'lon': 'lon','cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
-	dmsCoords	= {'t':'time',    'z':'depth',  'lat':'Latitude',  'lon': 'Longitude','cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
+	mldCoords	= {'t':'index_t', 'z':'index_z','lat':'lat',       'lon': 'lon','cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
+	dmsCoords	= {'t':'time',    'z':'depth',  'lat':'Latitude',  'lon': 'Longitude','cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
 	cciCoords	= {'t':'index_t', 'z':'index_z','lat': 'lat',      'lon': 'lon', 'cal': 'standard','tdict':['ZeroToZero'] }
-	mogcCoords	= {'t':'index_t', 'z':'depth','lat': 'latitude',      'lon': 'longitude',  'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}			
+	mogcCoords	= {'t':'index_t', 'z':'depth','lat': 'latitude',      'lon': 'longitude',  'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}			
 	godasCoords 	= {'t':'index_t',    'z':'level',  'lat': 'lat',      'lon': 'lon', 'cal': 'standard','tdict':['ZeroToZero'] }
 
 
@@ -589,7 +589,7 @@ def analysis_timeseries(jobID = "u-ab671",
   	#	If so, just set to data file to an empty string:
   	#		av[name]['dataFile']  = ''
 
-	av = ukp.AutoVivification()
+	av = bvp.AutoVivification()
 	if 'Chl_pig' in analysisKeys:
 		name = 'Chlorophyll_pig'
 		av[name]['modelFiles']  	= sorted(glob(paths.ModelFolder_pref+jobID+"/"+jobID+"o_1y_*_ptrc_T.nc"))
@@ -598,8 +598,8 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['modelcoords'] 	= medusaCoords
 		av[name]['datacoords'] 		= maredatCoords
 
-		av[name]['modeldetails'] 	= {'name': name, 'vars':['CHN','CHD'], 'convert': ukp.sums,'units':'mg C/m^3'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['Chlorophylla',], 'convert': ukp.div1000,'units':'ug/L'}
+		av[name]['modeldetails'] 	= {'name': name, 'vars':['CHN','CHD'], 'convert': bvp.sums,'units':'mg C/m^3'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['Chlorophylla',], 'convert': bvp.div1000,'units':'ug/L'}
 
 		av[name]['layers'] 		= layerList
 		av[name]['regions'] 		= regionList
@@ -620,7 +620,7 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['modelcoords'] 	= medusaCoords
 		av[name]['datacoords'] 		= maredatCoords
 
-		av[name]['modeldetails'] 	= {'name': name, 'vars':['CHN','CHD'], 'convert': ukp.sums,'units':'mg C/m^3'}
+		av[name]['modeldetails'] 	= {'name': name, 'vars':['CHN','CHD'], 'convert': bvp.sums,'units':'mg C/m^3'}
 		av[name]['datadetails']  	= {'name': '', 'units':''}
 		
 		av[name]['layers'] 		= ['Surface','100m','200m',]
@@ -649,8 +649,8 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['modelcoords'] 	= medusaCoords
 		av[name]['datacoords'] 		= cciCoords
 
-		av[name]['modeldetails'] 	= {'name': name, 'vars':['CHN','CHD'], 'convert': ukp.sums,'units':'mg C/m^3'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['chlor_a',], 'convert':  ukp.NoChange,'units':'mg C/m^3'}
+		av[name]['modeldetails'] 	= {'name': name, 'vars':['CHN','CHD'], 'convert': bvp.sums,'units':'mg C/m^3'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['chlor_a',], 'convert':  bvp.NoChange,'units':'mg C/m^3'}
 
 		av[name]['layers'] 		= ['Surface',] 	# CCI is surface only, it's a satellite product.
 		av[name]['regions'] 		= regionList
@@ -674,7 +674,7 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['modelcoords'] 	= medusaCoords
 		av[name]['datacoords'] 		= ''
 
-		av[name]['modeldetails'] 	= {'name': name, 'vars':[name,], 'convert': ukp.NoChange,'units':'mg C/m^3'}
+		av[name]['modeldetails'] 	= {'name': name, 'vars':[name,], 'convert': bvp.NoChange,'units':'mg C/m^3'}
 		av[name]['datadetails']  	= {'name': '', 'units':''}
 
 		av[name]['layers'] 		= ['Surface',]#'100m',] 	# CCI is surface only, it's a satellite product.
@@ -803,7 +803,7 @@ def analysis_timeseries(jobID = "u-ab671",
                 av[name]['modelcoords']         = medusaCoords
                 av[name]['datacoords']          = ''
 
-                av[name]['modeldetails']        = {'name': name, 'vars':[name,], 'convert': ukp.mul1000,'units':'umol-C/m3'}
+                av[name]['modeldetails']        = {'name': name, 'vars':[name,], 'convert': bvp.mul1000,'units':'umol-C/m3'}
                 av[name]['datadetails']         = {'name': '', 'units':''}
 
                 av[name]['layers']              = ['3000m',]#'100m',]         # CCI is surface only, it's a satellite product.
@@ -858,8 +858,8 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['modelcoords'] 	= medusaCoords
 		av[name]['datacoords'] 		= woaCoords
 
-		av[name]['modeldetails'] 	= {'name': name, 'vars':['DIN',], 'convert': ukp.NoChange,'units':'mmol N/m^3'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['n_an',], 'convert': ukp.NoChange,'units':'mmol N/m^3'}
+		av[name]['modeldetails'] 	= {'name': name, 'vars':['DIN',], 'convert': bvp.NoChange,'units':'mmol N/m^3'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['n_an',], 'convert': bvp.NoChange,'units':'mmol N/m^3'}
 
 		av[name]['layers'] 		=  layerList
 		av[name]['regions'] 		= regionList
@@ -885,8 +885,8 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['modelcoords'] 	= medusaCoords
 		av[name]['datacoords'] 		= woaCoords
 
-		av[name]['modeldetails'] 	= {'name': name, 'vars':['SIL',],  'convert': ukp.NoChange,'units':'mmol Si/m^3'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['i_an',], 'convert': ukp.NoChange,'units':'mmol Si/m^3'}
+		av[name]['modeldetails'] 	= {'name': name, 'vars':['SIL',],  'convert': bvp.NoChange,'units':'mmol Si/m^3'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['i_an',], 'convert': bvp.NoChange,'units':'mmol Si/m^3'}
 
 		av[name]['layers'] 		=  layerList
 		av[name]['regions'] 		= regionList
@@ -908,8 +908,8 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['modelcoords'] 	= medusaCoords
 		av[name]['datacoords'] 		= woaCoords
 
-		av[name]['modeldetails'] 	= {'name': name, 'vars':['OXY',], 'convert': ukp.NoChange,'units':'mmol O2/m^3'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['o_an',], 'convert': ukp.oxconvert,'units':'mmol O2/m^3'}
+		av[name]['modeldetails'] 	= {'name': name, 'vars':['OXY',], 'convert': bvp.NoChange,'units':'mmol O2/m^3'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['o_an',], 'convert': bvp.oxconvert,'units':'mmol O2/m^3'}
 
 		av[name]['layers'] 		=  layerList
 		av[name]['regions'] 		= regionList
@@ -1089,7 +1089,7 @@ def analysis_timeseries(jobID = "u-ab671",
 			zthick  = np.abs(nc.variables['depth_bnds'][:,0] - nc.variables['depth_bnds'][:,1])
 
 			for y,lat in enumerate(lats):
-				area = ukp.Area([latbnds[y,0],0.],[latbnds[y,1],1.])
+				area = bvp.Area([latbnds[y,0],0.],[latbnds[y,1],1.])
 				for z,thick in enumerate(zthick):
 					pvol[z,y,:] = np.ones_like(lons)*area*thick
 
@@ -1165,8 +1165,8 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['modelcoords'] 	= medusaCoords
 		av[name]['datacoords'] 		= glodapv2Coords
 
-		av[name]['modeldetails'] 	= {'name': 'DIC', 'vars':['DIC',],  'convert': ukp.NoChange,'units':'mmol C/m^3'}
-		av[name]['datadetails']  	= {'name': 'DIC', 'vars':['tco2',], 'convert': ukp.convertkgToM3,'units':'mmol C/m^3'}
+		av[name]['modeldetails'] 	= {'name': 'DIC', 'vars':['DIC',],  'convert': bvp.NoChange,'units':'mmol C/m^3'}
+		av[name]['datadetails']  	= {'name': 'DIC', 'vars':['tco2',], 'convert': bvp.convertkgToM3,'units':'mmol C/m^3'}
 
 		av[name]['layers'] 		=  layerList
 		av[name]['regions'] 		= regionList
@@ -1194,7 +1194,7 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['modelcoords'] 	= medusaCoords
 		av[name]['datacoords'] 		= glodapCoords
 
-		av[name]['modeldetails'] 	= {'name': name, 'vars':['ALK',], 'convert': ukp.NoChange,'units':'meq/m^3',}
+		av[name]['modeldetails'] 	= {'name': name, 'vars':['ALK',], 'convert': bvp.NoChange,'units':'meq/m^3',}
 		av[name]['datadetails']  	= {'name': name, 'vars':['Alk',], 'convert': convertmeqm3TOumolkg,'units':'meq/m^3',}
 
 	#	av[name]['layers'] 		=  ['Surface','100m','300m','1000m',]
@@ -1404,8 +1404,8 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['datacoords'] 		= maredatCoords
 
 		av[name]['modeldetails'] 	= {'name': 'IntPP', 'vars':['PRN' ,'PRD'], 'convert': medusadepthInt,'units':'mg C/m^3'}
-		#av[name]['datadetails']  	= {'name': 'IntPP', 'vars':['Chlorophylla',], 'convert': ukp.div1000,'units':'ug/L'}
-		av[name]['datadetails']  	= {'name': 'IntPP', 'vars':['PPint',], 'convert': ukp.div1000,'units':'[ug/L/d'}
+		#av[name]['datadetails']  	= {'name': 'IntPP', 'vars':['Chlorophylla',], 'convert': bvp.div1000,'units':'ug/L'}
+		av[name]['datadetails']  	= {'name': 'IntPP', 'vars':['PPint',], 'convert': bvp.div1000,'units':'[ug/L/d'}
 
 
 		av[name]['layers'] 		= ['Surface',]#'100m','200m','Surface - 1000m','Surface - 300m',]#'depthint']
@@ -1599,8 +1599,8 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['dataFile'] 		= paths.icFold+"/UKESM_fields_1860_eORCA1_small.nc"
 		av[name]['modelcoords'] 	= medusaCoords
 		av[name]['datacoords'] 		= icCoords
-		av[name]['modeldetails']	= {'name': name, 'vars':['FER',], 'convert': ukp.mul1000, 'units':'umolFe/m3'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['FER',], 'convert': ukp.mul1000, 'units':'umolFe/m3'}
+		av[name]['modeldetails']	= {'name': name, 'vars':['FER',], 'convert': bvp.mul1000, 'units':'umolFe/m3'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['FER',], 'convert': bvp.mul1000, 'units':'umolFe/m3'}
 		av[name]['layers'] 		= layerList
 		av[name]['regions'] 		= regionList
 		av[name]['metrics']		= metricList
@@ -1645,7 +1645,7 @@ def analysis_timeseries(jobID = "u-ab671",
 		
 		av[name]['modeldetails'] 	= {'name': name, 'vars':[ukesmkeys['temp3d'],], 'convert': sumMeanLandMask,'units':'degrees C'}
 		av[name]['datadetails']  	= {'name': '', 'units':''}
-		#av[name]['datadetails']  	= {'name': name, 'vars':['t_an',], 'convert': ukp.NoChange,'units':'degrees C'}
+		#av[name]['datadetails']  	= {'name': name, 'vars':['t_an',], 'convert': bvp.NoChange,'units':'degrees C'}
 
 		av[name]['layers'] 		= ['layerless',]
 		av[name]['regions'] 		= ['regionless',]
@@ -1689,7 +1689,7 @@ def analysis_timeseries(jobID = "u-ab671",
 		
 		av[name]['modeldetails'] 	= {'name': name, 'vars':[ukesmkeys['sal3d'],], 'convert': sumMeanLandMask,'units':'PSU'}
 		av[name]['datadetails']  	= {'name': '', 'units':''}
-		#av[name]['datadetails']  	= {'name': name, 'vars':['t_an',], 'convert': ukp.NoChange,'units':'degrees C'}
+		#av[name]['datadetails']  	= {'name': name, 'vars':['t_an',], 'convert': bvp.NoChange,'units':'degrees C'}
 
 		av[name]['layers'] 		= ['layerless',]
 		av[name]['regions'] 		= ['regionless',]
@@ -1730,7 +1730,7 @@ def analysis_timeseries(jobID = "u-ab671",
 
 		av[name]['modeldetails'] 	= {'name': name, 'vars':['soicecov',ukesmkeys['temp3d'],], 'convert': calcIcelessMeanSST,'units':'degrees C'}
 		av[name]['datadetails']  	= {'name': '', 'units':''}
-		#av[name]['datadetails']  	= {'name': name, 'vars':['t_an',], 'convert': ukp.NoChange,'units':'degrees C'}
+		#av[name]['datadetails']  	= {'name': name, 'vars':['t_an',], 'convert': bvp.NoChange,'units':'degrees C'}
 
 		av[name]['layers'] 		= ['layerless',]
 		av[name]['regions'] 		= ['regionless',]
@@ -1802,7 +1802,7 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['datacoords'] 		= woaCoords
 
 		av[name]['modeldetails'] 	= {'name': name, 'vars':[ukesmkeys['temp3d'],], 'convert': applyLandMask,'units':'degrees C'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['t_an',], 'convert': ukp.NoChange,'units':'degrees C'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['t_an',], 'convert': bvp.NoChange,'units':'degrees C'}
 
 		av[name]['layers'] 		=  layerList
 		av[name]['regions'] 		= regionList
@@ -1836,7 +1836,7 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['datacoords'] 		= woaCoords
 
 		av[name]['modeldetails'] 	= {'name': name, 'vars':[ukesmkeys['sal3d'],], 'convert': applyLandMask,'units':'PSU'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['s_an',], 'convert': ukp.NoChange,'units':'PSU'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['s_an',], 'convert': bvp.NoChange,'units':'PSU'}
 
 		av[name]['layers'] 		=  layerList
 		av[name]['regions'] 		= regionList
@@ -1859,7 +1859,7 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['modelcoords'] 	= medusaUCoords
 		av[name]['datacoords'] 		= godasCoords
 		av[name]['modeldetails'] 	= {'name': name, 'vars':[ukesmkeys['u3d'],], 'convert': applyLandMask1e3,'units':'mm/s'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['ucur',], 'convert': ukp.NoChange,'units':'mm/s'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['ucur',], 'convert': bvp.NoChange,'units':'mm/s'}
 
 		av[name]['layers'] 		= layerList
 		av[name]['regions'] 		= regionList
@@ -1884,7 +1884,7 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['datacoords'] 		= godasCoords
 
 		av[name]['modeldetails'] 	= {'name': name, 'vars':[ukesmkeys['v3d'],], 'convert': applyLandMask1e3,'units':'mm/s'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['vcur',], 'convert': ukp.NoChange,'units':'mm/s'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['vcur',], 'convert': bvp.NoChange,'units':'mm/s'}
 
 		av[name]['layers'] 		= layerList
 		av[name]['regions'] 		= regionList
@@ -1912,7 +1912,7 @@ def analysis_timeseries(jobID = "u-ab671",
 			return applyLandMask(nc,keys)*1000000.
 
 		av[name]['modeldetails'] 	= {'name': name, 'vars':[ukesmkeys['w3d'],], 'convert': applyLandMask1e6,'units':'um/s'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['dzdt',], 'convert': ukp.NoChange,'units':'um/s'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['dzdt',], 'convert': bvp.NoChange,'units':'um/s'}
 
                 vregions =regionList
 #                vregions.extend(['NordicSea', 'LabradorSea', 'NorwegianSea'])
@@ -2395,8 +2395,8 @@ def analysis_timeseries(jobID = "u-ab671",
 		av[name]['modelcoords'] 	= medusaCoords
 		av[name]['datacoords'] 		= dmsCoords
 
-		av[name]['modeldetails'] 	= {'name': name, 'vars':['DMS_ARAN',], 'convert': ukp.NoChange,'units':'nmol/L'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['DMS',], 'convert': ukp.NoChange,'units':'umol/m3'}
+		av[name]['modeldetails'] 	= {'name': name, 'vars':['DMS_ARAN',], 'convert': bvp.NoChange,'units':'nmol/L'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['DMS',], 'convert': bvp.NoChange,'units':'umol/m3'}
 
 		av[name]['layers'] 		= ['layerless',]
 		av[name]['regions'] 		= regionList
@@ -2420,8 +2420,8 @@ def analysis_timeseries(jobID = "u-ab671",
                 av[name]['modelcoords']         = medusaCoords
                 av[name]['datacoords']          = dmsCoords
 
-                av[name]['modeldetails']        = {'name': name, 'vars':['DMS_ANDR',], 'convert': ukp.NoChange,'units':'nmol/L'}
-                av[name]['datadetails']         = {'name': name, 'vars':['DMS',], 'convert': ukp.NoChange,'units':'umol/m3'}
+                av[name]['modeldetails']        = {'name': name, 'vars':['DMS_ANDR',], 'convert': bvp.NoChange,'units':'nmol/L'}
+                av[name]['datadetails']         = {'name': name, 'vars':['DMS',], 'convert': bvp.NoChange,'units':'umol/m3'}
 
                 av[name]['layers']              = ['layerless',]
                 av[name]['regions']             = regionList
@@ -2443,7 +2443,7 @@ def analysis_timeseries(jobID = "u-ab671",
 
 		av[name]['modelcoords'] 	= medusaCoords
 		av[name]['datacoords'] 		= medusaCoords
-		av[name]['modeldetails'] 	= {'name': name, 'vars':['AEOLIAN',], 'convert': ukp.NoChange,'units':'mmol Fe/m2/d'}
+		av[name]['modeldetails'] 	= {'name': name, 'vars':['AEOLIAN',], 'convert': bvp.NoChange,'units':'mmol Fe/m2/d'}
 
                 def mahodatadust(nc,keys):
                         #factors are:

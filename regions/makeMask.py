@@ -32,7 +32,7 @@ import os, inspect
 from calendar import month_name
 from glob import glob
 
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from bgcvaltools.dataset import dataset
 from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
 
@@ -81,9 +81,9 @@ def ignoreArtics(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.mask
 def ignoreMidArtics(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(xy,-65., 65.).mask
 def ignoreMoreArtics(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(xy,-60., 60.).mask
 def ignoreExtraArtics(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(xy,-50., 50.).mask 
-def NorthAtlanticOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(ukp.makeLonSafeArr(xx), -80.,0.).mask + np.ma.masked_outside(xy, 10.,60.).mask
-def SouthAtlanticOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(ukp.makeLonSafeArr(xx), -65.,20.).mask + np.ma.masked_outside(xy, -50.,-10.).mask
-def EquatorialAtlanticOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): return np.ma.masked_outside(ukp.makeLonSafeArr(xx), -65.,20.).mask + np.ma.masked_outside(xy, -15.,15.).mask
+def NorthAtlanticOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(bvp.makeLonSafeArr(xx), -80.,0.).mask + np.ma.masked_outside(xy, 10.,60.).mask
+def SouthAtlanticOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(bvp.makeLonSafeArr(xx), -65.,20.).mask + np.ma.masked_outside(xy, -50.,-10.).mask
+def EquatorialAtlanticOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): return np.ma.masked_outside(bvp.makeLonSafeArr(xx), -65.,20.).mask + np.ma.masked_outside(xy, -15.,15.).mask
 
 #####
 # Complex Regional masks
@@ -421,7 +421,7 @@ std_maskers['OND'] 		= OND
 
 #####
 # Add lower case, upper, Title, etc...
-std_maskers = ukp.altSpellingDict(std_maskers)
+std_maskers = bvp.altSpellingDict(std_maskers)
 
 
 def loadCustomMasks(debug=False):
@@ -460,7 +460,7 @@ def loadCustomMasks(debug=False):
 				if funcname in std_maskers.keys(): 	print "loadCustomMasks:\tWARNING:\tOverwriting previous mask:",funcname
 				outDict[funcname] = func
 	if debug: print "Successfully added keys:",outDict.keys()
-	outDict = ukp.altSpellingDict(outDict)	
+	outDict = bvp.altSpellingDict(outDict)	
 	return outDict			
 
 std_maskers.update(loadCustomMasks())

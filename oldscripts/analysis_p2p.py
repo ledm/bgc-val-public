@@ -44,7 +44,7 @@ import sys
 
 #####
 #Specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from p2p import makePatternStatsPlots, testsuite_p2p
 from p2p.summaryTargets import summaryTargets
 from p2p.patternAnalyses import InterAnnualPatterns,BGCvsPhysics
@@ -207,12 +207,12 @@ def analysis_p2p(
 		modelFolder 	= "/group_workspaces/jasmin2/ukesm/BGC_data/"
 		#####
 		# Location of model files.	
-		ModelFolder_pref	= ukp.folder(modelFolder)
+		ModelFolder_pref	= bvp.folder(modelFolder)
 		
 		#####
 		# Location of data files.
-		if annual:	WOAFolder 	= ukp.folder(ObsFolder+"WOA/annual")
-		else:		WOAFolder 	= ukp.folder(ObsFolder+"WOA/")
+		if annual:	WOAFolder 	= bvp.folder(ObsFolder+"WOA/annual")
+		else:		WOAFolder 	= bvp.folder(ObsFolder+"WOA/")
 		
 		MAREDATFolder 	= ObsFolder+"/MAREDAT/MAREDAT/"
 		GEOTRACESFolder = ObsFolder+"/GEOTRACES/GEOTRACES_PostProccessed/"
@@ -242,12 +242,12 @@ def analysis_p2p(
   #              ModelFolder       = "/projects/ukesm/ldmora/UKESM"
    #             #####
     #            # Location of model files.      
-     #           ModelFolder_pref       = ukp.folder(ModelFolder)
+     #           ModelFolder_pref       = bvp.folder(ModelFolder)
 #
  #               #####
   #              # Location of data files.
-#                if annual:      WOAFolder       = ukp.folder(ObsFolder+"WOA/annual")
-   #             else:           WOAFolder       = ukp.folder(ObsFolder+"WOA/")
+#                if annual:      WOAFolder       = bvp.folder(ObsFolder+"WOA/annual")
+   #             else:           WOAFolder       = bvp.folder(ObsFolder+"WOA/")
 #
  #               MAREDATFolder   = ObsFolder+"/MAREDAT/MAREDAT/"
   #              GEOTRACESFolder = ObsFolder+"/GEOTRACES/GEOTRACES_PostProccessed/"
@@ -265,7 +265,7 @@ def analysis_p2p(
               #          # New eORCA1 grid               
                #         orcaGridfn      = ModelFolder+'/mesh_mask_eORCA1_wrk.nc'
                # paths.p2p_ppDir         = "/projects/ukesm/"+getuser()+"/UKESM_postprocessed"
-                #imgDir          = ukp.folder('images')
+                #imgDir          = bvp.folder('images')
 
         #####
         # Because we can never be sure someone won't randomly rename the 
@@ -311,19 +311,19 @@ def analysis_p2p(
 	depthLevels 	= ['Surface','500m','1000m','Transect','PTransect','SOTransect','ArcTransect','AntTransect','CanRusTransect',]
 
 					
-	medusaCoords 	= {'t':'index_t', 'z':'deptht', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day','tdict':ukp.tdicts['ZeroToZero']}	# model doesn't need time dict.
+	medusaCoords 	= {'t':'index_t', 'z':'deptht', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day','tdict':bvp.tdicts['ZeroToZero']}	# model doesn't need time dict.
 	medusaUCoords 	= {'t':'index_t', 'z':'depthu', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day',}	# model doesn't need time dict.
 	medusaVCoords 	= {'t':'index_t', 'z':'depthv', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day',}	# model doesn't need time dict.
 	medusaWCoords 	= {'t':'index_t', 'z':'depthw', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day',}	# model doesn't need time dict.
 		
-	maredatCoords 	= {'t':'index_t', 'z':'DEPTH',  'lat': 'LATITUDE', 'lon': 'LONGITUDE', 'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
-	woaCoords 	= {'t':'index_t', 'z':'depth',  'lat': 'lat', 	   'lon': 'lon',       'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}		
-	cciCoords	= {'t':'index_t', 'z':'index_z','lat': 'lat',      'lon': 'lon',       'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
-	glodapCoords	= {'t':'index_t', 'z':'depth',  'lat': 'latitude', 'lon': 'longitude', 'cal': 'standard','tdict':ukp.tdicts['ZeroToZero'] }	
-	osuCoords	= {'t':'index_t', 'z':'index_z','lat': 'latitude', 'lon': 'longitude', 'cal': 'standard','tdict':ukp.tdicts['ZeroToZero'] }		
+	maredatCoords 	= {'t':'index_t', 'z':'DEPTH',  'lat': 'LATITUDE', 'lon': 'LONGITUDE', 'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
+	woaCoords 	= {'t':'index_t', 'z':'depth',  'lat': 'lat', 	   'lon': 'lon',       'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}		
+	cciCoords	= {'t':'index_t', 'z':'index_z','lat': 'lat',      'lon': 'lon',       'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
+	glodapCoords	= {'t':'index_t', 'z':'depth',  'lat': 'latitude', 'lon': 'longitude', 'cal': 'standard','tdict':bvp.tdicts['ZeroToZero'] }	
+	osuCoords	= {'t':'index_t', 'z':'index_z','lat': 'latitude', 'lon': 'longitude', 'cal': 'standard','tdict':bvp.tdicts['ZeroToZero'] }		
 	glodapv2Coords	= {'t':'index_t', 'z':'Pressure','lat':'lat',      'lon': 'lon',       'cal': '',        'tdict':{0:0,} }	
-	takahashiCoords	= {'t':'index_t', 'z':'index_z','lat': 'LAT',      'lon': 'LON',       'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
-	godasCoords 	= {'t':'index_t', 'z':'level',  'lat': 'lat',      'lon': 'lon', 'cal': 'standard',   'tdict':ukp.tdicts['ZeroToZero'] }		
+	takahashiCoords	= {'t':'index_t', 'z':'index_z','lat': 'LAT',      'lon': 'LON',       'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
+	godasCoords 	= {'t':'index_t', 'z':'level',  'lat': 'lat',      'lon': 'lon', 'cal': 'standard',   'tdict':bvp.tdicts['ZeroToZero'] }		
 
 	def listModelDataFiles(jobID, filekey, datafolder, annual):
 		print "listing model data files:",jobID, filekey, datafolder, annual
@@ -349,7 +349,7 @@ def analysis_p2p(
 		# AutoVivification is a form of nested dictionary.
 		# We use AutoVivification here to determine which files to analyse and which fields in those files.
 		# depthLevel is added, because some WOA files are huges and my desktop can not run the p2p analysis of that data.
-		av = ukp.AutoVivification()
+		av = bvp.AutoVivification()
 		#if 'Chl_pig' in analysisKeys:
 		#	name = 'Chlorophyll_pig'		
 		#	av[name]['Data']['File'] 		= paths.MAREDATFolder+"MarEDat20121001Pigments.nc"	
@@ -359,8 +359,8 @@ def analysis_p2p(
 		#	av[name]['Data']['coords'] 		= maredatCoords
 		#	av[name]['MEDUSA']['coords']		= medusaCoords
 		#	
-		#	av[name]['MEDUSA']['details']		= {'name': 'CHL', 'vars':['CHL',], 'convert': ukp.NoChange,'units':'mg C/m^3'}			
-		#	av[name]['Data']['details']		= {'name': 'Chlorophylla', 'vars':['Chlorophylla',], 'convert': ukp.div1000,'units':'ug/L'}			
+		#	av[name]['MEDUSA']['details']		= {'name': 'CHL', 'vars':['CHL',], 'convert': bvp.NoChange,'units':'mg C/m^3'}			
+		#	av[name]['Data']['details']		= {'name': 'Chlorophylla', 'vars':['Chlorophylla',], 'convert': bvp.div1000,'units':'ug/L'}			
 		#	av[name]['Data']['source'] 		= 'MAREDAT'
 		#	av[name]['MEDUSA']['source']		= 'MEDUSA'
 		#	av[name]['depthLevels'] 		= ['',]
@@ -387,8 +387,8 @@ def analysis_p2p(
 			av[name]['Data']['source'] 	= 'CCI'
 			av[name]['MEDUSA']['source']	= 'MEDUSA'			
 	
-			av[name]['MEDUSA']['details']		= {'name': name, 'vars':['CHN','CHD'], 'convert': ukp.sums,'units':'mg C/m^3'}		
-			av[name]['Data']['details']		= {'name': name, 'vars':['chlor_a',], 'convert':  ukp.NoChange,'units':'mg C/m^3'}			
+			av[name]['MEDUSA']['details']		= {'name': name, 'vars':['CHN','CHD'], 'convert': bvp.sums,'units':'mg C/m^3'}		
+			av[name]['Data']['details']		= {'name': name, 'vars':['chlor_a',], 'convert':  bvp.NoChange,'units':'mg C/m^3'}			
 		
 		if 'Diatoms' in analysisKeys:
 			name = 'Diatoms'
@@ -405,8 +405,8 @@ def analysis_p2p(
 			av[name]['Data']['coords'] 	= maredatCoords
 			av[name]['MEDUSA']['coords']	= medusaCoords
 
-			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['PHD',],     'convert': ukp.N2Biomass,'units': 'mg C/m^3'}						
-			av[name]['Data']['details']	= {'name': name, 'vars':['BIOMASS',], 'convert': ukp.NoChange,'units':'mg C/m^3'}			
+			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['PHD',],     'convert': bvp.N2Biomass,'units': 'mg C/m^3'}						
+			av[name]['Data']['details']	= {'name': name, 'vars':['BIOMASS',], 'convert': bvp.NoChange,'units':'mg C/m^3'}			
 
 			av[name]['Data']['source'] 	= 'MAREDAT'
 			av[name]['MEDUSA']['source']	= 'MEDUSA'
@@ -427,8 +427,8 @@ def analysis_p2p(
 			av[name]['Data']['coords'] 	= maredatCoords
 			av[name]['MEDUSA']['coords']	= medusaCoords
 			
-			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['ZMI',],     'convert': ukp.N2Biomass,'units': 'mg C/m^3'}			
-			av[name]['Data']['details']	= {'name': name, 'vars':['BIOMASS',], 'convert': ukp.NoChange,'units':'mg C/m^3'}			
+			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['ZMI',],     'convert': bvp.N2Biomass,'units': 'mg C/m^3'}			
+			av[name]['Data']['details']	= {'name': name, 'vars':['BIOMASS',], 'convert': bvp.NoChange,'units':'mg C/m^3'}			
 
 			av[name]['Data']['source'] 	= 'MAREDAT'
 			av[name]['MEDUSA']['source']	= 'MEDUSA'
@@ -450,8 +450,8 @@ def analysis_p2p(
 			av[name]['Data']['coords'] 	= maredatCoords
 			av[name]['MEDUSA']['coords']	= medusaCoords
 			
-			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['ZME',],     'convert': ukp.N2Biomass,'units': 'mg C/m^3'}			
-			av[name]['Data']['details']	= {'name': name, 'vars':['BIOMASS',], 'convert': ukp.NoChange,'units':'mg C/m^3'}			
+			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['ZME',],     'convert': bvp.N2Biomass,'units': 'mg C/m^3'}			
+			av[name]['Data']['details']	= {'name': name, 'vars':['BIOMASS',], 'convert': bvp.NoChange,'units':'mg C/m^3'}			
 
 			av[name]['Data']['source'] 	= 'MAREDAT'
 			av[name]['MEDUSA']['source']	= 'MEDUSA'
@@ -478,8 +478,8 @@ def analysis_p2p(
 			av[name]['Data']['source'] 	= 'WOA'
 			av[name]['MEDUSA']['source']	= 'MEDUSA'			
 	
-			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['DIN',], 'convert': ukp.NoChange,}			
-			av[name]['Data']['details']	= {'name': name, 'vars':['n_an',], 'convert': ukp.NoChange,}	# no units?
+			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['DIN',], 'convert': bvp.NoChange,}			
+			av[name]['Data']['details']	= {'name': name, 'vars':['n_an',], 'convert': bvp.NoChange,}	# no units?
 
 						
 		if 'Si' in analysisKeys:
@@ -502,8 +502,8 @@ def analysis_p2p(
 			av[name]['Data']['source'] 	= 'WOA'
 			av[name]['MEDUSA']['source']	= 'MEDUSA'			
 	
-			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['SIL',], 'convert': ukp.NoChange,}			
-			av[name]['Data']['details']	= {'name': name, 'vars':['i_an',], 'convert': ukp.NoChange,}	# no units?
+			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['SIL',], 'convert': bvp.NoChange,}			
+			av[name]['Data']['details']	= {'name': name, 'vars':['i_an',], 'convert': bvp.NoChange,}	# no units?
 			
 						
 		if 'Fe' in analysisKeys:
@@ -519,15 +519,15 @@ def analysis_p2p(
 			av[name]['MEDUSA']['grid']		= modelGrid		
 			av[name]['plottingSlices']		= justAll
 			
-			av[name]['Data']['coords'] 	= {'t': 'MONTH','z':'DEPTH','lat':'Latitude','lon':'Longitude','cal':'standard','tdict': ukp.tdicts['OneToZero']}
+			av[name]['Data']['coords'] 	= {'t': 'MONTH','z':'DEPTH','lat':'Latitude','lon':'Longitude','cal':'standard','tdict': bvp.tdicts['OneToZero']}
 			av[name]['MEDUSA']['coords']	= medusaCoords
 	
 			
 			av[name]['Data']['source'] 	= 'GEOTRACES'
 			av[name]['MEDUSA']['source']	= 'MEDUSA'			
 	
-			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['FER',], 'convert': ukp.mul1000,'units':'umol F/m^3'}			
-			av[name]['Data']['details']	= {'name': name, 'vars':['Fe_D_CONC_BOTTLE',], 'convert': ukp.NoChange,}	# no units?
+			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['FER',], 'convert': bvp.mul1000,'units':'umol F/m^3'}			
+			av[name]['Data']['details']	= {'name': name, 'vars':['Fe_D_CONC_BOTTLE',], 'convert': bvp.NoChange,}	# no units?
 
 			
 		if 'O2' in analysisKeys:
@@ -550,8 +550,8 @@ def analysis_p2p(
 			av[name]['Data']['source'] 	= 'WOA'
 			av[name]['MEDUSA']['source']	= 'MEDUSA'			
 	
-			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['OXY',], 'convert': ukp.NoChange,}			
-			av[name]['Data']['details']		= {'name': name, 'vars':['o_an',], 'convert': ukp.oxconvert,'units':'mmol/m^3'}
+			av[name]['MEDUSA']['details']	= {'name': name, 'vars':['OXY',], 'convert': bvp.NoChange,}			
+			av[name]['Data']['details']		= {'name': name, 'vars':['o_an',], 'convert': bvp.oxconvert,'units':'mmol/m^3'}
 
 
 		if 'Alk' in analysisKeys:
@@ -580,7 +580,7 @@ def analysis_p2p(
 			av[name]['Data']['source'] 	= 'GLODAP'
 			av[name]['MEDUSA']['source']	= 'MEDUSA'
 
-			av[name]['MEDUSA']['details'] 	= {'name': name, 'vars':['ALK',], 'convert': ukp.NoChange,'units':'meq/m^3',}
+			av[name]['MEDUSA']['details'] 	= {'name': name, 'vars':['ALK',], 'convert': bvp.NoChange,'units':'meq/m^3',}
 			av[name]['Data']['details']  	= {'name': name, 'vars':['Alk',], 'convert': convertmeqm3TOumolkg,'units':'meq/m^3',}		
 						
 		if 'DIC' in analysisKeys:
@@ -606,8 +606,8 @@ def analysis_p2p(
 			av[name]['Data']['source'] 	= 'GLODAPv2'
 			av[name]['MEDUSA']['source']	= 'MEDUSA'
 
-			av[name]['MEDUSA']['details'] 	= {'name': name, 'vars':['DIC',],  'convert': ukp.NoChange,'units':'mmol C/m^3'}
-			av[name]['Data']['details']  	= {'name': name, 'vars':['tco2',], 'convert': ukp.convertkgToM3,'units':'mmol C/m^3'}
+			av[name]['MEDUSA']['details'] 	= {'name': name, 'vars':['DIC',],  'convert': bvp.NoChange,'units':'mmol C/m^3'}
+			av[name]['Data']['details']  	= {'name': name, 'vars':['tco2',], 'convert': bvp.convertkgToM3,'units':'mmol C/m^3'}
 	
 		
 
@@ -770,8 +770,8 @@ def analysis_p2p(
 			av[name]['Data']['source'] 	= 'WOA'
 			av[name]['NEMO']['source']	= 'NEMO'			
 	
-			av[name]['NEMO']['details']	= {'name': name, 'vars':[ukesmkeys['sal3d'],], 'convert': ukp.NoChange,}			
-			av[name]['Data']['details']	= {'name': name, 'vars':['s_an',], 'convert': ukp.NoChange,}	# no units?
+			av[name]['NEMO']['details']	= {'name': name, 'vars':[ukesmkeys['sal3d'],], 'convert': bvp.NoChange,}			
+			av[name]['Data']['details']	= {'name': name, 'vars':['s_an',], 'convert': bvp.NoChange,}	# no units?
 			
 					
 		if 'T' in analysisKeys:
@@ -792,8 +792,8 @@ def analysis_p2p(
 			av[name]['Data']['source'] 	= 'WOA'
 			av[name]['NEMO']['source']	= 'NEMO'			
 	
-			av[name]['NEMO']['details']	= {'name': name, 'vars':[ukesmkeys['temp3d'],], 'convert': ukp.NoChange,}			
-			av[name]['Data']['details']	= {'name': name, 'vars':['t_an',], 'convert': ukp.NoChange,}	# no units?
+			av[name]['NEMO']['details']	= {'name': name, 'vars':[ukesmkeys['temp3d'],], 'convert': bvp.NoChange,}			
+			av[name]['Data']['details']	= {'name': name, 'vars':['t_an',], 'convert': bvp.NoChange,}	# no units?
 
 		if 'ZonalCurrent' in analysisKeys:
 			name = 'ZonalCurrent'
@@ -814,8 +814,8 @@ def analysis_p2p(
 			av[name]['Data']['source'] 	= 'GODAS'
 			av[name]['NEMO']['source']	= 'NEMO'			
 	
-			av[name]['NEMO']['details']	= {'name': name, 'vars':[ukesmkeys['u3d'],], 'convert': ukp.mul1000,'units':'mm/s'}			
-			av[name]['Data']['details']	= {'name': name, 'vars':['ucur',], 'convert': ukp.NoChange,'units':'mm/s'}
+			av[name]['NEMO']['details']	= {'name': name, 'vars':[ukesmkeys['u3d'],], 'convert': bvp.mul1000,'units':'mm/s'}			
+			av[name]['Data']['details']	= {'name': name, 'vars':['ucur',], 'convert': bvp.NoChange,'units':'mm/s'}
 			
 		if 'MeridionalCurrent' in analysisKeys:
 			name = 'MeridionalCurrent'
@@ -836,8 +836,8 @@ def analysis_p2p(
 			av[name]['Data']['source'] 	= 'GODAS'
 			av[name]['NEMO']['source']	= 'NEMO'			
 	
-			av[name]['NEMO']['details'] 	= {'name': name, 'vars':[ukesmkeys['v3d'],], 'convert': ukp.mul1000,'units':'mm/s'}	
-			av[name]['Data']['details']  	= {'name': name, 'vars':['vcur',], 'convert': ukp.NoChange,'units':'mm/s'}			
+			av[name]['NEMO']['details'] 	= {'name': name, 'vars':[ukesmkeys['v3d'],], 'convert': bvp.mul1000,'units':'mm/s'}	
+			av[name]['Data']['details']  	= {'name': name, 'vars':['vcur',], 'convert': bvp.NoChange,'units':'mm/s'}			
 
 			
 		if 'VerticalCurrent' in analysisKeys:
@@ -859,8 +859,8 @@ def analysis_p2p(
 			av[name]['Data']['source'] 	= 'GODAS'
 			av[name]['NEMO']['source']	= 'NEMO'			
 	
-			av[name]['NEMO']['details'] 	=  {'name': name, 'vars':[ukesmkeys['w3d'],], 'convert': ukp.mul1000000,'units':'um/s'}
-			av[name]['Data']['details']  	= {'name': name, 'vars':['dzdt',], 'convert': ukp.NoChange,'units':'um/s'}
+			av[name]['NEMO']['details'] 	=  {'name': name, 'vars':[ukesmkeys['w3d'],], 'convert': bvp.mul1000000,'units':'um/s'}
+			av[name]['Data']['details']  	= {'name': name, 'vars':['dzdt',], 'convert': bvp.NoChange,'units':'um/s'}
 						
 												
 						   
@@ -877,13 +877,13 @@ def analysis_p2p(
 			av[name]['depthLevels'] 		= ['',]
 			av[name]['plottingSlices'] 		= tsRegions
 
-			av[name]['Data']['coords'] 	= {'t':'index_t', 'z':'index_z','lat':'lat','lon':'lon','cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
+			av[name]['Data']['coords'] 	= {'t':'index_t', 'z':'index_z','lat':'lat','lon':'lon','cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
 			av[name]['NEMO']['coords']	= medusaCoords
 			av[name]['Data']['source'] 	= 'IFREMER'
 			av[name]['NEMO']['source']	= 'NEMO'			
 	
-			av[name]['NEMO']['details']	= {'name': name, 'vars':['somxl010',], 'convert': ukp.NoChange,'units':'m'}			
-			av[name]['Data']['details']	= {'name': name, 'vars':['mld','mask',], 'convert': ukp.applymask,'units':'m'}	# no units?
+			av[name]['NEMO']['details']	= {'name': name, 'vars':['somxl010',], 'convert': bvp.NoChange,'units':'m'}			
+			av[name]['Data']['details']	= {'name': name, 'vars':['mld','mask',], 'convert': bvp.applymask,'units':'m'}	# no units?
 
 
 		if 'Dust' in analysisKeys:
@@ -894,7 +894,7 @@ def analysis_p2p(
 			av[name]['MEDUSA']['coords'] 	= medusaCoords
 			av[name]['Data']['coords']  	= medusaCoords
 			
-			av[name]['MEDUSA']['details'] 	= {'name': name, 'vars':['AEOLIAN',], 'convert': ukp.NoChange,'units':'mmol Fe/m2/d'}
+			av[name]['MEDUSA']['details'] 	= {'name': name, 'vars':['AEOLIAN',], 'convert': bvp.NoChange,'units':'mmol Fe/m2/d'}
 
 			def mahodatadust(nc,keys):
 				#factors are:
@@ -945,17 +945,17 @@ def analysis_p2p(
 		#	av[name]['depthLevels'] 		= ['',]
 		#	av[name]['plottingSlices'] 		= tsRegions
 
-		#	av[name]['Data']['coords'] 	= {'t':'index_t', 'z':'index_z','lat':'lat','lon':'lon','cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
+		#	av[name]['Data']['coords'] 	= {'t':'index_t', 'z':'index_z','lat':'lat','lon':'lon','cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
 		#	av[name]['NEMO']['coords']	= medusaCoords
 		#	av[name]['Data']['source'] 	= 'IFREMER'
 		#	av[name]['NEMO']['source']	= 'NEMO'			
 	
-		#	av[name]['NEMO']['details']	= {'name': name, 'vars':['somxl010',], 'convert': ukp.NoChange,'units':'m'}			
-		#	av[name]['Data']['details']	= {'name': name, 'vars':['mld','mask',], 'convert': ukp.applymask,'units':'m'}	# no units?			
+		#	av[name]['NEMO']['details']	= {'name': name, 'vars':['somxl010',], 'convert': bvp.NoChange,'units':'m'}			
+		#	av[name]['Data']['details']	= {'name': name, 'vars':['mld','mask',], 'convert': bvp.applymask,'units':'m'}	# no units?			
 		
 		for model in models:
-			workingDir 	= ukp.folder(paths.p2p_ppDir+'/'+model+'-'+jobID+'-'+year)
-			imageFolder 	= ukp.folder(imgDir+'/'+jobID)
+			workingDir 	= bvp.folder(paths.p2p_ppDir+'/'+model+'-'+jobID+'-'+year)
+			imageFolder 	= bvp.folder(imgDir+'/'+jobID)
 
 			shelvesAV.extend(
 		    		testsuite_p2p(
@@ -976,7 +976,7 @@ def analysis_p2p(
 		if noTargets:		return
 		######
 		# Summary Target diagrams:
-		imageFold = ukp.folder(imageFolder+'/Targets/'+year+'/Summary')
+		imageFold = bvp.folder(imageFolder+'/Targets/'+year+'/Summary')
 		summaryTargets(shelvesAV, imageFold, year)
 
 		

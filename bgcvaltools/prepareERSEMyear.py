@@ -33,7 +33,7 @@ from glob import glob
 from os.path import basename,exists
 from sys import argv
 import numpy as np
-import UKESMpython as ukp 
+from bgcvaltools import bgcvalpython as bvp 
 #from UKESMpython import folder
 #from UKESMpython import getFileList,shouldIMakeFile#,getCalendar
 
@@ -135,22 +135,22 @@ def run(jobID,key,runType,doAnnual=True):
 		
 		for ykey in years:
 			if month not in ['1231',]:
-			    filesIn = ukp.getFileList([foldIn+ykey+month+'m01'+L+'.nc',])
+			    filesIn = bvp.getFileList([foldIn+ykey+month+'m01'+L+'.nc',])
 			else:
 			    file0101 = foldIn+str(int(ykey)+1)+'0101'+'m01'+L+'.nc'
 			    print "trying file0101 instead:",file0101			    
 			    if exists(file0101):
 			    	print "Using file0101 instead:",file0101
-			 	filesIn = ukp.getFileList([file0101,])
+			 	filesIn = bvp.getFileList([file0101,])
 			    else:
-			    	filesIn = ukp.getFileList([foldIn+ykey+month+'m01'+L+'.nc',])
+			    	filesIn = bvp.getFileList([foldIn+ykey+month+'m01'+L+'.nc',])
 			    	
 				    
 			#if jobID=='xhonp' and key in ['HighResp', ]:
-			 #   filesIn = ukp.getFileList([foldIn+'189[3]'+month+'m01'+L+'.nc',])
+			 #   filesIn = bvp.getFileList([foldIn+'189[3]'+month+'m01'+L+'.nc',])
 			    
 			print "filesIn:", filesIn
-			fileOut = ukp.folder('/tmp/outNetCDF/tmp-Clims')+basename(filesIn[0])[:-3]+'_'+key+'_'+runType+'.nc'
+			fileOut = bvp.folder('/tmp/outNetCDF/tmp-Clims')+basename(filesIn[0])[:-3]+'_'+key+'_'+runType+'.nc'
 			print fileOut
 		
 			mergedFiles.append(fileOut)
@@ -162,14 +162,14 @@ def run(jobID,key,runType,doAnnual=True):
 	#	filenameOut = folder('outNetCDF/Climatologies')+jobID+'_'+key+'_'+runType+'.nc'
 	#if key in [ '2006','2001', '1982','1948', '1894', "HighResp",]:
 	
-	filenameOut = ukp.folder('/data/euryale7/scratch/ledm/UKESM/ERSEM/'+jobID+'/'+key)+jobID+'_'+key+'_'+runType+'.nc'
+	filenameOut = bvp.folder('/data/euryale7/scratch/ledm/UKESM/ERSEM/'+jobID+'/'+key)+jobID+'_'+key+'_'+runType+'.nc'
 	
-	if ukp.shouldIMakeFile(mergedFiles,filenameOut): 		
+	if bvp.shouldIMakeFile(mergedFiles,filenameOut): 		
 		m = mergeNC( mergedFiles, filenameOut, keys, timeAverage=False,debug=True,calendar=cal)
 
 	if doAnnual:
-		filenameOut = ukp.folder('/data/euryale7/scratch/ledm/UKESM/ERSEM/'+jobID+'/'+key+'-annual')+jobID+'_'+key+'-annual'+'_'+runType+'.nc'	
-		if  ukp.shouldIMakeFile(mergedFiles,filenameOut): 
+		filenameOut = bvp.folder('/data/euryale7/scratch/ledm/UKESM/ERSEM/'+jobID+'/'+key+'-annual')+jobID+'_'+key+'-annual'+'_'+runType+'.nc'	
+		if  bvp.shouldIMakeFile(mergedFiles,filenameOut): 
 			m = mergeNC( mergedFiles, filenameOut, keys, timeAverage=True,debug=True,calendar=cal)
 
 def main():

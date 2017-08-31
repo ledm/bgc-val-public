@@ -32,7 +32,7 @@
 import os
 from re import findall
 
-import UKESMpython as ukp 
+from bgcvaltools import bgcvalpython as bvp 
 from mergeNC import mergeNC
 
 
@@ -41,7 +41,7 @@ def getYearFromFile(fn):
 	Takes a file anem, and looks for 8 consequetive numbers, then removes those that are months, and returns the year.
 	"""
 	a = findall(r'\d\d\d\d\d\d\d\d',fn)
-	mns = [ukp.mnStr(m) for m in range(1,13)]
+	mns = [bvp.mnStr(m) for m in range(1,13)]
 	for i in a:
 	    if i[-2:] in ['28','29','30','31','01'] and i[-4:-2] in mns: 
 	    	yr = i[:4]
@@ -69,7 +69,7 @@ def getMonthsFromFilename(fn):
 	a = findall(r'\d\d\d\d\d\d\d\d',fn)
 	#dates = []
 	year = getYearFromFile(fn)
-	mns = [ukp.mnStr(m) for m in range(1,13)]	
+	mns = [bvp.mnStr(m) for m in range(1,13)]	
 	months = []
 	for i in a:
 		mn = i[4:6]
@@ -84,7 +84,7 @@ def getAnnualFilename(files, outfolder,year):
 	#####
 	# determinig filename on the way out
 	if outfolder=='':	
-		outfolder = ukp.folder(os.path.dirname(files[0])+'/Annual')
+		outfolder = bvp.folder(os.path.dirname(files[0])+'/Annual')
 	
 	mintime = ''
 	maxtime = ''
@@ -136,7 +136,7 @@ def mergeMonthlyFiles(files,outfolder='',cal='360_day',timeAverage=False,expecte
 
 		filenameOut = getAnnualFilename(yearFiles, outfolder,yr)
 		
-		if  ukp.shouldIMakeFile(yearFiles,filenameOut): 
+		if  bvp.shouldIMakeFile(yearFiles,filenameOut): 
 			m = mergeNC( years[yr], filenameOut, [], timeAverage=timeAverage,debug=True,calendar=cal)
 		
 		filesOut.append(filenameOut)
@@ -172,7 +172,7 @@ def meanDJF(files,outfolder='',cal='360_day',timeAverage=False,):
 			continue
 
 		filenameOut = getAnnualFilename(yearFiles, outfolder,yr)
-		if  ukp.shouldIMakeFile(yearFiles,filenameOut): 
+		if  bvp.shouldIMakeFile(yearFiles,filenameOut): 
 			m = mergeNC( years[yr], filenameOut, [], timeAverage=timeAverage,debug=True,calendar=cal)
 		
 		filesOut.append(filenameOut)

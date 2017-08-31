@@ -22,7 +22,7 @@
 
 
 from socket import gethostname
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 
 #####
 # JASMIN
@@ -37,13 +37,13 @@ if gethostname().find('monsoon')>-1:
         ModelFolder       = "/projects/ukesm/"+getuser()+"/UKESM"
         #####
         # Location of model files.      
-        MEDUSAFolder_pref       = ukp.folder(ModelFolder)
-        NEMOFolder_pref         = ukp.folder(ModelFolder)
+        MEDUSAFolder_pref       = bvp.folder(ModelFolder)
+        NEMOFolder_pref         = bvp.folder(ModelFolder)
 
         #####
         # Location of data files.
-        if annual:      WOAFolder       = ukp.folder(ObsFolder+"WOA/annual")
-        else:           WOAFolder       = ukp.folder(ObsFolder+"WOA/")
+        if annual:      WOAFolder       = bvp.folder(ObsFolder+"WOA/annual")
+        else:           WOAFolder       = bvp.folder(ObsFolder+"WOA/")
 
         MAREDATFolder   = ObsFolder+"/MAREDAT/MAREDAT/"
         GEOTRACESFolder = ObsFolder+"/GEOTRACES/GEOTRACES_PostProccessed/"

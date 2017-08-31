@@ -22,7 +22,7 @@
 
 
 from socket import gethostname
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from getpass import getuser
 
 #####
@@ -50,12 +50,12 @@ if gethostname().find('LOCAL_MACHINE_NAME')>-1:
 			
 	#####
 	# Post processed Data location
-	shelvedir 	= ukp.folder("/Path/To/Model/Data/BGC_val_data/"+getuser()+"/shelves/")
+	shelvedir 	= bvp.folder("/Path/To/Model/Data/BGC_val_data/"+getuser()+"/shelves/")
 		
 	#####
 	# Location of model files.
 	esmvalFolder 	= "/Path/To/Model/Data/BGC_data/"
-	ModelFolder_pref	= ukp.folder(esmvalFolder)
+	ModelFolder_pref	= bvp.folder(esmvalFolder)
 
 	#####
 	# eORCA1 grid		

@@ -43,7 +43,7 @@ from scipy import interpolate
 
 import timeseriesTools as tst
 from bgcvaltools.viridis import viridis,discrete_viridis
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 
 try:	
 	defcmap = pyplot.cm.jet
@@ -132,7 +132,7 @@ def percentilesPlot(
 		#dataslice   = np.ma.masked_where(dataslice.mask + dataweights.mask,dataslice)
 		#dataweights = np.ma.masked_where(dataslice.mask + dataweights.mask,dataweights)		
 		pcs = [10.,20.,30.,40.,50.,60.,70.,80.,90.]
-		out_pc = ukp.weighted_percentiles(dataslice, pcs, weights = dataweights)
+		out_pc = bvp.weighted_percentiles(dataslice, pcs, weights = dataweights)
 		datapcs = {p:o for p,o in zip(pcs,out_pc)}
 		
 		pc1 = np.array([datapcs[20.] for i in xlims])

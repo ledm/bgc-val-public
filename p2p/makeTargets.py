@@ -48,7 +48,7 @@ from sys import argv
 from shelve import open as shOpen
 from calendar import month_name
 
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from longnames.pftnames import getLongName
 
 from bgcvaltools.StatsDiagram import TaylorDiagram, TargetDiagram,TaylorDiagramMulti
@@ -71,7 +71,7 @@ class makeTargets:
 	runTargets=False
 	for t in self.diagramTypes:
 		filename = self.filename.replace('.png','_'+t+'.png')
-		if ukp.shouldIMakeFile(self.matchedShelves,filename,debug=False): runTargets=True
+		if bvp.shouldIMakeFile(self.matchedShelves,filename,debug=False): runTargets=True
 		
 	if not runTargets: 
 		print "makeTargets:\tNo need to make Targets:",self.filename
@@ -83,11 +83,11 @@ class makeTargets:
 	self.determineLegend()
 
   	#self.shelvedir = workingDir
-  	#if self.shelvedir == '':self.shelvedir = ukp.folder(['shelves',self.xtype,self.ytype, 'Slices',self.name])
-  	#else:			self.shelvedir = ukp.folder(self.shelvedir)		
+  	#if self.shelvedir == '':self.shelvedir = bvp.folder(['shelves',self.xtype,self.ytype, 'Slices',self.name])
+  	#else:			self.shelvedir = bvp.folder(self.shelvedir)		
 	self.dataLoaded = False
 	
-	if len(self.matchedShelves)>0 and ukp.shouldIMakeFile(self.matchedShelves,self.filename,debug=False):
+	if len(self.matchedShelves)>0 and bvp.shouldIMakeFile(self.matchedShelves,self.filename,debug=False):
 		self.makeDiagram()
 
   def determineLegend(self,):
@@ -134,7 +134,7 @@ class makeTargets:
 
 
   def loadShelves(self,):
-  	self.data = ukp.AutoVivification()
+  	self.data = bvp.AutoVivification()
   	
   	for sh in self.matchedShelves:
   		print "loadShelves:\tINFO:\tLOADING:",sh
@@ -171,7 +171,7 @@ class makeTargets:
 		# order months chronologically instead of alphabetically
 		months = {month_name[i]:i for i in xrange(1,13)}
 		if leg in months.keys():
-			leg = ukp.mnStr(months[leg])+' '+leg
+			leg = bvp.mnStr(months[leg])+' '+leg
 								
 		s.close()
 		breaks=0
@@ -270,14 +270,14 @@ class makeTargets:
 	filled_markers  =  ('o', 'v', '^', '<', '>', '8', 's', 'p',  'h',   'd')#'*','H','D',	
 	markercycler = cycle(filled_markers )
 
-	#if self.imageDir=='':	self.imageDir = ukp.folder(['images',self.xtype.replace(', ','-'),'Targets'])
-	#else: 			self.imageDir = ukp.folder(self.imageDir)
+	#if self.imageDir=='':	self.imageDir = bvp.folder(['images',self.xtype.replace(', ','-'),'Targets'])
+	#else: 			self.imageDir = bvp.folder(self.imageDir)
 		
 
 	for t in self.diagramTypes:
 
 		filename = self.filename.replace('.png','_'+t+'.png')
-		if not ukp.shouldIMakeFile(self.matchedShelves,filename,debug=False):continue
+		if not bvp.shouldIMakeFile(self.matchedShelves,filename,debug=False):continue
 		
 		if not self.dataLoaded: self.loadShelves()
 

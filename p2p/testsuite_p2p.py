@@ -33,7 +33,7 @@ from os.path import exists
 from calendar import month_name
 
 #Specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from p2p import matchDataAndModel,makePlots,makeTargets, makePatternStatsPlots
 from p2p.slicesDict import populateSlicesList, slicesDict
 #from 
@@ -141,13 +141,13 @@ def testsuite_p2p(
 
 	# Location of processing files
 	if len( workingDir) == 0:
-		workingDir = ukp.folder("WorkingFiles/"+model+'-'+jobID+'-'+year)
+		workingDir = bvp.folder("WorkingFiles/"+model+'-'+jobID+'-'+year)
 		print "No working directory provided, creating default:",workingDir
 		
 	# Location of image Output files
 	if noPlots is False:
 	    if len(imageFolder)==0:
-		imageFolder 	= ukp.folder('images/'+jobID)
+		imageFolder 	= bvp.folder('images/'+jobID)
 		print "No image directory provided, creating default:",imageFolder
 
 
@@ -201,7 +201,7 @@ def testsuite_p2p(
 								model 		= model,
 								jobID		= jobID,
 								year		= year,
-								workingDir 	= ukp.folder(workingDir),
+								workingDir 	= bvp.folder(workingDir),
 								depthLevel 	= depthLevel,
 								grid		= grid,
 								gridFile	= gridFile
@@ -223,7 +223,7 @@ def testsuite_p2p(
 				print "Plotting slices provided, using ",nplottingSlices					
 
 					
-			#imageDir	= ukp.folder(imageFolder +'/P2Pplots/'+year+'/'+name+depthLevel)	
+			#imageDir	= bvp.folder(imageFolder +'/P2Pplots/'+year+'/'+name+depthLevel)	
 			m = makePlots(	b.MatchedDataFile, 
 					b.MatchedModelFile, 
 					name, 
@@ -237,8 +237,8 @@ def testsuite_p2p(
 		  			modeldetails 	= modeldetails,
 		  			datacoords 	= datacoords,
 		  			datadetails 	= datadetails,
-					shelveDir 	= ukp.folder(workingDir),
-					imageDir	= ukp.folder(imageFolder),
+					shelveDir 	= bvp.folder(workingDir),
+					imageDir	= bvp.folder(imageFolder),
 					compareCoords	= True,
 					noPlots		= noPlots
 				     )
@@ -251,7 +251,7 @@ def testsuite_p2p(
 			if noPlots: continue
 
 			if noTargets: continue
-			#csvFile = ukp.folder(workingDir+'/CSV')+'summary_file.csv'
+			#csvFile = bvp.folder(workingDir+'/CSV')+'summary_file.csv'
 			#print "attempting csvFromShelves:",m.shelves, csvFile
 			#c = csvFromShelves.csvFromShelves(m.shelves, csvFile ,['check',])
 
@@ -259,7 +259,7 @@ def testsuite_p2p(
 			#####
 			# makeTargets:
 			# Make a target diagram of all matches for this particular dataset. 
-			#filename = ukp.folder(imageFolder+'/Targets/'+year+'/AllSlices')+model+'-'+jobID+'_'+year+'_'+name+depthLevel+'.png'
+			#filename = bvp.folder(imageFolder+'/Targets/'+year+'/AllSlices')+model+'-'+jobID+'_'+year+'_'+name+depthLevel+'.png'
 			#t = makeTargets(	m.shelves, 
 			#			filename,
 			#			#name=name,
@@ -272,7 +272,7 @@ def testsuite_p2p(
 			if annual:	groups = {'Oceans':[],'depthRanges':[], 'BGCVal':[],}
 			else:		groups = {'Oceans':[],'Months':[],'Seasons':[],'NorthHemisphereMonths':[],'SouthHemisphereMonths':[],'depthRanges':[],'BGCVal':[],}
 			for g in groups:
-			    	groups[g] = ukp.reducesShelves(shelvesAV,  models =[model,],depthLevels = [depthLevel,], names = [name,], sliceslist =slicesDict[g])
+			    	groups[g] = bvp.reducesShelves(shelvesAV,  models =[model,],depthLevels = [depthLevel,], names = [name,], sliceslist =slicesDict[g])
 				print g, groups[g]
 				
 				if len(groups[g])==0:continue 
@@ -280,7 +280,7 @@ def testsuite_p2p(
 				#####
 				# makeTargets:
 				# Make a target diagram of the shelves of this group. 
-			  	filename = ukp.folder(imageFolder+'/Targets/'+year+'/'+name+depthLevel+'/'+g)+model+'_'+jobID+'_'+year+'_'+name+depthLevel+'_'+g+'.png'
+			  	filename = bvp.folder(imageFolder+'/Targets/'+year+'/'+name+depthLevel+'/'+g)+model+'_'+jobID+'_'+year+'_'+name+depthLevel+'_'+g+'.png'
 				makeTargets(	groups[g], 
 						filename,
 						legendKeys = ['newSlice',],					
@@ -294,7 +294,7 @@ def testsuite_p2p(
 				if xkeys=='':
 					print "Could no find x axis keys!",g,'in',['Oceans','Months','BGCVal']
 					
-			  	filenamebase = ukp.folder(imageFolder+'/Patterns/'+year+'/'+name+depthLevel+'/'+g)+'Months_'+model+'_'+jobID+'_'+year+'_'+name+depthLevel
+			  	filenamebase = bvp.folder(imageFolder+'/Patterns/'+year+'/'+name+depthLevel+'/'+g)+'Months_'+model+'_'+jobID+'_'+year+'_'+name+depthLevel
 				makePatternStatsPlots(	{name :groups[g],}, # {legend, shelves}
 							name+' '+g,	#xkeysname
 							slicesDict[xkeys],		#xkeysLabels=
@@ -305,7 +305,7 @@ def testsuite_p2p(
 			if not annual:
 				#####
 				# After finding all the shelves, we can plot them on the same axis.				
-			  	filenamebase = ukp.folder(imageFolder+'/Patterns/'+year+'/'+name+depthLevel+'/ANSH')+'ANSH-Months_'+model+'_'+jobID+'_'+year+'_'+name+depthLevel
+			  	filenamebase = bvp.folder(imageFolder+'/Patterns/'+year+'/'+name+depthLevel+'/ANSH')+'ANSH-Months_'+model+'_'+jobID+'_'+year+'_'+name+depthLevel
 			  	
 				makePatternStatsPlots(	{'North Hemisphere' :groups['NorthHemisphereMonths'],
 							 'South Hemisphere' :groups['SouthHemisphereMonths'],
@@ -327,8 +327,8 @@ def testsuite_p2p(
 			if len(layers)<=1: continue	
 			outShelves = {}
 			for dl in layers:
-				outShelves[dl] = ukp.reducesShelves(shelvesAV,  models =[model,],depthLevels = [dl,], names = [name,], sliceslist =slicesDict[g])	
-		  	filenamebase = ukp.folder(imageFolder+'/Patterns/'+year+'/'+name+'AllDepths/')+'AllDepths_'+g+'_'+model+'_'+jobID+'_'+year+'_'+name
+				outShelves[dl] = bvp.reducesShelves(shelvesAV,  models =[model,],depthLevels = [dl,], names = [name,], sliceslist =slicesDict[g])	
+		  	filenamebase = bvp.folder(imageFolder+'/Patterns/'+year+'/'+name+'AllDepths/')+'AllDepths_'+g+'_'+model+'_'+jobID+'_'+year+'_'+name
 			makePatternStatsPlots(	outShelves, 
 						name+' '+g,
 						slicesDict[g],		

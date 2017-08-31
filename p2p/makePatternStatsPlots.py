@@ -36,7 +36,7 @@ from bgcvaltools.StatsDiagram import rmsds
 import bgcvaltools.unbiasedSymmetricMetrics as usm
 from netCDF4 import Dataset
 
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from itertools import product
 import os
 import numpy as np
@@ -107,7 +107,7 @@ class makePatternStatsPlots:
   def calculateVolume(self):
 	# makes a netcdf with the volumes of each pixel in the flat map.
 	# 
-	if self.gridFile=='':	self.gridFile = ukp.getGridFile(self.grid)
+	if self.gridFile=='':	self.gridFile = bvp.getGridFile(self.grid)
 	volumeDict = {}
 	if self.grid == 'Flat1deg': 
 		nc = Dataset(self.gridFile,'r')
@@ -362,7 +362,7 @@ class makePatternStatsPlots:
 		plotStyle = 'Lines'	
 		fn = self.filenamebase+ self.plotTitle.replace(' ','')+'_'+plotType+'.png'
 		fn = fn.replace(' ', '')
-		if not ukp.shouldIMakeFile(self.AllShelves,fn,debug=False):continue		
+		if not bvp.shouldIMakeFile(self.AllShelves,fn,debug=False):continue		
 		#if os.path.exists(fn):continue
 				
 		fig = pyplot.figure()

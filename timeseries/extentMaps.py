@@ -46,7 +46,7 @@ import cartopy.io.shapereader as shapereader
 from cartopy import img_transform, feature as cfeature 
 
 #Specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from longnames.pftnames import getLongName
 from bgcvaltools.dataset import dataset
 import timeseriesTools as tst 
@@ -519,8 +519,8 @@ class extentMaps:
 	self.debug		= debug
 	self.plotEvery		= plotEvery
 		
-  	self.shelvefn 		= ukp.folder(self.workingDir)+'_'.join([self.jobID,self.dataType,])+'_contour.shelve'
-	self.shelvefn_insitu	= ukp.folder(self.workingDir)+'_'.join([self.jobID,self.dataType,])+'_contour_insitu.shelve'
+  	self.shelvefn 		= bvp.folder(self.workingDir)+'_'.join([self.jobID,self.dataType,])+'_contour.shelve'
+	self.shelvefn_insitu	= bvp.folder(self.workingDir)+'_'.join([self.jobID,self.dataType,])+'_contour_insitu.shelve'
 
 	#####
 	# Run everything
@@ -543,7 +543,7 @@ class extentMaps:
 	    	modellat = {}
 	    	modellon = {}
 	    	
-		interannualExtendfilename = ukp.folder(self.imageDir)+'_'.join([self.jobID,self.dataType,l,r])+'.png'	    			    	
+		interannualExtendfilename = bvp.folder(self.imageDir)+'_'.join([self.jobID,self.dataType,l,r])+'.png'	    			    	
 	    	if os.path.exists(interannualExtendfilename): 
 		    	print "Interinnual extended map already exists:", interannualExtendfilename	    	
 	    		continue
@@ -555,7 +555,7 @@ class extentMaps:
 		transects = {'Equator':0.,'10 N':10., '10 S':-10.,'Atlantic28W':-28., 'Pacific135W':-135., 'all':0.}
 		for transect in transects.keys():
 			continue
-			filename = ukp.folder(self.imageDir)+'TransectMap-'+transect+'.png'
+			filename = bvp.folder(self.imageDir)+'TransectMap-'+transect+'.png'
 		   	
 	        	makeTransectMap(	    
 	    				realdata, reallat, reallon,
@@ -609,8 +609,8 @@ class extentMaps:
 	    			if make2Maps:
 					if  mf not in [0, len(self.modelFiles)-1 ]:continue
 					
-			    	if mesh: filename = ukp.folder(self.imageDir)+'_'.join([self.jobID,self.dataType,l,r,str(meantime), 'mesh',])+'.png'
-			    	else:	 filename = ukp.folder(self.imageDir)+'_'.join([self.jobID,self.dataType,l,r,str(meantime)])+'.png'	    		
+			    	if mesh: filename = bvp.folder(self.imageDir)+'_'.join([self.jobID,self.dataType,l,r,str(meantime), 'mesh',])+'.png'
+			    	else:	 filename = bvp.folder(self.imageDir)+'_'.join([self.jobID,self.dataType,l,r,str(meantime)])+'.png'	    		
 			    	
 			    	if os.path.exists(filename):continue
 		    		makeExtentPlot(	modeldata[meantime], modellat[meantime], modellon[meantime],

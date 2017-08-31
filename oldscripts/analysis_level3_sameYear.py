@@ -50,7 +50,7 @@ import re
 
 #####	
 # Load specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesPlots as tsp 
@@ -130,8 +130,8 @@ def analysis_sy(jobID1 = 'u-af983',jobID2 = 'u-ah531', ):
 	
 						
 	analysisDict = {}
-	imagedir	= ukp.folder(paths.imagedir +'/'+jobID1+'-'+jobID2+'/Level3/')
-	#shelvedir 	= ukp.folder(paths.shelvedir+'/'+jobID+'/Level3/'+jobID1+'-'+jobID2)
+	imagedir	= bvp.folder(paths.imagedir +'/'+jobID1+'-'+jobID2+'/Level3/')
+	#shelvedir 	= bvp.folder(paths.shelvedir+'/'+jobID+'/Level3/'+jobID1+'-'+jobID2)
 
 	dataD = {}		
 	modeldataD = {}
@@ -199,7 +199,7 @@ def analysis_sy(jobID1 = 'u-af983',jobID2 = 'u-ah531', ):
 	
 		for n in analysisKeys:
 
-			filename = ukp.folder(imagedir+ystr)+plotDetails[n]['name']+'_'+ystr+'.png'
+			filename = bvp.folder(imagedir+ystr)+plotDetails[n]['name']+'_'+ystr+'.png'
 			if plotDetails[n]['ndim']==4:
 				data1 = nc1.variables[plotDetails[n]['key']][0,0]
 				data2 = nc2.variables[plotDetails[n]['key']][0,0]
@@ -210,7 +210,7 @@ def analysis_sy(jobID1 = 'u-af983',jobID2 = 'u-ah531', ):
 
 			lons, lats, data1,data2 = maskAndCompress(lons_cc,lats_cc,data1,data2)
 			
-			try:	ukp.robinPlotQuad(lons, lats, data1,data2,
+			try:	bvp.robinPlotQuad(lons, lats, data1,data2,
 					filename,
 					titles=[jobID1,jobID2], 
 					title=plotDetails[n]['longname']+' ' + ystr[:4]+'-'+ystr[4:6]+'-'+ystr[6:],

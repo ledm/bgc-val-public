@@ -46,7 +46,7 @@ import cartopy.io.shapereader as shapereader
 from cartopy import img_transform, feature as cfeature 
 
 #Specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from longnames.pftnames import getLongName
 from bgcvaltools.dataset import dataset
 import timeseriesTools as tst 
@@ -267,7 +267,7 @@ def contourplot(
 	dlats 	= dnc.variables[datacoords['lat']][:]
 	dlons 	= dnc.variables[datacoords['lon']][:]	
 	ddepths = dnc.variables[datacoords['z']][:]		
-	do2 	= ukp.extractData(dnc, datadetails)
+	do2 	= bvp.extractData(dnc, datadetails)
 	dnc.close()
 	
 	if plotKey in zonalCuts:
@@ -307,7 +307,7 @@ def contourplot(
 	# Add model data as a colormesh
 	for fn in modelfiles:
 		nc = dataset(fn,'r')
-		o2 	= ukp.extractData(nc, modeldetails)
+		o2 	= bvp.extractData(nc, modeldetails)
 		key = loadKeyFromFile(fn,modelcoords,nc=nc,)		
 		nc.close()
 				
@@ -377,7 +377,7 @@ def contourplot(
 	
 	#####
 	#Save figure
-	if filename=='':	filename=ukp.folder(['images',jobID,'OMZ'])+'-'.join([name,plotKey,'contour',str(int(oxcutoff))])+'.png'
+	if filename=='':	filename=bvp.folder(['images',jobID,'OMZ'])+'-'.join([name,plotKey,'contour',str(int(oxcutoff))])+'.png'
 	print "saving",filename
 	pyplot.savefig(filename )		
 	pyplot.close()		
@@ -398,16 +398,16 @@ def run():
 	name 		= 'OMZExtent'
 
 	medusaCoords 	= {'t':'time_counter', 	'z':'deptht', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day',}	# model doesn't need time dict.
-	woaCoords 	= {'t':'index_t', 	'z':'depth',  'lat': 'lat', 	'lon': 'lon',       'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}
-	modeldetails 	= {'name': name, 'vars':['OXY',],  'convert': ukp.NoChange,'units':'mmol O2/m^3'}	
-	datadetails  	= {'name': name, 'vars':['o_an',], 'convert': ukp.oxconvert,'units':'mmol O2/m^3'}	
+	woaCoords 	= {'t':'index_t', 	'z':'depth',  'lat': 'lat', 	'lon': 'lon',       'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}
+	modeldetails 	= {'name': name, 'vars':['OXY',],  'convert': bvp.NoChange,'units':'mmol O2/m^3'}	
+	datadetails  	= {'name': name, 'vars':['o_an',], 'convert': bvp.oxconvert,'units':'mmol O2/m^3'}	
 
 	cbarlabel	= 'WOA Oxygen concentration, mmol O2/m^3'
 	
 	for plotKey in ['Pacific135W','Atlantic28W', ]:#'Equator','10 N', '10 S',]:
 		oxcutoffs = [80.,20.,50.,]
 		for oxcutoff in oxcutoffs:
-			filename=ukp.folder(['images',jobID,'OMZ'])+'-'.join([name,plotKey,'contour',str(int(oxcutoff))])+'.png'
+			filename=bvp.folder(['images',jobID,'OMZ'])+'-'.join([name,plotKey,'contour',str(int(oxcutoff))])+'.png'
 			title	= ' '.join([jobID, getLongName(plotKey),getLongName(name)+',',str(oxcutoff),modeldetails['units'] ])
 			contourplot(
 				jobID,

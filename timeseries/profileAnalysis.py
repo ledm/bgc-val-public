@@ -36,7 +36,7 @@ import os
 import shutil
 
 #Specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 import timeseriesTools as tst 
 import timeseriesPlots as tsp 
 from bgcvaltools.makeEORCAmasks import makeMaskNC
@@ -93,9 +93,9 @@ class profileAnalysis:
 	self.debug		= debug
 	self.clean		= clean
 
-  	self.gridmaskshelve 	= ukp.folder(self.workingDir)+'_'.join([self.grid,])+'_masks.shelve'		
-  	self.shelvefn 		= ukp.folder(self.workingDir)+'_'.join(['profile',self.jobID,self.dataType,])+'.shelve'
-	self.shelvefn_insitu	= ukp.folder(self.workingDir)+'_'.join(['profile',self.jobID,self.dataType,])+'_insitu.shelve'
+  	self.gridmaskshelve 	= bvp.folder(self.workingDir)+'_'.join([self.grid,])+'_masks.shelve'		
+  	self.shelvefn 		= bvp.folder(self.workingDir)+'_'.join(['profile',self.jobID,self.dataType,])+'.shelve'
+	self.shelvefn_insitu	= bvp.folder(self.workingDir)+'_'.join(['profile',self.jobID,self.dataType,])+'_insitu.shelve'
 
 	self._masksLoaded_ 	= False
 	self.doHov		= True
@@ -230,12 +230,12 @@ class profileAnalysis:
 		
 		#DL = tst.DataLoader(fn,nc,self.modelcoords,self.modeldetails, regions = self.regions, layers = self.layers,)
 		nc = dataset(fn,'r')
-		dataAll = ukp.extractData(nc,self.modeldetails).squeeze()
+		dataAll = bvp.extractData(nc,self.modeldetails).squeeze()
 		
 		for r in self.regions:
 		  for m in self.metrics:
 			if m =='mean':
-				data = ukp.mameanaxis(np.ma.masked_where((self.modelMasks[r] != 1) + dataAll.mask,dataAll), axis=(1,2))
+				data = bvp.mameanaxis(np.ma.masked_where((self.modelMasks[r] != 1) + dataAll.mask,dataAll), axis=(1,2))
 				
 				if self.debug:print "profileAnalysis:\tloadModel.",r,m,self.dataType,'\tyear:',int(meantime), 'mean:',data.mean()
 				#if self.debug:print "profileAnalysis:\tloadModel.",self.dataType, data.shape, data.min(),data.max(), dataAll.shape ,self.modelMasks[r].shape, dataAll.min(),dataAll.max()
@@ -281,7 +281,7 @@ class profileAnalysis:
   def loadMasks(self):
   	#####
 	# Here we load the masks file.
-	self.maskfn = ukp.folder(self.workingDir+'/masks')+self.grid+'_masks.nc'
+	self.maskfn = bvp.folder(self.workingDir+'/masks')+self.grid+'_masks.nc'
 	
 	if not os.path.exists(self.maskfn):
 		print "Making mask file",self.maskfn
@@ -298,7 +298,7 @@ class profileAnalysis:
 			self.modelMasks[r] = ncmasks.variables[r][:]
 			
 		else:
-			newmask = ukp.folder(self.workingDir+'/masks')+self.grid+'_masks_'+r+'.nc'
+			newmask = bvp.folder(self.workingDir+'/masks')+self.grid+'_masks_'+r+'.nc'
 
 			if not os.path.exists(newmask):
 				makeMaskNC(newmask, [r,], self.grid,gridfn= self.gridFile)
@@ -415,7 +415,7 @@ class profileAnalysis:
 			dataD[(r,l,'mean')] = np.average(dataDarray, weights = dataDarea)
 		
 		if 'median' in self.metrics:
-			out_pc = ukp.weighted_percentiles(dataDarray, [50.,], weights = dataDarea)
+			out_pc = bvp.weighted_percentiles(dataDarray, [50.,], weights = dataDarea)
 			
 			for pc,dat in zip(percentiles, out_pc):
 				if pc==50.: dataD[(r,l,'median')][meantime] = dat
@@ -458,7 +458,7 @@ class profileAnalysis:
 
 			
 				print key, ':\t', dataD[key]
-				sh = shOpen(ukp.folder('./tmpshelves')+'tmshelve.shelve')
+				sh = shOpen(bvp.folder('./tmpshelves')+'tmshelve.shelve')
 				sh['dataD'] 	= dataD[key]
 				sh.close()
 				print "saved fine:\t./tmpshelves/tmshelve.shelve"
@@ -569,18 +569,18 @@ class profileAnalysis:
 
 
 		title = ' '.join([getLongName(t) for t in [r,m,self.dataType]])	
-	    	profilefn = ukp.folder(self.imageDir)+'_'.join(['profile',self.jobID,self.dataType,r,m,])+'.png'
+	    	profilefn = bvp.folder(self.imageDir)+'_'.join(['profile',self.jobID,self.dataType,r,m,])+'.png'
 	    	axislabel = getLongName(self.modeldetails['name'])+', '+getLongName(self.modeldetails['units'])
-		if  ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],profilefn,debug=False):					    	
+		if  bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],profilefn,debug=False):					    	
 			tsp.profilePlot(modeldata,data,profilefn, modelZcoords = modelZcoords, dataZcoords= dataZcoords, xaxislabel = axislabel,title = title,)			
 			
 		if self.doHov:	
-		    	hovfilename = ukp.folder(self.imageDir)+'_'.join(['profilehov',self.jobID,self.dataType,r,m,])+'.png'
-			if  ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename,debug=False):				
+		    	hovfilename = bvp.folder(self.imageDir)+'_'.join(['profilehov',self.jobID,self.dataType,r,m,])+'.png'
+			if  bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename,debug=False):				
 				tsp.hovmoellerPlot(modeldata,data,hovfilename, modelZcoords = modelZcoords, dataZcoords= dataZcoords, title = title,zaxislabel =axislabel, diff=False)		
 	
-		    	hovfilename_diff = ukp.folder(self.imageDir)+'_'.join(['profileDiff',self.jobID,self.dataType,r,m,])+'.png'
-			if  ukp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename_diff,debug=False):					    	
+		    	hovfilename_diff = bvp.folder(self.imageDir)+'_'.join(['profileDiff',self.jobID,self.dataType,r,m,])+'.png'
+			if  bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename_diff,debug=False):					    	
 				tsp.hovmoellerPlot(modeldata,data,hovfilename_diff, modelZcoords = modelZcoords, dataZcoords= dataZcoords, title = title,zaxislabel =axislabel,diff=True)		
 	
 

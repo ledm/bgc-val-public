@@ -31,7 +31,7 @@
 """
 
 #from netCDF4 import Dataset
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 import numpy as np
 from changeNC import changeNC, AutoVivification
 #import paths
@@ -73,7 +73,7 @@ def makeMaskNC(outFile, regions, grid,gridfn=''):
 	######
 	# Make 1D arrays of coordinates
 	print 'Make 1D arrays of coordinates'
-	for index,v in ukp.maenumerate(landmask):
+	for index,v in bvp.maenumerate(landmask):
 		(z,y,x) 	= index 
 		t = 0
 		

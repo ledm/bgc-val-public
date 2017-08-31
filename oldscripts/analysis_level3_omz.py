@@ -47,7 +47,7 @@ from getpass import getuser
 
 #####	
 # Load specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesPlots as tsp 
@@ -72,8 +72,8 @@ def analysis_omz(jobID=''):
        	analysisKeys.append('VerticalCurrent')          # Vertical Veloctity			
 				
 	analysisDict = {}
-	imagedir	= ukp.folder(paths.imagedir +'/'+jobID+'/Level3/OMZ')
-	shelvedir 	= ukp.folder(paths.shelvedir+'/'+jobID+'/Level3/OMZ')
+	imagedir	= bvp.folder(paths.imagedir +'/'+jobID+'/Level3/OMZ')
+	shelvedir 	= bvp.folder(paths.shelvedir+'/'+jobID+'/Level3/OMZ')
 	if annual:	WOAFolder = paths.WOAFolder_annual
 	else:		WOAFolder = paths.WOAFolder	
 
@@ -127,11 +127,11 @@ def analysis_omz(jobID=''):
 	medusaVCoords 	= {'t':'time_counter', 'z':'depthv', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day',}	# model doesn't need time dict.
 	medusaWCoords 	= {'t':'time_counter', 'z':'depthw', 'lat': 'nav_lat',  'lon': 'nav_lon',   'cal': '360_day',}	# model doesn't need time dict.
 	
-	woaCoords 	= {'t':'index_t', 'z':'depth',  'lat': 'lat', 	   'lon': 'lon',       'cal': 'standard','tdict':ukp.tdicts['ZeroToZero']}	
+	woaCoords 	= {'t':'index_t', 'z':'depth',  'lat': 'lat', 	   'lon': 'lon',       'cal': 'standard','tdict':bvp.tdicts['ZeroToZero']}	
 	godasCoords 	= {'t':'index_t',    'z':'level',  'lat': 'lat',      'lon': 'lon', 'cal': 'standard','tdict':['ZeroToZero'] }
 	
 		
-	av = ukp.AutoVivification()
+	av = bvp.AutoVivification()
 	
 	if 'O2' in analysisKeys:
 		name = 'Oxygen'
@@ -142,8 +142,8 @@ def analysis_omz(jobID=''):
 		av[name]['modelcoords'] 	= medusaCoords 	
 		av[name]['datacoords'] 		= woaCoords
 	
-		av[name]['modeldetails'] 	= {'name': name, 'vars':['OXY',], 'convert': ukp.NoChange,'units':'mmol O2/m^3'}	
-		av[name]['datadetails']  	= {'name': name, 'vars':['o_an',], 'convert': ukp.oxconvert,'units':'mmol O2/m^3'}
+		av[name]['modeldetails'] 	= {'name': name, 'vars':['OXY',], 'convert': bvp.NoChange,'units':'mmol O2/m^3'}	
+		av[name]['datadetails']  	= {'name': name, 'vars':['o_an',], 'convert': bvp.oxconvert,'units':'mmol O2/m^3'}
 
 		av[name]['layers'] 		=  layerList
 		av[name]['regions'] 		= regionList
@@ -384,7 +384,7 @@ def analysis_omz(jobID=''):
 			zthick  = np.abs(nc.variables['depth_bnds'][:,0] - nc.variables['depth_bnds'][:,1])
 			
 			for y,lat in enumerate(lats):
-				area = ukp.Area([latbnds[y,0],0.],[latbnds[y,1],1.])
+				area = bvp.Area([latbnds[y,0],0.],[latbnds[y,1],1.])
 				for z,thick in enumerate(zthick):
 					pvol[z,y,:] = np.ones_like(lons)*area*thick
 					
@@ -418,7 +418,7 @@ def analysis_omz(jobID=''):
 		def applyLandMask1e3(nc,keys):
 			return applyLandMask(nc,keys)*1000.
 		av[name]['modeldetails'] 	= {'name': name, 'vars':['vozocrtx',], 'convert': applyLandMask1e3,'units':'mm/s'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['ucur',], 'convert': ukp.NoChange,'units':'mm/s'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['ucur',], 'convert': bvp.NoChange,'units':'mm/s'}
 
 		av[name]['layers'] 		= layerList
 		av[name]['regions'] 		= regionList
@@ -445,7 +445,7 @@ def analysis_omz(jobID=''):
 			return applyLandMask(nc,keys)*1000.
 
 		av[name]['modeldetails'] 	= {'name': name, 'vars':['vomecrty',], 'convert': applyLandMask1e3,'units':'mm/s'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['vcur',], 'convert': ukp.NoChange,'units':'mm/s'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['vcur',], 'convert': bvp.NoChange,'units':'mm/s'}
 
 		av[name]['layers'] 		= layerList
 		av[name]['regions'] 		= regionList
@@ -473,7 +473,7 @@ def analysis_omz(jobID=''):
 			return applyLandMask(nc,keys)*1000000.
 
 		av[name]['modeldetails'] 	= {'name': name, 'vars':['vovecrtz',], 'convert': applyLandMask1e6,'units':'um/s'}
-		av[name]['datadetails']  	= {'name': name, 'vars':['dzdt',], 'convert': ukp.NoChange,'units':'um/s'}
+		av[name]['datadetails']  	= {'name': name, 'vars':['dzdt',], 'convert': bvp.NoChange,'units':'um/s'}
 
 		av[name]['layers'] 		= layerList
 		av[name]['regions'] 		= regionList
@@ -602,7 +602,7 @@ def analysis_omz(jobID=''):
                 layers          = ['500m',],#'Surface',],'1000m'
                 regions         = ['Global',],
                 workingDir      = shelvedir,
-                imageDir        = ukp.folder(imagedir +'ExtentMaps/Oxygen'),
+                imageDir        = bvp.folder(imagedir +'ExtentMaps/Oxygen'),
                 contours	= [20.,],
                  zrange		= [0.,400.],
                 grid            = av[name]['modelgrid'],
@@ -626,7 +626,7 @@ def analysis_omz(jobID=''):
                 layers          = ['1000m','500m',],#'Surface',],
                 regions         = ['Global',],
                 workingDir      = shelvedir,
-                imageDir        = ukp.folder(imagedir +'ExtentMaps/Oxygen50'),
+                imageDir        = bvp.folder(imagedir +'ExtentMaps/Oxygen50'),
                 contours	= [50.,],
                  zrange		= [0.,400.],
                 grid            = av[name]['modelgrid'],
@@ -650,7 +650,7 @@ def analysis_omz(jobID=''):
                 layers          = ['1000m','500m',],#'Surface',],
                 regions         = ['Global',],
                 workingDir      = shelvedir,
-                imageDir        = ukp.folder(imagedir +'ExtentMaps/Oxygen80'),
+                imageDir        = bvp.folder(imagedir +'ExtentMaps/Oxygen80'),
                 contours	= [50.,],
                 zrange		= [0.,400.],
                 grid            = av[name]['modelgrid'],
@@ -674,7 +674,7 @@ def analysis_omz(jobID=''):
                 layers          = ['layerless',],
                 regions         = ['Global',],
                 workingDir      = shelvedir,
-                imageDir        = ukp.folder(imagedir +'ExtentMaps/OMZ'), 
+                imageDir        = bvp.folder(imagedir +'ExtentMaps/OMZ'), 
                 contours	= [1.,],
                 zrange		= 'auto',
                 grid            = av[name]['modelgrid'],

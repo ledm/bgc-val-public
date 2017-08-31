@@ -28,7 +28,7 @@ import os
 #from pyproj import Proj
 
 #Specific local code:
-import UKESMpython as ukp
+from bgcvaltools import bgcvalpython as bvp
 from convertToOneDNC import convertToOneDNC
 from bgcvaltools.dataset import dataset
 from regions.makeMask import loadMaskMakers, makeMask
@@ -60,7 +60,7 @@ def loadData(nc,details):
 	
 	if type(nc) == type('filename'):
 		nc = dataset(nc,'r')
-	return ukp.extractData(nc,details)[:]
+	return bvp.extractData(nc,details)[:]
 
 
 def ApplyDepthSlice(arr,k):
@@ -85,25 +85,25 @@ def getHorizontalSlice(nc,coords,details,layer,data = ''):
 	# This is useful
 	if coords['z'] == '' or coords['z'] not in nc.variables.keys():
 		print "getHorizontalSlice:\tNo depth field in",details['name']
-		if type(data) ==type(''): 	data = ukp.extractData(nc,details)
+		if type(data) ==type(''): 	data = bvp.extractData(nc,details)
 		return data
 				
 	####
 	#
 	if len(nc.variables[coords['z']][:]) ==1 and layer in ['Surface',]:
 		print "getHorizontalSlice:\tNo depth field only 1 value",details['name']	
-		if data =='': 	data = ukp.extractData(nc,details)
+		if data =='': 	data = bvp.extractData(nc,details)
 		return ApplyDepthSlice(data, 0)
 	if layer in ['layerless',]:
 		print "getHorizontalSlice:\tNo layer data requested", layer
-		if type(data) == type(''): 	data = ukp.extractData(nc,details)
+		if type(data) == type(''): 	data = bvp.extractData(nc,details)
 		return data
 
 	#####
 	# This is when there is only one dimension in the data/model file.
 	if len(nc.dimensions.keys()) == 1 and layer in ['Surface','layerless']:
 		print "getHorizontalSlice:\tOne D file",details['name']	
-		if data =='': 	data = ukp.extractData(nc,details)
+		if data =='': 	data = bvp.extractData(nc,details)
 		data = np.ma.masked_where(nc.variables[coords['z']][:]>0,data)
 		return data
 		#return ApplyDepthSlice(data, 0)
@@ -119,30 +119,30 @@ def getHorizontalSlice(nc,coords,details,layer,data = ''):
 		if layer == '1000m': 	z = 1000.
 		if layer == '2000m': 	z = 2000.
                 if layer == '3000m':    z = 3000.
-		k =  ukp.getORCAdepth(z,nc.variables[coords['z']][:],debug=False)
+		k =  bvp.getORCAdepth(z,nc.variables[coords['z']][:],debug=False)
 		if type(data) == type(''):
-		 	data = ukp.extractData(nc,details)
+		 	data = bvp.extractData(nc,details)
 		print "getHorizontalSlice:\tSpecific depth field requested",details['name'], layer,[k],nc.variables[coords['z']][k], data.shape
 		return ApplyDepthSlice(data, k)
 			
 	elif layer in  ['Surface - 1000m', 'Surface - 300m']:
 		if layer == 'Surface - 300m':  	z = 300.
 		if layer == 'Surface - 1000m': 	z = 1000.
-		k_surf =  ukp.getORCAdepth(0., nc.variables[coords['z']][:],debug=False)
-		k_low  =  ukp.getORCAdepth(z , nc.variables[coords['z']][:],debug=False)
+		k_surf =  bvp.getORCAdepth(0., nc.variables[coords['z']][:],debug=False)
+		k_low  =  bvp.getORCAdepth(z , nc.variables[coords['z']][:],debug=False)
 		print "getHorizontalSlice:\t",layer,"surface:",k_surf,'-->',k_low
 		if data =='': 
-			return ApplyDepthSlice(ukp.extractData(nc,details),k_surf) - ApplyDepthSlice(ukp.extractData(nc,details),k_low)
+			return ApplyDepthSlice(bvp.extractData(nc,details),k_surf) - ApplyDepthSlice(bvp.extractData(nc,details),k_low)
 		return ApplyDepthSlice(data, k_surf) - ApplyDepthSlice(data, k_low)
 		
 	elif layer in  ['Surface to 100m', 'Surface to 300m']:
 		if layer == 'Surface to 300m':  z = 300.
 		if layer == 'Surface to 100m': 	z = 100.
-		k_surf =  ukp.getORCAdepth(0., nc.variables[coords['z']][:],debug=False)
-		k_low  =  ukp.getORCAdepth(z , nc.variables[coords['z']][:],debug=False)
+		k_surf =  bvp.getORCAdepth(0., nc.variables[coords['z']][:],debug=False)
+		k_low  =  bvp.getORCAdepth(z , nc.variables[coords['z']][:],debug=False)
 		print "getHorizontalSlice:\t",layer,"surface:",k_surf,'-->',k_low
 		if data =='': 
-			return ApplyDepthrange(ukp.extractData(nc,details),k_surf,k_low)
+			return ApplyDepthrange(bvp.extractData(nc,details),k_surf,k_low)
 		return ApplyDepthrange(data, k_surf,k_low)
 	elif layer == 'depthint':
 		print "getHorizontalSlice\t:ERROR:\tDepth in should be done in the extractData phase by passing a function in the details dictionary."
@@ -152,14 +152,14 @@ def getHorizontalSlice(nc,coords,details,layer,data = ''):
 		k = layer
 		try:	z = nc.variables[coords['z']][k]
 		except:	return []
-		if data =='': 	data = ukp.extractData(nc,details)				
+		if data =='': 	data = bvp.extractData(nc,details)				
 		print "getHorizontalSlice:\tSpecific depth level requested",details['name'], layer,nc.variables[coords['z']][k], data.shape	
 		return ApplyDepthSlice(data, k)
 			
 	if layer in nc.variables[coords['z']][:]:
 		z = layer
-		k =  ukp.getORCAdepth(z,nc.variables[coords['z']][:],debug=False)
-		if data =='': 	data = ukp.extractData(nc,details)		
+		k =  bvp.getORCAdepth(z,nc.variables[coords['z']][:],debug=False)
+		if data =='': 	data = bvp.extractData(nc,details)		
 		print "getHorizontalSlice:\tSpecific depth requested",details['name'], layer,nc.variables[coords['z']][k], data.shape	
 		return ApplyDepthSlice(data, k)
 			
@@ -180,7 +180,7 @@ class DataLoader:
   	self.details 	= details
   	self.layers 	= layers
   	self.name	= self.details['name']
-	if data == '': data = ukp.extractData(nc,self.details)
+	if data == '': data = bvp.extractData(nc,self.details)
   	self.Fulldata 	= data
   	self.__lay__ 	= -999.
   	self.regions, self.maskingfunctions = loadMaskMakers(regions = regions )
@@ -295,7 +295,7 @@ class DataLoader:
 	#####
 	# load lat, lon and data.
   	lat = self.nc.variables[self.coords['lat']][:]
-  	lon = ukp.makeLonSafeArr(self.nc.variables[self.coords['lon']][:]) # makes sure it's between +/-180
+  	lon = bvp.makeLonSafeArr(self.nc.variables[self.coords['lon']][:]) # makes sure it's between +/-180
 
 	dims =   self.nc.variables[self.details['vars'][0]].dimensions
   	
@@ -331,7 +331,7 @@ class DataLoader:
 	  if dims[-2].lower() in latnames and dims[-1].lower() in lonnames:
 	  
   	    #print 'createDataArray',self.details['name'],layer, "Sensible dimsions order:",dims		
- 	    for index,v in ukp.maenumerate(dat):
+ 	    for index,v in bvp.maenumerate(dat):
 
   			try:	(t,z,y,x) 	= index
   			except: 
@@ -352,7 +352,7 @@ class DataLoader:
 	  elif dims[-2].lower() in lonnames and dims[-1].lower() in latnames:
 	  
   	    #print 'createDataArray',self.details['name'],layer, "Ridiculous dimsions order:",dims				
- 	    for index,v in ukp.maenumerate(dat):
+ 	    for index,v in bvp.maenumerate(dat):
   			try:	(t,z,x,y) 	= index
   			except: 
   				(t,x,y) 	= index 
@@ -434,7 +434,7 @@ def makeArea(fn,coordsdict):
 		for a in np.arange(len(lats)):
 			#area[a] = np.ones(len(lats)*calculateArea(lats[a]-meanLatDiff,lats[a]+meanLatDiff,-meanLonDiff,meanLonDiff))
 			print a, area.shape, len(lats),len(lons)
-			area[a,:] = np.ones(len(lons))*ukp.Area([lats[a]-meanLatDiff/2.,-meanLonDiff/2.],[lats[a]+meanLatDiff/2.,meanLonDiff/2.])
+			area[a,:] = np.ones(len(lons))*bvp.Area([lats[a]-meanLatDiff/2.,-meanLonDiff/2.],[lats[a]+meanLatDiff/2.,meanLonDiff/2.])
 		return area
 	elif lats.ndim ==2:
 		print "timeseriesTools.py:\tWARNING: Setting area to flat for uneven grid! "
