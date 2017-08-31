@@ -71,24 +71,23 @@ The run config file contains all information, flags, paths and settings needed t
 Note that config files use the following convention:
 ```ini
 	[Section]
-	option 	: value
+	option : value
 	; comment
 ```
 
-;
-; When loading the config file into ConfigParser.py:
-; Beware that:
-; 	Sections hold capitalisation
-; 	Options all become lowercase
-; 	Values are parsed as strings
-;	; denotes a comment, but if you place it at the end of a line, it requires a space before. 
-;
-; The parser expects an [ActiveKeys] section, a [Global] section,
-; and a section for each key in [ActiveKeys]
-;
-; The values used in [Global] for jobID, year, model can be put into paths using $JOBID,$YEAR or $MODEL.
-; Similarly, $NAME can be used as a stand in for the name option for of each analysis. 
-; 
+When loading the config file into python's module `ConfigParser`, beware that:
+* Sections hold capitalisation
+* Options all become lowercase
+* Values are parsed as strings
+* End of line comments require a space or tab before the ';'
+
+
+The parser expects an `[ActiveKeys]` section, a `[Global]` section,
+and a section for each key in `[ActiveKeys]`.
+
+The values used in `[Global]` for jobID, year, model can be put into paths using `$JOBID`, `$YEAR` or `$MODEL`.
+Similarly, `$NAME` can be used as a stand in for the name option for of each analysis. 
+
 
 
 
