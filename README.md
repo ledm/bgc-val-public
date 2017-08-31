@@ -295,7 +295,57 @@ dataFile         :
 
 # Regions
 
+The `regions/` directory contains tools that are used to mask out unwanted regions in the data.
+For instance, these tools can be used to:
+* Remove negative values.
+* Remove zero values
+* Remove data outside a certain depth range.
+* Remove data outside a latituge or longitude range. 
 
+The function produces a mask to hides all points that are not in the requested region.
+
+The list of regions requested is set in the `runconfig.ini` `regions` option, both in the `[Global]` section
+and for each field.
+
+
+The full list of "Standard masks" is defined in the file `regions/makeMask.py`, 
+but it is straightforward to add a custom region using the template file, `regions/customMaskTemplate.py`.
+Simply make a copy of this file in the regions folder, rename the function to your mask name,
+and add whatever cuts you require.
+
+Each regional masking function has access to the following fields:
+* name: The name of the data. (useful for debugging)
+* region: The name of the regional cut (or slice)
+* xt: A one-dimensional array of the dataset times.
+* xz: A one-dimensional array of the dataset depths.
+* xy: A one-dimensional array of the dataset latitudes.
+* xx: A one-dimensional array of the dataset longitudes.
+* xd: A one-dimensional array of the data.
+
+Please note that these cuts are applied to both the model and the data files.
+
+Also note that is is possible stack masks, by adding the masks together. For instance:
+```python
+from regions.makeMask import Shallow, Equator10
+def ShallowEquator(name,newSlice, xt,xz,xy,xx,xd,debug=False):
+	newmask = np.ma.array(xd).mask
+	newmask += Shallow(name,newSlice, xt,xz,xy,xx,xd)
+	newmask += Equator10(name,newSlice, xt,xz,xy,xx,xd)	
+ 	return newmask	
+```
+Excludes all data outside the equatorial region and below 200m depth.
+
+The name of the function needs to match the region in your `runconfig.ini` file.
+	
+
+Note that xt,xz,xy,xx,xd should all be the same shape and size. 
+
+This functional can call itself, if two regional masks are needed.
+
+Please add your own regions, at the bottom of the list, if needed.
+"""	
+	
+	
 # Longnames
 
 This is a folder which contains dictionaries in .ini format.
@@ -312,7 +362,7 @@ n_mn                                 : Mean Nitrate
 sossheig                             : Sea Surface Height
 lat                                  : Latitude
 ```
-The dictionaries are loaded at runtime by `longnames.py`. This script loads all .ini files in the longname directory.
+The dictionaries are loaded at runtime by `longnames/longnames.py`. This script loads all .ini files in the `longnames/` directory.
 Users can easilly add their own dictionairies here, without disturbing the main longname.ini dictionairy.
 
         
