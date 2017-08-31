@@ -102,7 +102,14 @@ def findReplaceFlags(Config, section, string):
 	if string.find('$MODEL') >-1:
 		yr = parseOptionOrDefault(Config, section, 'model')
 		string = string.replace('$MODEL', str(yr))
-				
+
+	if string.find('$BASEDIR_MODEL') >-1:
+		yr = parseOptionOrDefault(Config, section, 'basedir_model')
+		string = string.replace('$BASEDIR_MODEL', str(yr))
+	if string.find('$BASEDIR_OBS') >-1:
+		yr = parseOptionOrDefault(Config, section, 'basedir_obs')
+		string = string.replace('$BASEDIR_OBS', str(yr))
+						
 	return string
 	
 
@@ -312,8 +319,10 @@ class GlobalSectionParser:
 	self.clean 		= parseBoolean(self.__cp__, defaultSection, 'clean',		default=False)
 		
 	self.images_ts		= parseOptionOrDefault(self.__cp__, defaultSection, 'images_ts',  )
+	self.images_pro 	= parseOptionOrDefault(self.__cp__, defaultSection, 'images_pro', )	
 	self.images_p2p 	= parseOptionOrDefault(self.__cp__, defaultSection, 'images_p2p', )
 	self.postproc_ts  	= parseOptionOrDefault(self.__cp__, defaultSection, 'postproc_ts',  )
+	self.postproc_pro 	= parseOptionOrDefault(self.__cp__, defaultSection, 'postproc_prp', )
 	self.postproc_p2p 	= parseOptionOrDefault(self.__cp__, defaultSection, 'postproc_p2p', )
 	self.reportdir 		= parseOptionOrDefault(self.__cp__, defaultSection, 'reportdir', )
 	self.gridFile 		= parseFilepath(self.__cp__, defaultSection, 'gridFile',  )#expecting1=True, optional=False)	
@@ -334,7 +343,9 @@ class GlobalSectionParser:
 							
 	print "timeseries image folder:		", self.images_ts
 	print "P2P image folder:		", self.images_p2p	
+	print "Profile image folder:		", self.images_pro	
 	print "timeseries postprocessed files:	", self.postproc_ts
+	print "Profile postprocessed files:	", self.postproc_pro	
 	print "p2p postprocessed files:		", self.postproc_p2p
 
 	print "grid File:			", self.gridFile	
@@ -388,8 +399,10 @@ class AnalysisKeyParser:
 	self.layers 		= parseOptionOrDefault(self.__cp__, section, 'layers', parsetype='list')
 		
 	self.images_ts		= parseOptionOrDefault(self.__cp__, section, 'images_ts',  )
-	self.images_p2p 	= parseOptionOrDefault(self.__cp__, section, 'images_p2p', )
+	self.images_pro 	= parseOptionOrDefault(self.__cp__, section, 'images_pro', )
+	self.images_p2p 	= parseOptionOrDefault(self.__cp__, section, 'images_p2p', )	
 	self.postproc_ts  	= parseOptionOrDefault(self.__cp__, section, 'postproc_ts',  )
+	self.postproc_pro 	= parseOptionOrDefault(self.__cp__, section, 'postproc_pro', )	
 	self.postproc_p2p 	= parseOptionOrDefault(self.__cp__, section, 'postproc_p2p', )
 	self.reportdir 		= parseOptionOrDefault(self.__cp__, section, 'reportdir', )
 	
@@ -410,8 +423,10 @@ class AnalysisKeyParser:
 	print "makeTS:		", self.makeTS
 					
 	print "timeseries image folder:		", self.images_ts
-	print "P2P image folder:		", self.images_p2p	
+	print "Profile image folder:		", self.images_pro
+	print "P2P image folder:		", self.images_p2p		
 	print "timeseries postprocessed files:	", self.postproc_ts
+	print "profile postprocessed files:	", self.postproc_pro
 	print "p2p postprocessed files:		", self.postproc_p2p
 
 	print "year:		", self.year

@@ -118,37 +118,15 @@ class makePlots:
   	self.datadetails 	= datadetails
   	self.dpi 		= dpi
   	
-  	self.maskingfunctions	= loadMaskMakers(regions = self.newSlices)
-	#self.mt = getmt()
-	#Models = [m.upper() for m in ['Diat-HadOCC', 'ERSEM','HadOCC', 'MEDUSA','PlankTOM6','PlankTOM10','NEMO','IMARNET','CMIP5',]] # skip these to find in situ data types.
-	#Models.extend(['IMARNET_' +m.upper() for m in ['Diat-HadOCC', 'ERSEM','HadOCC', 'MEDUSA','PlankTOM6','PlankTOM10','NEMO',]])	
-	#Models.extend(['CMIP5_' +m.upper() for m in CMIP5models])
-	#ytypes = []
-  	#for dk in self.mt.keys():
-  	#	if dk.upper() in Models:
-  	#		#print "
-  	#		continue
-  	#	if self.name in self.mt[dk].keys():ytypes.append(dk)
-  	#if len(ytypes)==1:
-  	#	self.ytype = ytypes[0]
-  	#else:
-  	#    if len(ytypes)>1:	print "ERROR:\t The same name,(",self.name,") appears in multiple datasets:",ytypes
-   	#    if len(ytypes)<1:	print "ERROR:\t The name,(",self.name,") not appears in any datasets" 	
-#  	    print "THis job will probably fa
-	
+  	self.newSlices, self.maskingfunctions	= loadMaskMakers(regions = self.newSlices)
 
-  	
-	#if self.name in MaredatTypes:  	self.ytype = 'Maredat'
-	#if self.name in WOATypes:  	self.ytype = 'WOA'
-	#if self.name in IFREMERTypes:  	self.ytype = 'IFREMER'	
-	#if self.name in GEOTRACESTypes: self.ytype = 'GEOTRACES'		
+		
 	
 
   	if self.shelveDir == '':self.shelveDir = ukp.folder(['shelves',self.xtype,self.year,self.ytype, 'Slices',self.name+self.depthLevel])
   	else:			self.shelveDir = ukp.folder(self.shelveDir)		
 
 	if imageDir=='':	
-		
 		self.imageDir = ukp.folder(['images',self.xtype,'P2P_plots',self.year,self.name+self.depthLevel])
 		print "Using default image folder:",self.imageDir
 	else: 			self.imageDir = ukp.folder(imageDir)
@@ -169,12 +147,8 @@ class makePlots:
 	
 	self.plotWithSlices()
 
-	    	
   	self.xnc.close()
   	self.ync.close()  	
-
-
-  		
 
 
   def plotWithSlices(self):#,newSlice,):  

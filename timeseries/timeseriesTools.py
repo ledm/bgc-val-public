@@ -272,7 +272,8 @@ class DataLoader:
   	  	
   	m = makeMask(
   				self.maskingfunctions,
-  				self.details['name'],region, 
+  				self.details['name'],
+  				region, 
   				self.oneDData['arr_t'],
   				self.oneDData['arr_z'],
   				self.oneDData['arr_lat'],

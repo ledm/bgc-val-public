@@ -531,7 +531,7 @@ def loadMaskMakers(configfile = '', regions = []):
 	print "loadMaskMakers:\tconfigfile", configfile,"\tregions:",regions, len(regions)
 	if len(regions) == 0:
 		return loadMaskMakersConfig(configfile = configfile)
-	else:	return loadMaskMakersList(regions = regions)
+	else:	return loadMaskMakersList(  regions    = regions)
 		
 	 	
 def makeMask(maskingfunctions, name,region, xt,xz,xy,xx,xd,debug=False):
@@ -554,8 +554,8 @@ def makeMask(maskingfunctions, name,region, xt,xz,xy,xx,xd,debug=False):
 	
 	Please add your own regions, at the bottom of the list, if needed.
 	"""	
-	if debug:print "makeMask:\tmakeMask:\tinitialise:\t",name, '\t',newSlice
-	return maskingfunctions[region](name,region, xt,xz,xy,xx,xd,debug=False)
+	if debug:print "makeMask:\tmakeMask:\tinitialise:\t",name, '\t',"\""+region+"\""
+	return maskingfunctions[region](name,region, xt,xz,xy,xx,xd,debug=debug)
   	
 
 

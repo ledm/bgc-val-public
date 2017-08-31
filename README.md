@@ -28,11 +28,11 @@ This package utilises:
 # Requirements
 
 To use this code, the following python packages are required:
-* Matplotlib
+* matplotlib
 * netCDF4
 * numpy 
 * scipy
-* Cartopy 
+* cartopy 
 * https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/netcdf_manip
 
 Most of these packages can be installed with the command:
@@ -43,9 +43,11 @@ pip install --user packagename
         
 Please note that cartopy can be difficult to install, with many requirements: such as geos, geos-python, geos-devel, proj4, cython etc… (http://scitools.org.uk/cartopy/)
 
+
+
 # Installation
 
-Once the previously mentionned packages have been installed, make a local copy of the trunk of this package with something like:
+Once the required packages have been installed, make a local clone of the trunk of this package with the command:
 ```bash       
 git clone git@gitlab.ecosystem-modelling.pml.ac.uk:ledm/bgc-val-public.git
 ```
@@ -57,6 +59,8 @@ In the local copy, use the following pip command to make a local installation of
 ```bash
 pip install -e . --user
 ```
+
+
 
 # Running
 
@@ -71,9 +75,11 @@ The command to  run the evaluation is:
 ```bash
 ./run.py
 ```
-`run.py` is a simple wrapper which calls the script, [analysis_parser.py](#analysis_parser.py), and passes it the path to the [runconfig.ini](#runconfig.ini) file.
+`run.py` is a simple wrapper which calls the script, [analysis_parser.py](#Analysis_Parser), and passes it the path to the [runconfig.ini](#Run_Config_Initialisation_File) file.
 
-## analysis_parser.py
+
+
+## Analysis Parser
 
 `analysis_parser.py` is a script which parsers the runconfig.ini file, and then sends the relevant flags, paths, filenames
 and settings to each of the main analyses packages. 
@@ -86,9 +92,11 @@ The analysis packages called are:
 The location of the model and data files, the description of the files, the regions, times, depth layers under investgation
 are all set in the runconfig.ini file. 
 
-##  runconfig.ini
 
-The run config file contains all information, flags, paths and settings needed to produce the analysis.
+
+## Run configuration initialisation file
+
+The `runconfig.ini` file contains all information, flags, paths and settings needed to produce the analysis.
 
 Note that config files use the following convention:
 ```ini
@@ -104,10 +112,14 @@ When loading the config file into python's module `ConfigParser`, beware that:
 * End of line comments require a space or tab before the ';'
 
 
-The parser expects an `[ActiveKeys]` section, a `[Global]` section,
-and a section for each key in `[ActiveKeys]`.
+The parser expects an [Active Keys](#Active_Keys) section, a section for each key in `[ActiveKeys]`
+and a [Global Section])#Global_Section).
 
-#### Active Keys in runconfig.ini
+
+The `runconfig.ini` file is parsed by the [bgcvaltools/analysis_parser.py](doc/bgcvaltools/analysis_parser.py) tool.
+
+
+### Active Keys
 
 The `[ActiveKeys]` section contains the boolean switches that activate the analysis sections described elsewhere in the `runconfig.ini` file.
 The order of the active keys here determines the order that the analysis runs and also the order each field appears in the final html report.
@@ -124,7 +136,9 @@ Chlorophyll         : True
 
 ```
 
-#### An exmaple of a active Keys section in runconfig.ini
+
+
+### An exmaple of a active Keys section in runconfig.ini
 
 The following is an example of the options  needed to produce a typical 2D analysis.
 In this case, this is a comparison of the surface chlorophyll in MEDUSA against the CCI satellite chlorophyll product.
@@ -190,21 +204,22 @@ Note that:
 
 
 
-
-#### Global Section of the runconfig.ini
+### Global Section
 
 The `[Global]` section of the `runconfig.ini` file contains the global flags and the default settings for each field.
 
 For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses, so it can safely
 be set in the `[Global]` section and ommited elsewhere. 
 
-Some values can not be set in the `[Global]`, for instance the `name`, `data_vars` and `model_vars`, `data_convert` and `model_convert` fields. 
+Some values can not be set in the `[Global]`, for instance the `name`, and `model_vars`
+and `model_convert` fields are by definition unique for each analysis.
 
 The values used in `[Global]` for `jobID`, `year`, `model` can be put into paths using `$JOBID`, `$YEAR` or `$MODEL`.
 Similarly, `$NAME` can be used as a stand in for the name option for of each analysis. 
 
-The following is a typical `[Global]` section:
 
+
+The following is a typical `[Global]` section:
 ```ini
 [Global]
 
@@ -223,11 +238,13 @@ makeReport       : True ;               ; Boolean flag to make the report.
 ; -------------------------------
 ; Output Images folders
 images_ts        : images/$JOBID/timeseries/$NAME
+images_pro       : images/$JOBID/profiles/$NAME
 images_p2p       : images/$JOBID/p2p/$MODEL-$YEAR/$NAME
 
 ; -------------------------------
 ; Working directories
-postproc_ts      : workingdir/$JOBID/timeseries
+postproc_ts      : workingdir/$JOBID/timeseries/$NAME
+postproc_pro     : workingdir/$JOBID/profiles/$NAME
 postproc_p2p     : workingdir/$JOBID/p2p/$MODEL-$NAME-$YEAR
 
 ; -------------------------------
@@ -244,11 +261,11 @@ model_lon        : nav_lon              ; model latitude dimension
 
 ; -------------------------------
 ; Default model grid file
-modelgrid        : eORCA1               ; model grid name
+modelgrid        : eORCA1                                                                  ; Model grid name
 gridFile         : /data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc        ; Model grid file
 
 ; -------------------------------
-; The default data details. (empty)
+; The default data details. The default for these is empty, as the time series suite can run without a data file.
 data_t           :
 data_cal         : 
 data_z           : 
@@ -258,11 +275,20 @@ data_tdict       :
 dataFile         : 
 ```
 
-## Regions
+Please note that by deault, the images and working directory are created in the run directory, unless otherwise specified.
 
-## Layers
 
-## Functions
+# Functions
+
+
+
+# Layers
+
+
+# Regions
+
+
+# Longnames
 
         
 ## Package contents
