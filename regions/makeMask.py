@@ -428,7 +428,7 @@ def loadCustomMasks(debug=False):
 	"""
 	This function loads all the custom modules in the regions folder, and adds them to the std_maskers dict.
 	This means that users can add custom regional definitions to their runconfig.ini file, 
-	as long as the function name 
+	as long as the function name.
 	"""
 	outDict = {}
 	modules = {}

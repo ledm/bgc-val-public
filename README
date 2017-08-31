@@ -1,29 +1,30 @@
-#
-# Copyright 2014, Plymouth Marine Laboratory
-#
-# This file is part of the ukesm-validation library.
-#
-# ukesm-validation is free software: you can redistribute it and/or modify it
-# under the terms of the Revised Berkeley Software Distribution (BSD) 3-clause license. 
+# BGC-val-public toolkit
 
-# ukesm-validation is distributed in the hope that it will be useful, but
-# without any warranty; without even the implied warranty of merchantability
-# or fitness for a particular purpose. See the revised BSD license for more details.
-# You should have received a copy of the revised BSD license along with ukesm-validation.
-# If not, see <http://opensource.org/licenses/BSD-3-Clause>.
-#
-# Address:
-# Plymouth Marine Laboratory
-# Prospect Place, The Hoe
-# Plymouth, PL1 3DH, UK
-#
-# Email:
-# ledm@pml.ac.uk
-#
+## Introduction
+
+Originally designed as a toolkit for investigating the time development of the marine biogeochemistry component of the UK Earth system model,
+BGC-val has since expanded to become a generic tool for comparing model data against historic data. 
+
+The toolkit is 100% python, and is freely available, and distributed with the BSD 3 clause license, via our in-house gitlab server. Registration is required, via this link.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 README:
-	Some analysis tools for UKESM - MEDUSA/ERSEM/NEMO 
+	BGC-val The Toolkit for
+	Marine Biogeochemical and physical ciruclationanalysis tools for earth 
 	The bulk of the tools were written for the ERSEM model, then subsequently patched for performing analsysis of MEDUSA (or other iMarNet Models).
 	
 	
@@ -201,12 +202,3 @@ TO DO:
 
 			
 
-
-	
-	
-
-
-
-	
-	
-		

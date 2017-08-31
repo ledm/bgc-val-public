@@ -78,6 +78,7 @@ def linkActiveKeys(Config,):
 	sectionsdict = {sec.lower():sec for sec in Config.sections()}
 	#dict1 = {}
 	actives = []
+		
 	for key in activeKeys:
 		#dict1[key] = sectionsdict[key.lower()]
 		try:	actives.append(sectionsdict[key.lower()])
