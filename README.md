@@ -26,7 +26,8 @@ This package utilises:
 
 
 ## Requirements
-To use this code, the following packages are required:
+
+To use this code, the following python packages are required:
 * Matplotlib
 * netCDF4
 * numpy 
@@ -36,10 +37,21 @@ To use this code, the following packages are required:
 
 Most of these packages can be installed with the command :
 
- 	pip install –e . --user
+ 	pip install --user packagename
  	
 Please note that cartopy can be difficult to install, with many requirements: such as geos, geos-python, geos-devel, proj4, cython etc… (http://scitools.org.uk/cartopy/)
 
+## Installation
+
+Once the previously mentionned packages have been installed, make a local copy of the trunk of this package with something like:
+	
+	git clone git@gitlab.ecosystem-modelling.pml.ac.uk:ledm/bgc-val-public.git
+
+Note that the package name here is subject to change, and that you should check the path at the top of this page.
+
+In the local copy, use the following pip command to make a local installation of this package:
+
+	pip install -e . --user
 
 
 ## 
@@ -50,20 +62,8 @@ Please note that cartopy can be difficult to install, with many requirements: su
 
 
 
-
-
-## README:
-	BGC-val The Toolkit for
-	Marine Biogeochemical and physical ciruclationanalysis tools for earth 
-	The bulk of the tools were written for the ERSEM model, then subsequently patched for performing analsysis of MEDUSA (or other iMarNet Models).
 	
-	
-	
-	How to add a 
-	
-	
-CONTENTS:
-
+## Package contents
 
 	pftnames.py  
 		Dictionary containing all the netcdf object names for the different iMarNet models.
