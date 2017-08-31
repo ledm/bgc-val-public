@@ -383,7 +383,7 @@ class matchDataAndModel:
 	#	except:pass
 	if not self.datasource:
 		print "matchModelToData:\tUnable to determine in situ data dataset type (ie, Maredat, WOA, Takahashi etc...)", self.datasource
-		print "matchModelToData:\tYou need to add the new data dataset type informationg to getmt() in pftnames.py"		
+		print "matchModelToData:\tYou need to add the new data dataset type informationg to getmt() in longnames.py"		
 		print "matchModelToData:\tor remove it from the list of options for dataType"
 		assert False
 
@@ -476,7 +476,7 @@ class matchDataAndModel:
 			try:
 				t = tdict[wt]	
 			except:
-				print "matchModelToData:\tunable to find time match in pftnames, mt[",self.dataType,"]['tdict']", wt
+				print "matchModelToData:\tunable to find time match in longnames, mt[",self.dataType,"]['tdict']", wt
 				print "tdict:",tdict
 				assert False 
 			

@@ -31,7 +31,7 @@ from calendar import month_name
 #Specific local code:
 from UKESMpython import populateSlicesList, AutoVivification, folder# ,getFileList, AutoVivification, NestedDict,AutoVivToYaml,YamlToDict, slicesDict,reducesShelves
 
-#from longnames.pftnames import MaredatTypes,WOATypes,Ocean_names,OceanMonth_names,months, Seasons,Hemispheres,HemispheresMonths, OceanSeason_names,getmt
+#from longnames.longnames import MaredatTypes,WOATypes,Ocean_names,OceanMonth_names,months, Seasons,Hemispheres,HemispheresMonths, OceanSeason_names,getmt
 
 from testsuite_p2p import testsuite_p2p
 #####

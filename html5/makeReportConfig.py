@@ -39,7 +39,7 @@ import shutil
 # Load specific local code:
 from bgcvaltools import bgcvalpython as bvp
 from html5 import html5Tools, htmltables
-from longnames.pftnames import getLongName
+from longnames.longnames import getLongName
 
 from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
 

@@ -31,7 +31,7 @@ from calendar import month_name
 from UKESMpython import folder,getFileList, AutoVivification, NestedDict,AutoVivToYaml,YamlToDict
 from p2p import matchDataAndModel,makePlots,makeTargets
 
-from longnames.pftnames import MaredatTypes,WOATypes,Ocean_names,getmt
+from longnames.longnames import MaredatTypes,WOATypes,Ocean_names,getmt
 
 ###	Potential problems?
 ###		Reliance on ORCA1 grid

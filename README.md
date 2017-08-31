@@ -281,10 +281,12 @@ data_tdict       :
 dataFile         : 
 ```
 
-Please note that by deault, the images and working directory are created in the run directory, unless otherwise specified.
 
+#
 
 # Functions
+
+
 
 
 
@@ -295,12 +297,24 @@ Please note that by deault, the images and working directory are created in the 
 
 
 # Longnames
+This is a folder which contains a dictionary in .ini format (ie ini. 
+These are the pretty long names for all the python object, strings and other fields used in the bgc-val.
+
+The index (or key or option) of the ini file is the name of the field in the code, and the 
+value (or item ) in  the dictionairy is the long name, which is used in plots, tables and html. 
+
+For instance:
+```ini
+n_mn                                 : Mean Nitrate
+sossheig                             : Sea Surface Height
+lat                                  : Latitude
+```
 
         
 ## Package contents
 
         pftnames.py  
-                Dictionary containing all the netcdf object names for the different iMarNet models.
+
                 
         testsuite_p2p.py  
                 Code to run all tests in the p2p toolkit.

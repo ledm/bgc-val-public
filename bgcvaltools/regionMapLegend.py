@@ -37,7 +37,7 @@ from bgcvaltools import bgcvalpython as bvp
 from matplotlib import pyplot
 import cartopy.crs as ccrs
 from cartopy import img_transform, feature as cfeature	
-from longnames.pftnames import getLongName
+from longnames.longnames import getLongName
 from regions.makeMask import makeMask,loadMaskMakers
 
 

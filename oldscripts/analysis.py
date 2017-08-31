@@ -30,7 +30,7 @@ from string import ascii_lowercase
 from re import findall
 import os
 #Specific local code:
-#from longnames.pftnames import pftnames as pn
+#from longnames.longnames import longnames as pn
 from UKESMpython import folder,getFileList
 
 
@@ -69,7 +69,7 @@ class analysis:
   	print "analysis:\tINFO\tLoading netcdf"  
   	self.nc = Dataset(self.fileIn,'r')
   	self.ncOpened = True
-  	# Loading netcdf data with pftnames:
+  	# Loading netcdf data with longnames:
 	#self.chl = self.nc.variables[pn['E']['diatoms']['chl']][0,0,]
 
   def loadFile(self,filename):

@@ -30,7 +30,7 @@
 """
 
 import os
-from longnames.pftnames import getLongName
+from longnames.longnames import getLongName
 
 package_directory = os.path.dirname(os.path.abspath(__file__))
 

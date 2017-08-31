@@ -30,7 +30,7 @@
 
 from p2p import makePatternStatsPlots,makeTargets
 from UKESMpython import  folder, reducesShelves,listShelvesContents
-from longnames.pftnames import months,Ocean_names,SouthHemispheresMonths,NorthHemispheresMonths
+from longnames.longnames import months,Ocean_names,SouthHemispheresMonths,NorthHemispheresMonths
 from p2p.slicesDict import populateSlicesList, slicesDict
 
 def InterAnnualPatterns(shelvesAV, jobID, years,Grid):

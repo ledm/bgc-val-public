@@ -47,7 +47,7 @@ from cartopy import img_transform, feature as cfeature
 
 #Specific local code:
 from bgcvaltools import bgcvalpython as bvp
-from longnames.pftnames import getLongName
+from longnames.longnames import getLongName
 from bgcvaltools.dataset import dataset
 import timeseriesTools as tst 
 import timeseriesPlots as tsp 

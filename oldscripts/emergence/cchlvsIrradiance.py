@@ -28,7 +28,7 @@ from sys import argv
 from matplotlib import pyplot
 import numpy as np
 #Specific local code:
-#from bgcvaltools.pftnames import pftnames as pn
+#from bgcvaltools.longnames import longnames as pn
 from UKESMpython import folder,getFileList,sliceA
 from analysis import analysis
 

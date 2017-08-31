@@ -40,7 +40,7 @@ from bgcvaltools import bgcvalpython as bvp
 import timeseriesTools as tst 
 import timeseriesPlots as tsp 
 from bgcvaltools.makeEORCAmasks import makeMaskNC
-from longnames.pftnames import getLongName
+from longnames.longnames import getLongName
 from bgcvaltools.dataset import dataset
 
 

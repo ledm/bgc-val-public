@@ -43,7 +43,7 @@ from bgcvaltools import bgcvalpython as bvp
 from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesPlots as tsp 
-from pftnames import getLongName
+from longnames import getLongName
 
 
 def timeseries_compare(colours,physics=True,bio=False):

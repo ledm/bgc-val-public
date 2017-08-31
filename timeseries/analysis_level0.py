@@ -36,7 +36,7 @@ from shelve import open as shopen
 from sys import argv,exit
 import os
 import numpy as np
-from longnames.pftnames import getLongName
+from longnames.longnames import getLongName
 
 def printableName(field,region, layer, metric):
 	#####

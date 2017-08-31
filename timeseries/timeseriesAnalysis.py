@@ -37,7 +37,7 @@ import shutil
 
 #Specific local code:
 from bgcvaltools import bgcvalpython as bvp
-from longnames.pftnames import getLongName
+from longnames.longnames import getLongName
 from bgcvaltools.dataset import dataset
 from regions.makeMask import loadMaskMakers
 import timeseriesTools as tst 

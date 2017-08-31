@@ -49,11 +49,11 @@ from bgcvaltools.StatsDiagram import StatsDiagram
 from bgcvaltools.robust import StatsDiagram as robustStatsDiagram
 import bgcvaltools.unbiasedSymmetricMetrics as usm
 from bgcvaltools import bgcvalpython as bvp 
-from longnames.pftnames import getLongName, fancyUnits # getmt
+from longnames.longnames import getLongName, fancyUnits # getmt
 from regions.makeMask import makeMask,loadMaskMakers
 from p2p.slicesDict import populateSlicesList, slicesDict
 
-#from longnames.pftnames import MaredatTypes,IFREMERTypes,WOATypes,GEOTRACESTypes
+#from longnames.longnames import MaredatTypes,IFREMERTypes,WOATypes,GEOTRACESTypes
 
 #import seaborn as sb
     
@@ -173,7 +173,7 @@ class makePlots:
 
 	print "plotWithSlices:\txkeys:", xkeys,'\tykeys:', ykeys
 	if [{}] in [xkeys, ykeys]:
-		print "plotWithSlices:\tERROR\t This data type  is not defined in pftnames.py"
+		print "plotWithSlices:\tERROR\t This data type  is not defined in longnames.py"
 		print "plotWithSlices:\tx:\t['"+self.xtype+"'\t]['"+self.name+"'] = ",  xkeys
 		print "plotWithSlices:\ty:\t['"+self.ytype+"'\t]['"+self.name+"'] = ",  ykeys	
 		assert False
@@ -199,7 +199,7 @@ class makePlots:
 				
 		try:fn = ns+'_'+xk+'vs'+yk
 	  	except:
-	  		print "ERROR:\tcan\'t add ",newSlice,ns,xk,yk, 'together as strings. the problem is probably in your mt dictionary in pftnames.'
+	  		print "ERROR:\tcan\'t add ",newSlice,ns,xk,yk, 'together as strings. the problem is probably in your mt dictionary in longnames.'
 			assert False
 		
 		#####

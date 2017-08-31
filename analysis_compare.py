@@ -53,8 +53,8 @@ from bgcvaltools import bgcvalpython as bvp
 from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesPlots as tsp 
-try:	from bgcvaltools.pftnames import getLongName
-except:	from pftnames import getLongName
+try:	from bgcvaltools.longnames import getLongName
+except:	from longnames import getLongName
 from bgcvaltools.mergeMonthlyFiles import mergeMonthlyFiles,meanDJF
 from alwaysInclude import  alwaysInclude
 from makeReport import comparehtml5Maker

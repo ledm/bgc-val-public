@@ -48,7 +48,7 @@ from bgcvaltools import bgcvalpython as bvp
 from p2p import makePatternStatsPlots, testsuite_p2p
 from p2p.summaryTargets import summaryTargets
 from p2p.patternAnalyses import InterAnnualPatterns,BGCvsPhysics
-from longnames.pftnames import months
+from longnames.longnames import months
 from p2p.shelveToDictionary import shelveToDictionary
 
 #####
