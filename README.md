@@ -293,6 +293,8 @@ dataFile         :
 # Layers
 
 
+
+
 # Regions
 
 The `regions/` directory contains tools that are used to mask out unwanted regions in the data.
@@ -322,9 +324,10 @@ Each regional masking function has access to the following fields:
 * xx: A one-dimensional array of the dataset longitudes.
 * xd: A one-dimensional array of the data.
 
-Please note that these cuts are applied to both the model and the data files.
 
-Also note that is is possible stack masks, by adding the masks together. For instance:
+Also note that is is possible stack masks, by adding the masks together. 
+For instance, the masking function here excludes all
+data outside the equatorial region and below 200m depth.
 ```python
 from regions.makeMask import Shallow, Equator10
 def ShallowEquator(name,newSlice, xt,xz,xy,xx,xd,debug=False):
@@ -333,17 +336,18 @@ def ShallowEquator(name,newSlice, xt,xz,xy,xx,xd,debug=False):
 	newmask += Equator10(name,newSlice, xt,xz,xy,xx,xd)	
  	return newmask	
 ```
-Excludes all data outside the equatorial region and below 200m depth.
+However, more complex masking is also possible, for instance in the file `regions/maskOnShelf.py`
+which loads a bathymetry file and masks all points in water columns shallower than 500m.
 
-The name of the function needs to match the region in your `runconfig.ini` file.
+
+Please note that:
+* The name of the function needs to match the region in your `runconfig.ini` file.
+* Note that xt,xz,xy,xx,xd should all be the same shape and size. 
+* These cuts are applied to both the model and the data files.	
 	
-
-Note that xt,xz,xy,xx,xd should all be the same shape and size. 
-
-This functional can call itself, if two regional masks are needed.
-
-Please add your own regions, at the bottom of the list, if needed.
-"""	
+	
+	
+	
 	
 	
 # Longnames
@@ -362,10 +366,18 @@ n_mn                                 : Mean Nitrate
 sossheig                             : Sea Surface Height
 lat                                  : Latitude
 ```
+
 The dictionaries are loaded at runtime by `longnames/longnames.py`. This script loads all .ini files in the `longnames/` directory.
 Users can easilly add their own dictionairies here, without disturbing the main longname.ini dictionairy.
 
-        
+The longname for a specific field is called with:
+```python
+from longnames.longnames import getLongName
+string = 'CHL'
+ln = getLongName(string)
+```
+Note that if a longname is not provided, the string is returned unchanged. 
+
 
 # References:
 
