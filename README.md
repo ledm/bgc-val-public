@@ -108,7 +108,7 @@ Chlorophyll         : True
 #### An exmaple of a active Keys section in runconfig.ini
 
 The following is an example of the options  needed to produce a typical 2D analysis.
-In this case, this is a comparison of the surface model data against the CCI satellite chlorophyll product.
+In this case, this is a comparison of the surface chlorophyll in MEDUSA against the CCI satellite chlorophyll product.
 
 ```ini
 [Chl_CCI]
@@ -128,27 +128,27 @@ dataFile        : /data/euryale7/backup/ledm/Observations/CCI/ESACCI-OC-L3S-OC_P
 
 ; -------------------------------
 ; Model coordinates/dimension names
-model_t          : time_centered        ; The time dimension used in the model netcdf.
-model_cal        : 360_day              ; The calendar used in the model netcdf.        
-model_z          : deptht               ; The depth dimension used in the model netcdf.
-model_lat        : nav_lat              ; The latitude dimension used in the model netcdf.
-model_lon        : nav_lon              ; The longitude dimension used in the model netcdf.
-model_vars       : CHD CHN              ; The names of the fields used in the model netcdf.
-model_convert    : sum                  ; The operation applied to the fields in model_vars
+model_t         : time_centered         ; The time dimension used in the model netcdf.
+model_cal       : 360_day               ; The calendar used in the model netcdf.        
+model_z         : deptht                ; The depth dimension used in the model netcdf.
+model_lat       : nav_lat               ; The latitude dimension used in the model netcdf.
+model_lon       : nav_lon               ; The longitude dimension used in the model netcdf.
+model_vars      : CHD CHN               ; The names of the fields used in the model netcdf.
+model_convert   : sum                   ; The operation applied to the fields in model_vars
 
 ; -------------------------------
 ; Data coordinates names
-data_t           : time                 ; The time dimension used in the data netcdf.
-data_cal         : standard             ; The calendar used in the data netcdf.
-;data_z          : index_z              ; The depth dimension used in the modatadel netcdf. Note that CCI is a surface only product, so no depth field is provided.
-data_lat         : lat                  ; The latitude dimension used in the data netcdf.
-data_lon         : lon                  ; The longitude dimension used in the data netcdf.
-data_vars        : chlor_a              ; The names of the field used in the data netcdf.
-data_convert     : NoChange             ; The operation applied to the fields in data_vars.
-data_tdict       : ZeroToZero           ; The calendar used in the data netcdf.
+data_t          : time                  ; The time dimension used in the data netcdf.
+data_cal        : standard              ; The calendar used in the data netcdf.
+;data_z         : index_z               ; The depth dimension used in the modatadel netcdf. Note that CCI is a surface only product, so no depth field is provided.
+data_lat        : lat                   ; The latitude dimension used in the data netcdf.
+data_lon        : lon                   ; The longitude dimension used in the data netcdf.
+data_vars       : chlor_a               ; The names of the field used in the data netcdf.
+data_convert    : NoChange              ; The operation applied to the fields in data_vars.
+data_tdict      : ZeroToZero            ; The calendar used in the data netcdf.
 
-layers           : Surface              ; A List of layers or transects to investigate the data.
-regions          : Global               ; The regional cuts to make.
+layers          : Surface               ; A List of layers or transects to investigate the data.
+regions         : Global                ; The regional cuts to make.
 ```
 
 Note that:
@@ -156,7 +156,7 @@ Note that:
   For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses. 
   More details below in the [Global Section](#Global_Section_of_the_runconfig.ini) section.
   
-* The operations in the `data_convert` and `model_convert` options can be any of the operations in bgc-val-public/functions
+* The operations in the `data_convert` and `model_convert` options can be any of the operations in bgc-val-public/functions.py
   or they can be taken from a localfuntion in the localfunction directory. More details below in the [Functions](#Functions) section.
 
 * Layers
@@ -184,27 +184,27 @@ The following is an typical `[Global]` section:
 ```ini
 [Global]
 
-jobID                : u-am927                        ; Unique run/simulation/job identifier
-year                : 2055                                ; Year to look at for p2p.
-model                : MEDUSA                        ; model name
+jobID            : u-am927              ; Unique run/simulation/job identifier
+year             : 2055                 ; Year to look at for p2p.
+model            : MEDUSA               ; model name
 
 ; -------------------------------
 ; Boolean flags
-clean                : False ;                        ; Boolean flag to make a run from scratch.
-makeTS                : True ;                        ; Boolean flag to make the time series plots.
-makeProfiles        : True ;                        ; Boolean flag to make the 3D profile.
-makeP2P                : True ;                        ; Boolean flag to make the P2P plots.
-makeReport        : True ;                         ; Boolean flag to make the report.
+clean            : False ;              ; Boolean flag to make a run from scratch.
+makeTS           : True ;               ; Boolean flag to make the time series plots.
+makeProfiles     : True ;               ; Boolean flag to make the 3D profile.
+makeP2P          : True ;               ; Boolean flag to make the P2P plots.
+makeReport       : True ;               ; Boolean flag to make the report.
 
 ; -------------------------------
 ; Output Images folders
 images_ts        : images/$JOBID/timeseries/$NAME
-images_p2p        : images/$JOBID/p2p/$MODEL-$YEAR/$NAME
+images_p2p       : images/$JOBID/p2p/$MODEL-$YEAR/$NAME
 
 ; -------------------------------
 ; Working directories
-postproc_ts        : workingdir/$JOBID/timeseries
-postproc_p2p        : workingdir/$JOBID/p2p/$MODEL-$NAME-$YEAR
+postproc_ts      : workingdir/$JOBID/timeseries
+postproc_p2p     : workingdir/$JOBID/p2p/$MODEL-$NAME-$YEAR
 
 ; -------------------------------
 ; location to put the html report 
@@ -212,26 +212,26 @@ reportdir        : reports/$JOBID
 
 ; -------------------------------
 ; These are the default model coordinates
-model_t                : time_centered                ; model time dimension
-model_cal        : 360_day                ; model calendar
-model_z                : deptht                ; model depth dimension
-model_lat        : nav_lat                ; model latitude dimension 
-model_lon        : nav_lon                ; model latitude dimension 
+model_t          : time_centered        ; model time dimension
+model_cal        : 360_day              ; model calendar
+model_z          : deptht               ; model depth dimension
+model_lat        : nav_lat              ; model latitude dimension 
+model_lon        : nav_lon              ; model latitude dimension 
 
 ; -------------------------------
 ; Default model grid file
-modelgrid        : eORCA1                ; model grid name
-gridFile        : /data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc        ; grid file
+modelgrid        : eORCA1               ; model grid name
+gridFile         : /data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc        ; Model grid file
 
 ; -------------------------------
 ; The default data details. (empty)
-data_t                : 
-data_cal        : 
-data_z                : 
-data_lat        : 
-data_lon        : 
-data_tdict        : 
-dataFile        : 
+data_t           :
+data_cal         : 
+data_z           : 
+data_lat         : 
+data_lon         : 
+data_tdict       : 
+dataFile         : 
 ```
 
 ## Regions
