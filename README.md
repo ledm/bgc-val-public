@@ -69,9 +69,12 @@ The run directory will contain:
 The run config file contains all information, flags, paths and settings needed to produce the analysis.
 
 Note that config files use the following convention:
+```ini
 	[Section]
 	option 	: value
 	; comment
+```
+
 ;
 ; When loading the config file into ConfigParser.py:
 ; Beware that:
