@@ -71,7 +71,7 @@ The command to  run the evaluation is:
 ```bash
 ./run.py
 ```
-`run.py` is a simple wrapper which calls the script, [analysis_parser.py], and passes it the path to the `runconfig.ini` file.
+`run.py` is a simple wrapper which calls the script, [analysis_parser.py](#analysis_parser.py), and passes it the path to the [runconfig.ini](#runconfig.ini) file.
 
 ## analysis_parser.py
 
