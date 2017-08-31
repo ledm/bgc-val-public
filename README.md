@@ -88,7 +88,7 @@ When loading the config file into python's module `ConfigParser`, beware that:
 The parser expects an `[ActiveKeys]` section, a `[Global]` section,
 and a section for each key in `[ActiveKeys]`.
 
-#### Active Keys
+#### Active Keys in runconfig.ini
 
 The `[ActiveKeys]` section contains the boolean switches that activate the analysis sections described elsewhere in the `runconfig.ini` file.
 The order of the active keys here determines the order that the analysis runs and also the order each field appears in the final html report.
@@ -96,12 +96,68 @@ Keys are switched on by being set to `True` and are switched off by being set to
 
 Each live key in the `[ActiveKeys]` section requires another section with the same name in `runconfig.ini`. ie:
 ```ini
-[ActiveKeys]
-Chlorophyll : True
+[ActiveKeys]	
+Chlorophyll 	: True
+
 [Chlorophyll]
+; Chlorophyll analysis details:
 ...
+
 ```
 
+#### An exmaple of a active Keys section in runconfig.ini
+
+The following is an example of the options  needed to produce a typical 2D analysis.
+In this case, this is a comparison of the surface model data against the CCI satellite chlorophyll product.
+
+```ini
+; -------------------------------------------------------------------------
+[Chl_CCI]				; Example of a 2D analysis 
+name		: Chl_CCI		; The name of the analysis.
+units		: mg C/m^3		; The final units, after any transformation function has been applied.
+datasource 	: CCI			; The name of the data source
+model		: MEDUSA		; The name of the model
+modelgrid	: eORCA1		; The name of the model grid
+dimensions	: 2			; The dimensionaility of the final product.
+
+; The filenames				; This is a list of paths for the model, model grid and the data file.
+modelFiles 	: /data/euryale7/scratch/ledm/UKESM/MEDUSA/$JOBID/medusa*_1y_*_ptrc-T.nc
+modelFile_p2p 	: /data/euryale7/scratch/ledm/UKESM/MEDUSA/$JOBID/medusa*_1y_*$YEAR????_ptrc-T.nc
+gridFile	: /data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc
+dataFile 	: /data/euryale7/backup/ledm/Observations/CCI/ESACCI-OC-L3S-OC_PRODUCTS-CLIMATOLOGY-16Y_MONTHLY_1degree_GEO_PML_OC4v6_QAA-annual-fv2.0.nc
+
+; Model coordinates/dimension names
+model_t		: time_centered		; The time dimension used in the model netcdf.
+model_cal	: 360_day		; The calendar used in the model netcdf.	
+model_z		: deptht		; The depth dimension used in the model netcdf.
+model_lat	: nav_lat		; The latitude dimension used in the model netcdf.
+model_lon	: nav_lon		; The longitude dimension used in the model netcdf.
+model_vars	: CHD CHN		; The names of the fields used in the model netcdf.
+model_convert	: sum			; The operation applied to the fields in model_vars
+
+; Data coordinates names
+data_t		: time			; The time dimension used in the data netcdf.
+data_cal	: standard		; The calendar used in the data netcdf.
+;data_z		: index_z		; The depth dimension used in the modatadel netcdf. Note that CCI is a surface only product, so no depth field is provided.
+data_lat	: lat			; The latitude dimension used in the data netcdf.
+data_lon	: lon			; The longitude dimension used in the data netcdf.
+data_vars	: chlor_a		; The names of the field used in the data netcdf.
+data_convert	: NoChange		; The operation applied to the fields in data_vars.
+data_tdict	: ZeroToZero		; The calendar used in the data netcdf.
+
+layers 		: Surface		; A List of layers or transects to investigate the data.
+regions 	: Global 		; The regional cuts to make.
+```
+
+Note that:
+* Many of these fields can be defined in the `[Global]` section, and ommited here, as long as they are the same between all the analyses.
+  For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses. 
+  
+* The operations in the `data_convert` and `model_convert` options can be any of the operations in bgc-val-public/functions
+  or they can be taken from a localfuntion in the localfunction directory. More details below in [create an anchor](#Functions) section.
+
+* Layers
+* Regions
 
 #### Global Section
 
@@ -111,6 +167,12 @@ Similarly, `$NAME` can be used as a stand in for the name option for of each ana
 
 
 
+
+## Regions
+
+## Layers
+
+## Functions
 
 	
 ## Package contents
