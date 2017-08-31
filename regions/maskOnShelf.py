@@ -30,9 +30,12 @@
 
 from bgcvaltools.dataset import dataset
 import numpy as np
+import os
 import UKESMpython as ukp
 
-bathync = dataset("/users/modellers/ledm/workspace/bgc-valForPublication/bgc-val/data/ORCA1bathy.nc")		
+package_directory = os.path.dirname(os.path.abspath(__file__))
+
+bathync = dataset(package_directory+"/../data/ORCA1bathy.nc")
 bathy = np.ma.abs(bathync.variables["bathymetry"][:])
 latcc, loncc =  bathync.variables["lat"][:], bathync.variables["lon"][:]	
 bathync.close()
