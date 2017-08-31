@@ -66,6 +66,24 @@ The run directory will contain:
 * runconfig.ini: The main configuration script that contains all information, flags, paths and settings needed to produce the analysis.
 * localfunctions directory: This directory is where you should put any custom analysis functions that you may want to use to load or manipuate your data.
 
+The command to  run the evaluation is:
+```bash
+./run.py
+```
+`run.py` is a simple wrapper which calls the script, `analysis_parser.py`.
+
+### analysis_parser.py
+
+`analysis_parser.py` is a script which parsers the runconfig.ini file, and then sends the relevant flags, paths, filenames
+and settings to each of the main analyses packages. 
+The analysis packages called are:
+* Time Series (TS): This looks at a series of consequtive model files and produces various time series analysis.
+* Profile Plots: This produces plots showing the time development of the depth-profile of the model.
+* Point to point: This produces a point to point comparison analysis of the model versus data for a single year, including statistical analysis, spatial mapping etc.
+* Report Maker: This takes all the plots produced and summarises them in an html document.
+
+The location of the model and data files, the description of the files, the regions, times, depth layers under investgation
+are all set in the runconfig.ini file. 
 
 ###  runconfig.ini
 
@@ -179,7 +197,7 @@ Some values can not be set in the `[Global]`, for instance the `name`, `data_var
 The values used in `[Global]` for `jobID`, `year`, `model` can be put into paths using `$JOBID`, `$YEAR` or `$MODEL`.
 Similarly, `$NAME` can be used as a stand in for the name option for of each analysis. 
 
-The following is an typical `[Global]` section:
+The following is a typical `[Global]` section:
 
 ```ini
 [Global]

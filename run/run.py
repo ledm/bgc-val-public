@@ -25,12 +25,14 @@
 """
 .. module:: run
    :platform: Unix
-   :synopsis: A nearly empty script that lauchnes the BGC-val analysis package.
+   :synopsis: A nearly empty script that launches the BGC-val analysis parser.
 .. moduleauthor:: Lee de Mora <ledm@pml.ac.uk>
 
 """
 
-from skeleton_parser import analysis_skeleton
+from analysis_parser import analysis_parser
 
 if __name__=="__main__":
-	analysis_skeleton('runconfig.ini')
+	analysis_parser( 
+		configfile='runconfig.ini' ,
+		)

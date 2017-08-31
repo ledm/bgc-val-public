@@ -23,9 +23,9 @@
 # ledm@pml.ac.uk
 #
 """
-.. module:: skeleton_parser
+.. module:: analysis_parser
    :platform: Unix
-   :synopsis: A nearly empty script to produce analysis.
+   :synopsis: A simple script that parses the config file and runs  the analysis.
 
 .. moduleauthor:: Lee de Mora <ledm@pml.ac.uk>
 
@@ -61,7 +61,7 @@ from html5.makeReportConfig import html5MakerFromConfig
 
 
 
-def analysis_skeleton(
+def analysis_parser(
 			configfile = 'runconfig.ini',
 			):
 
@@ -155,10 +155,10 @@ def analysis_skeleton(
 	if globalKeys.makeReport:
 		html5MakerFromConfig(configfile)
 	else:
-		print "Report maker  is switched Off. To turn it on, use the makeReport boolean flag in "
+		print "analysis_parser:\tReport maker  is switched Off. To turn it on, use the makeReport boolean flag in "
 
 def main():
-	analysis_skeleton()
+	analysis_parser()
 	
 	
 if __name__=="__main__":
