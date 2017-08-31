@@ -116,7 +116,7 @@ The parser expects an [Active Keys](#Active_Keys) section, a section for each ke
 and a [Global Section])#Global_Section).
 
 
-The `runconfig.ini` file is parsed by the [bgcvaltools/analysis_parser.py](doc/bgcvaltools/analysis_parser.py) tool.
+The `runconfig.ini` file is parsed by the [bgcvaltools/analysis_parser.py](bgcvaltools/analysis_parser.py) tool.
 
 
 ### Active Keys
