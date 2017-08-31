@@ -38,23 +38,23 @@ To use this code, the following python packages are required:
 Most of these packages can be installed with the command:
 
 ```bash
- 	pip install --user packagename
+         pip install --user packagename
 ```
-	
+        
 Please note that cartopy can be difficult to install, with many requirements: such as geos, geos-python, geos-devel, proj4, cython etc… (http://scitools.org.uk/cartopy/)
 
 ## Installation
 
 Once the previously mentionned packages have been installed, make a local copy of the trunk of this package with something like:
-	
-	git clone git@gitlab.ecosystem-modelling.pml.ac.uk:ledm/bgc-val-public.git
+        
+        git clone git@gitlab.ecosystem-modelling.pml.ac.uk:ledm/bgc-val-public.git
 
 Note that the package name here is subject to change, and that you should check the path at the top of this page.
 
 In the local copy, use the following pip command to make a local installation of this package:
 
 ```bash
-	pip install -e . --user
+        pip install -e . --user
 ```
 
 ## Running
@@ -96,8 +96,8 @@ Keys are switched on by being set to `True` and are switched off by being set to
 
 Each live key in the `[ActiveKeys]` section requires another section with the same name in `runconfig.ini`. ie:
 ```ini
-[ActiveKeys]	
-Chlorophyll 	: True
+[ActiveKeys]        
+Chlorophyll         : True
 
 [Chlorophyll]
 ; Chlorophyll analysis details:
@@ -111,42 +111,44 @@ The following is an example of the options  needed to produce a typical 2D analy
 In this case, this is a comparison of the surface model data against the CCI satellite chlorophyll product.
 
 ```ini
-; -------------------------------------------------------------------------
-[Chl_CCI]				; Example of a 2D analysis 
-name		: Chl_CCI		; The name of the analysis.
-units		: mg C/m^3		; The final units, after any transformation function has been applied.
-datasource 	: CCI			; The name of the data source
-model		: MEDUSA		; The name of the model
-modelgrid	: eORCA1		; The name of the model grid
-dimensions	: 2			; The dimensionaility of the final product.
+[Chl_CCI]
+name            : Chl_CCI               ; The name of the analysis.
+units           : mg C/m^3              ; The final units, after any transformation function has been applied.
+datasource      : CCI                   ; The name of the data source
+model           : MEDUSA                ; The name of the model
+modelgrid       : eORCA1                ; The name of the model grid
+dimensions      : 2                     ; The dimensionaility of the final product.
 
-; The filenames				; This is a list of paths for the model, model grid and the data file.
-modelFiles 	: /data/euryale7/scratch/ledm/UKESM/MEDUSA/$JOBID/medusa*_1y_*_ptrc-T.nc
-modelFile_p2p 	: /data/euryale7/scratch/ledm/UKESM/MEDUSA/$JOBID/medusa*_1y_*$YEAR????_ptrc-T.nc
-gridFile	: /data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc
-dataFile 	: /data/euryale7/backup/ledm/Observations/CCI/ESACCI-OC-L3S-OC_PRODUCTS-CLIMATOLOGY-16Y_MONTHLY_1degree_GEO_PML_OC4v6_QAA-annual-fv2.0.nc
+; -------------------------------
+; The filenames                         ; This is a list of paths for the model, model grid and the data file.
+modelFiles      : /data/euryale7/scratch/ledm/UKESM/MEDUSA/$JOBID/medusa*_1y_*_ptrc-T.nc
+modelFile_p2p   : /data/euryale7/scratch/ledm/UKESM/MEDUSA/$JOBID/medusa*_1y_*$YEAR????_ptrc-T.nc
+gridFile        : /data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc
+dataFile        : /data/euryale7/backup/ledm/Observations/CCI/ESACCI-OC-L3S-OC_PRODUCTS-CLIMATOLOGY-16Y_MONTHLY_1degree_GEO_PML_OC4v6_QAA-annual-fv2.0.nc
 
+; -------------------------------
 ; Model coordinates/dimension names
-model_t		: time_centered		; The time dimension used in the model netcdf.
-model_cal	: 360_day		; The calendar used in the model netcdf.	
-model_z		: deptht		; The depth dimension used in the model netcdf.
-model_lat	: nav_lat		; The latitude dimension used in the model netcdf.
-model_lon	: nav_lon		; The longitude dimension used in the model netcdf.
-model_vars	: CHD CHN		; The names of the fields used in the model netcdf.
-model_convert	: sum			; The operation applied to the fields in model_vars
+model_t          : time_centered        ; The time dimension used in the model netcdf.
+model_cal        : 360_day              ; The calendar used in the model netcdf.        
+model_z          : deptht               ; The depth dimension used in the model netcdf.
+model_lat        : nav_lat              ; The latitude dimension used in the model netcdf.
+model_lon        : nav_lon              ; The longitude dimension used in the model netcdf.
+model_vars       : CHD CHN              ; The names of the fields used in the model netcdf.
+model_convert    : sum                  ; The operation applied to the fields in model_vars
 
+; -------------------------------
 ; Data coordinates names
-data_t		: time			; The time dimension used in the data netcdf.
-data_cal	: standard		; The calendar used in the data netcdf.
-;data_z		: index_z		; The depth dimension used in the modatadel netcdf. Note that CCI is a surface only product, so no depth field is provided.
-data_lat	: lat			; The latitude dimension used in the data netcdf.
-data_lon	: lon			; The longitude dimension used in the data netcdf.
-data_vars	: chlor_a		; The names of the field used in the data netcdf.
-data_convert	: NoChange		; The operation applied to the fields in data_vars.
-data_tdict	: ZeroToZero		; The calendar used in the data netcdf.
+data_t           : time                 ; The time dimension used in the data netcdf.
+data_cal         : standard             ; The calendar used in the data netcdf.
+;data_z          : index_z              ; The depth dimension used in the modatadel netcdf. Note that CCI is a surface only product, so no depth field is provided.
+data_lat         : lat                  ; The latitude dimension used in the data netcdf.
+data_lon         : lon                  ; The longitude dimension used in the data netcdf.
+data_vars        : chlor_a              ; The names of the field used in the data netcdf.
+data_convert     : NoChange             ; The operation applied to the fields in data_vars.
+data_tdict       : ZeroToZero           ; The calendar used in the data netcdf.
 
-layers 		: Surface		; A List of layers or transects to investigate the data.
-regions 	: Global 		; The regional cuts to make.
+layers           : Surface              ; A List of layers or transects to investigate the data.
+regions          : Global               ; The regional cuts to make.
 ```
 
 Note that:
@@ -182,54 +184,54 @@ The following is an typical `[Global]` section:
 ```ini
 [Global]
 
-jobID		: u-am927		; Unique run/simulation/job identifier
-year		: 2055			; Year to look at for p2p.
-model		: MEDUSA		; model name
+jobID                : u-am927                        ; Unique run/simulation/job identifier
+year                : 2055                                ; Year to look at for p2p.
+model                : MEDUSA                        ; model name
 
 ; -------------------------------
 ; Boolean flags
-clean		: False ;			; Boolean flag to make a run from scratch.
-makeTS		: True ;			; Boolean flag to make the time series plots.
-makeProfiles	: True ;			; Boolean flag to make the 3D profile.
-makeP2P		: True ;			; Boolean flag to make the P2P plots.
-makeReport	: True ; 			; Boolean flag to make the report.
+clean                : False ;                        ; Boolean flag to make a run from scratch.
+makeTS                : True ;                        ; Boolean flag to make the time series plots.
+makeProfiles        : True ;                        ; Boolean flag to make the 3D profile.
+makeP2P                : True ;                        ; Boolean flag to make the P2P plots.
+makeReport        : True ;                         ; Boolean flag to make the report.
 
 ; -------------------------------
 ; Output Images folders
-images_ts	: images/$JOBID/timeseries/$NAME
-images_p2p	: images/$JOBID/p2p/$MODEL-$YEAR/$NAME
+images_ts        : images/$JOBID/timeseries/$NAME
+images_p2p        : images/$JOBID/p2p/$MODEL-$YEAR/$NAME
 
 ; -------------------------------
 ; Working directories
-postproc_ts	: workingdir/$JOBID/timeseries
-postproc_p2p	: workingdir/$JOBID/p2p/$MODEL-$NAME-$YEAR
+postproc_ts        : workingdir/$JOBID/timeseries
+postproc_p2p        : workingdir/$JOBID/p2p/$MODEL-$NAME-$YEAR
 
 ; -------------------------------
 ; location to put the html report 
-reportdir	: reports/$JOBID
+reportdir        : reports/$JOBID
 
 ; -------------------------------
 ; These are the default model coordinates
-model_t		: time_centered		; model time dimension
-model_cal	: 360_day		; model calendar
-model_z		: deptht		; model depth dimension
-model_lat	: nav_lat		; model latitude dimension 
-model_lon	: nav_lon		; model latitude dimension 
+model_t                : time_centered                ; model time dimension
+model_cal        : 360_day                ; model calendar
+model_z                : deptht                ; model depth dimension
+model_lat        : nav_lat                ; model latitude dimension 
+model_lon        : nav_lon                ; model latitude dimension 
 
 ; -------------------------------
 ; Default model grid file
-modelgrid	: eORCA1		; model grid name
-gridFile	: /data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc	; grid file
+modelgrid        : eORCA1                ; model grid name
+gridFile        : /data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc        ; grid file
 
 ; -------------------------------
 ; The default data details. (empty)
-data_t		: 
-data_cal	: 
-data_z		: 
-data_lat	: 
-data_lon	: 
-data_tdict	: 
-dataFile	: 
+data_t                : 
+data_cal        : 
+data_z                : 
+data_lat        : 
+data_lon        : 
+data_tdict        : 
+dataFile        : 
 ```
 
 ## Regions
@@ -238,173 +240,173 @@ dataFile	:
 
 ## Functions
 
-	
+        
 ## Package contents
 
-	pftnames.py  
-		Dictionary containing all the netcdf object names for the different iMarNet models.
-		
-	testsuite_p2p.py  
-		Code to run all tests in the p2p toolkit.
-		
-	UKESMpython.py
-		Toolkit containing many useful functions.
+        pftnames.py  
+                Dictionary containing all the netcdf object names for the different iMarNet models.
+                
+        testsuite_p2p.py  
+                Code to run all tests in the p2p toolkit.
+                
+        UKESMpython.py
+                Toolkit containing many useful functions.
 
 
-	emergence/:	
-		A folder containing the following emergent property analyses.
-		
-		cchl.py  
-			Carbon to Chlorophyll ratio
-		
-		cchlvsIrradiance.py  
-			Carbon:Chl ratio against Irradiance
-		
-		communityfit.py  
-			Community Strcutre plotting
-			
-		primaryproduction.py
-			Calculate annual and monthly primary production.
-	
-	
-	p2p/: 
-		A folder containing the Point to point analsyes scritps.
+        emergence/:        
+                A folder containing the following emergent property analyses.
+                
+                cchl.py  
+                        Carbon to Chlorophyll ratio
+                
+                cchlvsIrradiance.py  
+                        Carbon:Chl ratio against Irradiance
+                
+                communityfit.py  
+                        Community Strcutre plotting
+                        
+                primaryproduction.py
+                        Calculate annual and monthly primary production.
+        
+        
+        p2p/: 
+                A folder containing the Point to point analsyes scritps.
 
-		prepareERSEMyear.py:
-			this merges 12 monthly netcdfs into one annual file. 
+                prepareERSEMyear.py:
+                        this merges 12 monthly netcdfs into one annual file. 
 
-		matchDataAndModel.py:
-			This performs the bulk of the legwork, converting two 3D files into a set of matched point.
-							
-		makePlots.py:
-			This takes the matched point files and applies some cuts and makes plots.
+                matchDataAndModel.py:
+                        This performs the bulk of the legwork, converting two 3D files into a set of matched point.
+                                                        
+                makePlots.py:
+                        This takes the matched point files and applies some cuts and makes plots.
 
-		makeTargets.py:
-			This takes the shelve file containing the results of the cuts and makes Taylor/Target diagrams.
-		
-		csvFromShelves.py:
-			This takes a shelve file(s) and produces a csv file of the Target metrics.
-			
-	
-	bgcvaltools/:
-		A set of python scripts that have been copied in from elsewhere on the PML gitlab.
-		
-		C2Chl.py:
-			Carbon to Chlorophyll ratio, from Sathyrendranath 2009. Written by Momme.
-		
-		communitystructure.py and comstrucFit.py:
-			Comminity structure code and fit, ie Brewin 2014. Written by Lee.
-		
-		StatsDiagram.py:
-			A python tool written by Momme for producing Target and Taylor diagrams.
+                makeTargets.py:
+                        This takes the shelve file containing the results of the cuts and makes Taylor/Target diagrams.
+                
+                csvFromShelves.py:
+                        This takes a shelve file(s) and produces a csv file of the Target metrics.
+                        
+        
+        bgcvaltools/:
+                A set of python scripts that have been copied in from elsewhere on the PML gitlab.
+                
+                C2Chl.py:
+                        Carbon to Chlorophyll ratio, from Sathyrendranath 2009. Written by Momme.
+                
+                communitystructure.py and comstrucFit.py:
+                        Comminity structure code and fit, ie Brewin 2014. Written by Lee.
+                
+                StatsDiagram.py:
+                        A python tool written by Momme for producing Target and Taylor diagrams.
 
-	timeseries/:
-		Contains all the tools needed to do the time series analysis.
-		timeseriesAnalysis.py  
-		timeseriesPlots.py  
-		timeseriesTools.py
-		
-		Launched by analysis-timeseries.py
-		
-		
-			
-				
+        timeseries/:
+                Contains all the tools needed to do the time series analysis.
+                timeseriesAnalysis.py  
+                timeseriesPlots.py  
+                timeseriesTools.py
+                
+                Launched by analysis-timeseries.py
+                
+                
+                        
+                                
 REQUIREMENTS:
-	Python libraries
-		Installed with pip:
-		numpy scipy matplotlib netCDF4 pyyaml pyproj
+        Python libraries
+                Installed with pip:
+                numpy scipy matplotlib netCDF4 pyyaml pyproj
 
-		
-		Harder to install:
-			mpl_toolkits (needed for basemap, but has a new set of requirements)
-			sudo apt-get install python-mpltoolkits.basemap
-			sudo yum install python-mpltoolkits.basemap		
-			or from source.
-							
-			It may be possible to switch Basemap out for cartopy.
-			Cartopy is equally difficult to install.
-	
-	Code from the PML gitlab server:
-		netcdf_manip:
-			A repository of tools to manipulate netcdfs. 
-			Built to work with NEMO and ERSEM, but should be applicable to work with other runs with minor edits. Questions: ledm@pml.ac.uk
-			
-			Includes:
-				changeNC, mergeNC, pruneNC, convertToOneDNC
-				from: https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/netcdf_manip
-			
-	You may also need the maps for cartopy:
-		You can copy them to your local directory (on JASMIN) from the ESMVAL machine:
-			rsync -avP /usr/local/cartopy/shapefiles/*  ~/.local/cartopy/shapefiles/.
-		or from mydirectory:
-			rsync -avP ~ledm/.local/cartopy/shapefiles/* ~/.local/cartopy/shapefiles/.	
+                
+                Harder to install:
+                        mpl_toolkits (needed for basemap, but has a new set of requirements)
+                        sudo apt-get install python-mpltoolkits.basemap
+                        sudo yum install python-mpltoolkits.basemap                
+                        or from source.
+                                                        
+                        It may be possible to switch Basemap out for cartopy.
+                        Cartopy is equally difficult to install.
+        
+        Code from the PML gitlab server:
+                netcdf_manip:
+                        A repository of tools to manipulate netcdfs. 
+                        Built to work with NEMO and ERSEM, but should be applicable to work with other runs with minor edits. Questions: ledm@pml.ac.uk
+                        
+                        Includes:
+                                changeNC, mergeNC, pruneNC, convertToOneDNC
+                                from: https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/netcdf_manip
+                        
+        You may also need the maps for cartopy:
+                You can copy them to your local directory (on JASMIN) from the ESMVAL machine:
+                        rsync -avP /usr/local/cartopy/shapefiles/*  ~/.local/cartopy/shapefiles/.
+                or from mydirectory:
+                        rsync -avP ~ledm/.local/cartopy/shapefiles/* ~/.local/cartopy/shapefiles/.        
 TO DO:
-	
-	
-	Needs Improvement.
-		Valnote output metrics need to be improved, but are okay right now.
+        
+        
+        Needs Improvement.
+                Valnote output metrics need to be improved, but are okay right now.
 
-		Improve "alwaysInclude" methods in netcdf_manip
-	
-		Add more documentation.
-	
-		Sort out longnames - but ValNote doesn't care, as it only looks at a single metric.
-			Replace pftnames.getlongname with something better.
-			how about moving long_names into testsuite_p2p? - not really an option.
-	
-		
-		getMT, testsuite_p2p aren't great:
-			There has got to be a better way.
-			Move extraction function into getMT?
-			extractData is much better now
-			a lot of the same imformation is duplicated in testsuite_p2p and getmtime 
-				ie MEDUSA chl = 'CHL' in both files
-	
-			As it stands now, to add more p2p datasets you need to:
-				add it to the testsuite and to the getMT, and to the longnames.
-			
-			Move the NameTypes (ie GEOTRACESTypes) into the getmt?	
-		
-		jobID is explicitly defined in a few places.
-		This needs to be set by Valnote/AutoAssess
-			(add consistent jobID naming in MEDUSA)
-		
-		Different types of output data times.
-			Currently only works with annual files containing 12 months.
-			Can we run with 12 monthly files
-			or annual means 
-			possibly to be moved around when we slice.
-			
-			
-	Slicing issues:
-		 newSlice:
-		 	Implement a better slicing method.
-		 	For instance: Three different slicing names, one for time, one for depth, one of lat/lon.
-	
-		Move target diagram faff out of testsuite (related to newSlice)
-			made target diagrams out of a series of shelve files
-			move shelve File into its own routine?
-	
-		Make the p2p region cut more generic. 
-			Currently only works for WOA depth fields.
-		
-				
-	New things to add and test:
-		Investigate a 1D point to point validation at HOTS/BATS.
-
-
-		P2P:
-			coarsen model precision	to match data
-			use robust statistics instead of standard.
-
-		Other grids: ORCA025, ORCA100-60
-	
-		remaining datasets to add to p2p:
-			primary prodcution
-			integrated 
-			other takahashi data, like air sea flux
-	
+                Improve "alwaysInclude" methods in netcdf_manip
+        
+                Add more documentation.
+        
+                Sort out longnames - but ValNote doesn't care, as it only looks at a single metric.
+                        Replace pftnames.getlongname with something better.
+                        how about moving long_names into testsuite_p2p? - not really an option.
+        
+                
+                getMT, testsuite_p2p aren't great:
+                        There has got to be a better way.
+                        Move extraction function into getMT?
+                        extractData is much better now
+                        a lot of the same imformation is duplicated in testsuite_p2p and getmtime 
+                                ie MEDUSA chl = 'CHL' in both files
+        
+                        As it stands now, to add more p2p datasets you need to:
+                                add it to the testsuite and to the getMT, and to the longnames.
+                        
+                        Move the NameTypes (ie GEOTRACESTypes) into the getmt?        
+                
+                jobID is explicitly defined in a few places.
+                This needs to be set by Valnote/AutoAssess
+                        (add consistent jobID naming in MEDUSA)
+                
+                Different types of output data times.
+                        Currently only works with annual files containing 12 months.
+                        Can we run with 12 monthly files
+                        or annual means 
+                        possibly to be moved around when we slice.
+                        
+                        
+        Slicing issues:
+                 newSlice:
+                         Implement a better slicing method.
+                         For instance: Three different slicing names, one for time, one for depth, one of lat/lon.
+        
+                Move target diagram faff out of testsuite (related to newSlice)
+                        made target diagrams out of a series of shelve files
+                        move shelve File into its own routine?
+        
+                Make the p2p region cut more generic. 
+                        Currently only works for WOA depth fields.
+                
+                                
+        New things to add and test:
+                Investigate a 1D point to point validation at HOTS/BATS.
 
 
-			
+                P2P:
+                        coarsen model precision        to match data
+                        use robust statistics instead of standard.
+
+                Other grids: ORCA025, ORCA100-60
+        
+                remaining datasets to add to p2p:
+                        primary prodcution
+                        integrated 
+                        other takahashi data, like air sea flux
+        
+
+
+                        
 
