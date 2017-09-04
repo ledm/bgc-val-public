@@ -30,10 +30,49 @@
 .. moduleauthor:: Lee de Mora <ledm@pml.ac.uk>
 
 """
+import numpy as np
+from bgcvaltools import dataset
+
+
+
 
 
 #####
-# These are the default evaluation functions.
+# This is the algorithm that applied the evaluation functions below.
+def extractData(nc, details,key = ['',],debug=False):
+  	""" 	
+  	This extracts the data the the netcdf based on the instructions from details dictionairy.
+  	If you want to do something funky to the data before plotting it, just create a new convert function in this directory.
+  	Exampple details dict: 
+  		{'name': 'Chlorophylla', 'vars':['Chlorophylla',], 'convert': std_functions['div1000'],'units':'ug/L'}
+  	"""
+  	
+	if isinstance(details,dict): 
+  		if debug: print "extractData: details is a dict", details.keys()
+  	else:
+ 		raise AssertionError("std_functions:\textractData:\t Details is not a dictionairy!")		
+ 	
+ 	#####
+ 	# Finding key word arguments (kwargs):
+ 	# We define these as extra items in the details dict, and they can literally be anything
+ 	# that the convert function needs.
+ 	kwargs={}
+ 	for k in details.keys():
+ 		if k in ['name','vars','convert', 'units']: continue
+ 		kwargs[k] = details[k]
+ 		
+	#####
+	# Apply pre-specified convert function.
+	#try:	
+	xd = details['convert'](nc,details['vars'], **kwargs)
+	#except:	xd = details['convert'](nc,details['vars'], )
+	
+	#####
+	# Return masked array of the loaded data.
+	return np.ma.array(xd)
+
+
+
 
 
 ####
@@ -105,7 +144,28 @@ def convertkgToM3(nc,keys):
 	Loads keys[0] from the netcdf, but multiplies by 1.027 (to convert from density kg to volume).
 	"""
 	return nc.variables[keys[0]][:]* 1.027
+
+
+#####
+# kwargs functions:
+def multiplyBy(nc,keys, **kwargs): 	
+	""" 
+	Loads keys[0] from the netcdf, but multiplies by the field in kwargs , "factor".
+	"""
+	if 'factor' not in kwargs.keys():
+		raise AssertionError("std_functions:\tmultiplyBy:\t Did not get key word argument, 'factor'.")
+	return nc.variables[keys[0]][:]* float(kwargs['factor'])
 	
+def addValue(nc,keys, **kwargs): 	
+	""" 
+	Loads keys[0] from the netcdf, but adds by the field in kwargs key "value".
+	"""
+	if 'value' not in kwargs.keys():
+		raise AssertionError("std_functions:\taddValue:\t Did not get key word argument, 'value'.")
+	return nc.variables[keys[0]][:] + float(kwargs['value'])
+	
+	
+#####
 	
 std_functions 				= {}
 std_functions[''] 			= ''
@@ -121,6 +181,8 @@ std_functions['sums'] 			= sums
 std_functions['sum'] 			= sums
 std_functions['oxconvert'] 		= oxconvert
 std_functions['convertkgToM3'] 		= convertkgToM3
+std_functions['multiplyBy'] 		= multiplyBy
+std_functions['addValue'] 		= addValue
 
 #####
 # Add lower case, upper, Title, etc...
@@ -134,3 +196,4 @@ for key in std_functions.keys():
 
 
 
+  	

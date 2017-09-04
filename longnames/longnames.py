@@ -55,9 +55,11 @@ def parseLongNames(fn):
 		for option in options:lnd[option] = config.get(section, option)
 	####
 	# Combinatorial stuff
-	for field,region  in product(['BGC', 'Physics'],['Times', 'Regions']):
-	    	field_options  = config.options(field)
-	    	region_options = config.options(region)	    		    	
+	for field,region  in product(['BGC', 'Physics'],['Times', 'Regions']): # Sections
+	    	try:
+	    		field_options  = config.options(field)
+		    	region_options = config.options(region)	    		    	
+		except: continue
 	    	for field_option,region_option in product(field_options,region_options):
 	    		ln_f = config.get(field,  field_option)
 	    		ln_r = config.get(region, region_option)

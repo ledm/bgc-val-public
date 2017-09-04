@@ -48,10 +48,11 @@ from cartopy import img_transform, feature as cfeature
 #Specific local code:
 from bgcvaltools import bgcvalpython as bvp
 from longnames.longnames import getLongName
-from bgcvaltools.dataset import dataset
 import timeseriesTools as tst 
 import timeseriesPlots as tsp 
 import paths	
+from bgcvaltools.dataset import dataset
+from functions.stdfunctions import extractData
 
 try:	
 	defcmap = pyplot.cm.jet
@@ -267,7 +268,7 @@ def contourplot(
 	dlats 	= dnc.variables[datacoords['lat']][:]
 	dlons 	= dnc.variables[datacoords['lon']][:]	
 	ddepths = dnc.variables[datacoords['z']][:]		
-	do2 	= bvp.extractData(dnc, datadetails)
+	do2 	= extractData(dnc, datadetails)
 	dnc.close()
 	
 	if plotKey in zonalCuts:
@@ -307,7 +308,7 @@ def contourplot(
 	# Add model data as a colormesh
 	for fn in modelfiles:
 		nc = dataset(fn,'r')
-		o2 	= bvp.extractData(nc, modeldetails)
+		o2 	= extractData(nc, modeldetails)
 		key = loadKeyFromFile(fn,modelcoords,nc=nc,)		
 		nc.close()
 				

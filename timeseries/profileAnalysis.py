@@ -40,9 +40,9 @@ from bgcvaltools import bgcvalpython as bvp
 import timeseriesTools as tst 
 import timeseriesPlots as tsp 
 from bgcvaltools.makeEORCAmasks import makeMaskNC
-from longnames.longnames import getLongName
 from bgcvaltools.dataset import dataset
-
+from longnames.longnames import getLongName
+from functions.stdfunctions import extractData
 
 class profileAnalysis:
   def __init__(self,
@@ -230,7 +230,7 @@ class profileAnalysis:
 		
 		#DL = tst.DataLoader(fn,nc,self.modelcoords,self.modeldetails, regions = self.regions, layers = self.layers,)
 		nc = dataset(fn,'r')
-		dataAll = bvp.extractData(nc,self.modeldetails).squeeze()
+		dataAll = extractData(nc,self.modeldetails).squeeze()
 		
 		for r in self.regions:
 		  for m in self.metrics:

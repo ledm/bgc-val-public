@@ -29,7 +29,6 @@
 """
 from sys import argv
 from string import join
-from netCDF4 import Dataset
 from os.path  import exists,getmtime
 from os import mkdir, makedirs
 import os
@@ -1937,9 +1936,9 @@ class listShelvesContents:
 
 		      	
 		
-		      		
+	      		
 ####
-# Some functions for maniulating data:
+# The following functions for maniulating and loading data are now in stdfunctions.py
 def NoChange(nc,keys):	
 	""" 
 	Loads keys[0] from the netcdf, but applies no change.
@@ -2017,7 +2016,7 @@ tdicts = {	'ZeroToZero': {i  :i     for i in xrange(12)},
 		'ZeroToOne':  {i  :i+1   for i in xrange(12)},			
 	}		      		
 
-def extractData(nc, details,key = ['',],debug=False):
+def extractData_old(nc, details,key = ['',],debug=False):
   	""" 	
   	This loads the data based on the instructions from details dictionairy.
   	If you want to do something funking to the data before plotting it, just create a new convert function in getMT().

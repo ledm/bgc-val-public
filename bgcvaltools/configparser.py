@@ -295,7 +295,17 @@ def parseDetails(Config,section,m_or_d='model'):
 	details['units'] 	= Config.get(section,'units')
 	details['vars'] 	= parseList(Config,section,m_or_d+'_vars')
 	details['convert'] 	= parseFunction(Config,section,m_or_d+'_convert')
+	
+	#####
+	# Looking for kwargs to pass to convert:
+	for option in Config.options(section):
+		searchFor =  m_or_d+'_convert_'
+		findstr = option.find(searchFor)
+		if findstr==-1:	continue
+		kwargkey = option[len(searchFor):]
+		details[kwargkey] = Config.get(section,option)
 	return details
+
 
 class GlobalSectionParser:
   def __init__(self,

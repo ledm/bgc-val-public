@@ -45,14 +45,14 @@ from scipy.stats.mstats import scoreatpercentile
 import numpy as np 
 
 #local imports
+import bgcvaltools.unbiasedSymmetricMetrics as usm
 from bgcvaltools.StatsDiagram import StatsDiagram
 from bgcvaltools.robust import StatsDiagram as robustStatsDiagram
-import bgcvaltools.unbiasedSymmetricMetrics as usm
 from bgcvaltools import bgcvalpython as bvp 
-from longnames.longnames import getLongName, fancyUnits # getmt
 from regions.makeMask import makeMask,loadMaskMakers
 from p2p.slicesDict import populateSlicesList, slicesDict
-
+from longnames.longnames import getLongName, fancyUnits # getmt
+from functions.stdfunctions import extractData
 #from longnames.longnames import MaredatTypes,IFREMERTypes,WOATypes,GEOTRACESTypes
 
 #import seaborn as sb
@@ -286,8 +286,8 @@ class makePlots:
 	
 	#####
 	# Extract remaining data (already know lat,lon,time,depth)
-	xd = bvp.extractData(self.xnc,self.modeldetails,key = xkey)	
-	yd = bvp.extractData(self.ync,self.datadetails, key = ykey)
+	xd = extractData(self.xnc,self.modeldetails,) 
+	yd = extractData(self.ync,self.datadetails, ) 
  
 	
 	#####
