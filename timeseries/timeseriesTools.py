@@ -164,8 +164,7 @@ def getHorizontalSlice(nc,coords,details,layer,data = ''):
 		print "getHorizontalSlice:\tSpecific depth requested",details['name'], layer,nc.variables[coords['z']][k], data.shape	
 		return ApplyDepthSlice(data, k)
 			
-	print "getHorizontalSlice\t:ERROR:\tunrecoginised layer instructions",layer, coords,type(layer)
-	assert 0
+	raise AssertionError("getHorizontalSlice:\tERROR:\tunrecoginised layer instructions: \n\t\tlayer:"+str(layer)+"\n\t\tcoords: "+str(coords))
 
 
 

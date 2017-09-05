@@ -164,6 +164,8 @@ def addValue(nc,keys, **kwargs):
 		raise AssertionError("std_functions:\taddValue:\t Did not get key word argument, 'value'.")
 	return nc.variables[keys[0]][:] + float(kwargs['value'])
 	
+
+
 	
 #####
 	

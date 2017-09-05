@@ -312,6 +312,8 @@ class GlobalSectionParser:
   		fn,
   		defaultSection = 'Global',
   		debug=True):
+  	if not fn: 
+  		raise AssertionError("GlobalSectionParser:\t Did not get a config filename: \""+fn+"\"") 
 	if debug: 
 		print "------------------------------------------------------------------"
 		print "GlobalKeyParser:\tBeginning to call GlobalSectionParser for ", fn

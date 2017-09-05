@@ -98,7 +98,10 @@ class timeseriesAnalysis:
 	if not os.path.exists(gridFile):
 		print "analysis-Timeseries.py:\tWARNING:\tgrid file is not found:",gridFile
 		if strictFileCheck: assert 0
-			
+	
+	if len(regions) ==0: 
+		raise  AssertionError("analysis-Timeseries.py:\tNo regions provided: "+str(regions)+"\n\t\tPlease add regions to your config.ini file, in section: ["+dataType+"]") 
+
 			
 	regions, maskingfunctions = loadMaskMakers(regions = regions)
 	if debug: print "timeseriesAnalysis:\t init."	

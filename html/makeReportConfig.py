@@ -200,10 +200,10 @@ def htmlMakerFromConfig(
 	#####
 	#
 	descriptionText = '<p></p>'
-	descriptionText += '<p>Validation of the '+globalkeys.model+' model '
+	descriptionText += '<p>Evaluation of the '+globalkeys.model+' model '
 	if globalkeys.jobID not in ['', ]:	descriptionText+=', with job ID: ' +globalkeys.jobID 	
 	if globalkeys.scenario not in [ '', ]:	descriptionText+=', under scenario: ' +globalkeys.scenario 
-	if globalkeys.year not in [ '*', '']:		descriptionText+=', in the year: ' +globalkeys.year 	
+	if globalkeys.year not in [ '*', '']:	descriptionText+=', in the year: ' +globalkeys.year 	
 	descriptionText += '</p>'
 	
 	htmlTools.writeDescription(
