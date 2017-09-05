@@ -318,10 +318,11 @@ class GlobalSectionParser:
 	self.__cp__ = checkConfig(fn)    
 	self.__fn__ = fn	
 
-	self.jobID = self.__cp__.get(defaultSection, 'jobID')
-	self.year  = self.__cp__.get(defaultSection, 'year')	
-	self.model = self.__cp__.get(defaultSection, 'model')
-		
+	self.jobID 		= self.__cp__.get(defaultSection, 'jobID')
+	self.year  		= self.__cp__.get(defaultSection, 'year')	
+	self.model 		= self.__cp__.get(defaultSection, 'model')
+	self.scenario 		= self.__cp__.get(defaultSection, 'scenario')
+			
 	self.makeReport 	= parseBoolean(self.__cp__, defaultSection, 'makeReport',	default=True)	
 	self.makeProfiles 	= parseBoolean(self.__cp__, defaultSection, 'makeProfiles',	default=True)	
 	self.makeP2P 		= parseBoolean(self.__cp__, defaultSection, 'makeP2P',		default=True)	
@@ -345,6 +346,7 @@ class GlobalSectionParser:
 	print "File:				", self.__fn__
 	print "model:				", self.model	
 	print "jobID:				", self.jobID
+	print "scenario:			", self.scenario	
 	print "year:				", self.year	
 	print "makeTS:				", self.makeTS
 	print "makeP2P:				", self.makeP2P

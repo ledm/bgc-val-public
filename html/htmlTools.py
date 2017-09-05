@@ -22,9 +22,9 @@
 # Email:
 # ledm@pml.ac.uk
 """
-.. module:: html5Tools
+.. module:: htmlTools
    :platform: Unix
-   :synopsis: A swiss army knife of tools for html5 making.
+   :synopsis: A swiss army knife of tools for html making.
 .. moduleauthor:: Lee de Mora <ledm@pml.ac.uk>
 
 """

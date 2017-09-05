@@ -55,7 +55,7 @@ from p2p.testsuite_p2p import testsuite_p2p
 from bgcvaltools.dataset import dataset
 from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
 
-from html5.makeReportConfig import html5MakerFromConfig
+from html.makeReportConfig import htmlMakerFromConfig
 
 
 
@@ -153,7 +153,7 @@ def analysis_parser(
 	#####
 	# Make HTML Report
 	if globalKeys.makeReport:
-		html5MakerFromConfig(configfile)
+		htmlMakerFromConfig(configfile)
 	else:
 		print "analysis_parser:\tReport maker  is switched Off. To turn it on, use the makeReport boolean flag in "
 

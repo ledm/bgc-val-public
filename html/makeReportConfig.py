@@ -23,7 +23,7 @@
 """
 .. module:: makeReport
    :platform: Unix
-   :synopsis: A script to produce an html5 document summarising a jobs performance.
+   :synopsis: A script to produce an html document summarising a jobs performance.
 .. moduleauthor:: Lee de Mora <ledm@pml.ac.uk>
 
 """
@@ -38,7 +38,7 @@ import shutil
 #####	
 # Load specific local code:
 from bgcvaltools import bgcvalpython as bvp
-from html5 import html5Tools, htmltables
+from html import htmlTools, htmltables
 from longnames.longnames import getLongName
 
 from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
@@ -153,10 +153,10 @@ def addSections(
 			# Create custom title by removing extra bits.
 			#title = filenameToTitle(relfn)
 
-			FileLists[href][relfn] = html5Tools.fnToTitle(relfn) 
+			FileLists[href][relfn] = htmlTools.fnToTitle(relfn) 
 			print "Adding ",relfn,"to script"
 						
-	html5Tools.AddSubSections(indexhtmlfn,
+	htmlTools.AddSubSections(indexhtmlfn,
 			hrefs,
 			SectionTitle,
 			SidebarTitles=SidebarTitles,#
@@ -165,7 +165,7 @@ def addSections(
 			FileLists=FileLists)
 				
 
-def html5MakerFromConfig(
+def htmlMakerFromConfig(
 		configfn,
 		doZip = False
 	):
@@ -188,7 +188,7 @@ def html5MakerFromConfig(
 	####
 	# Copy all necceasiry objects and templates to the report location:
 	print "Copying html and js assets to", reportdir
-	copytree(package_directory+'/html5Assets', reportdir)
+	copytree(package_directory+'/htmlAssets', reportdir)
 	indexhtmlfn 	= reportdir+"index.html"
 	try:os.rename(reportdir+'index-template.html', indexhtmlfn)
 	except: pass
@@ -199,10 +199,14 @@ def html5MakerFromConfig(
 	
 	#####
 	#
-	descriptionText = 'Validation of the job: '+globalkeys.jobID
-	if globalkeys.year != '*':	descriptionText+=', in the year: ' +globalkeys.year
+	descriptionText = '<p></p>'
+	descriptionText += '<p>Validation of the '+globalkeys.model+' model '
+	if globalkeys.jobID not in ['', ]:	descriptionText+=', with job ID: ' +globalkeys.jobID 	
+	if globalkeys.scenario not in [ '', ]:	descriptionText+=', under scenario: ' +globalkeys.scenario 
+	if globalkeys.year not in [ '*', '']:		descriptionText+=', in the year: ' +globalkeys.year 	
+	descriptionText += '</p>'
 	
-	html5Tools.writeDescription(
+	htmlTools.writeDescription(
 				indexhtmlfn,
 				descriptionText,
 				)
@@ -229,7 +233,7 @@ def html5MakerFromConfig(
 				
 	
 def main():
-	html5MakerFromConfig('runconfig.ini')			
+	htmlMakerFromConfig('runconfig.ini')			
 	
 	
 if __name__=="__main__":	
