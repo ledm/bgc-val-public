@@ -115,6 +115,10 @@ class matchDataAndModel:
 
 	self._meshLoaded_ = False
 	
+	if not self.datasource:
+		raise AssertionError("matchModelToData:\tUnable to determine observational data source:\""+ self.datasource+"\"" + \
+				     "\n\t\tYou need to add datasource option to your config.ini file in the ["+self.dataType+"] section")
+	
 	if debug: print  "matchDataAndModel:\tINFO:\t",self.dataType, '\tModelfile:', self.ModelFile
 		
 	self.compType= 'MaredatMatched-'+self.model+'-'+self.jobID+'-'+self.year
@@ -381,11 +385,6 @@ class matchDataAndModel:
 	#		if self.dataType in mt[key].keys() and key not in self.ytype:
 	#			self.ytype.append(key)
 	#	except:pass
-	if not self.datasource:
-		print "matchModelToData:\tUnable to determine in situ data dataset type (ie, Maredat, WOA, Takahashi etc...)", self.datasource
-		print "matchModelToData:\tYou need to add the new data dataset type informationg to getmt() in longnames.py"		
-		print "matchModelToData:\tor remove it from the list of options for dataType"
-		assert False
 
 	#####
 	# Check if there is any data left to match. 

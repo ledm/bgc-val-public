@@ -157,10 +157,12 @@ def parseList(Config,section,option):
 		return ''
 		
 	list1 = findReplaceFlags(Config,section, list1)	
-	list1.replace(',', ' ')
-	list1.replace('  ', ' ')
-	list1.replace('\'', '')
-	list1.replace('\"', '')	
+	list1 = list1.replace(',', ' ')
+	list1 = list1.replace('  ', ' ')
+	list1 = list1.replace('\'', '')
+	list1 = list1.replace('\"', '')	
+	while list1.count('  ')>0: 
+		list1 = list1.replace('  ', ' ')
 	return list1.split(' ')
 
 
