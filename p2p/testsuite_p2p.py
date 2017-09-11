@@ -166,13 +166,13 @@ def testsuite_p2p(
 		#####
 		# Testing av for presence of data/obs files.
 		if not os.path.exists(modelFile):
-			print "testsuite_p2p.py:\tWARNING:\tFile does not exist", modelFile
+			print "testsuite_p2p.py:\tWARNING:\tModel File does not exist", modelFile
 			continue			    	
 		if not os.path.exists(dataFile):
-			print "testsuite_p2p.py:\tWARNING:\tFile does not exist", dataFile
+			print "testsuite_p2p.py:\tWARNING:\tData File does not exist", dataFile
 			continue
 		if not os.path.exists(gridFile):
-			print "testsuite_p2p.py:\tWARNING:\tFile does not exist", gridFile
+			print "testsuite_p2p.py:\tWARNING:\tGrid File does not exist", gridFile
 			continue
 						
 	    	#####					

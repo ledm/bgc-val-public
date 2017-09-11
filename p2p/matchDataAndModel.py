@@ -233,36 +233,34 @@ class matchDataAndModel:
 			print 'matchDataAndModel:\tconvertDataTo1D:\tDepth field is the wrong shape:', nc.variables[self.datacoords['z']].shape	
 			assert 0
 			
-	elif self.depthLevel in ['Transect','PTransect',]:
-		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along longitude direction.'		
-		if self.depthLevel == 'Transect':	x = -28.
-		if self.depthLevel == 'PTransect': 	x = 200.
-		if nc.variables[self.datacoords['lon']].ndim ==1:						
-			k =  bvp.getclosestlon(x,nc.variables[self.datacoords['lon']][:],debug=True)
-			if mmask.ndim == 4:	mmask[:,:,:,k] = 0
-			if mmask.ndim == 3:	mmask[:,:,k] = 0							
-		else:
-			####
-			# Depth field is the wrong number of dimensions. (Not yet implemented)
-			print 'matchDataAndModel:\tconvertDataTo1D:\tLongitude field is the wrong shape:',nc.variables[self.datacoords['lon']].shape	
-			assert 0		
-		
-	elif self.depthLevel in ['SOTransect','Equator']:
-		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along latitude direction.'			
-		if self.depthLevel == 'SOTransect':	y = -60.
-		if self.depthLevel == 'Equator':	y =   0.
-
-		if nc.variables[self.datacoords['lat']].ndim ==1:						
-			k =  bvp.getclosestlat(y,nc.variables[self.datacoords['lat']][:],debug=True)
-			if mmask.ndim == 4:	mmask[:,:,k,:] = 0
-			if mmask.ndim == 3:	mmask[:,k,:] = 0						
-		else:
-			####
-			# Depth field is the wrong number of dimensions. (Not yet implemented)
-			print 'matchDataAndModel:\tconvertDataTo1D:\tLatitude field is the wrong shape:',nc.variables[self.datacoords['lat']].shape	
-			assert 0
+#	elif self.depthLevel in ['Transect','PTransect',]:
+#		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along longitude direction.'		
+#		if self.depthLevel == 'Transect':	x = -28.
+#		if self.depthLevel == 'PTransect': 	x = 200.
+#		if nc.variables[self.datacoords['lon']].ndim ==1:						
+#			k =  bvp.getclosestlon(x,nc.variables[self.datacoords['lon']][:],debug=True)
+#			if mmask.ndim == 4:	mmask[:,:,:,k] = 0
+#			if mmask.ndim == 3:	mmask[:,:,k] = 0							
+#		else:
+#			####
+#			# Depth field is the wrong number of dimensions. (Not yet implemented)
+#			raise AssertionError( 'matchDataAndModel:\tconvertDataTo1D:\tLongitude field is the wrong shape:'+str(nc.variables[self.datacoords['lon']].shape))
+#		
+#	elif self.depthLevel in ['SOTransect','Equator']:
+#		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along latitude direction.'			
+#		if self.depthLevel == 'SOTransect':	y = -60.
+#		if self.depthLevel == 'Equator':	y =   0.
+#
+#		if nc.variables[self.datacoords['lat']].ndim ==1:						
+#			k =  bvp.getclosestlat(y,nc.variables[self.datacoords['lat']][:],debug=True)
+#			if mmask.ndim == 4:	mmask[:,:,k,:] = 0
+#			if mmask.ndim == 3:	mmask[:,k,:] = 0						
+#		else:
+#			####
+#			# Depth field is the wrong number of dimensions. (Not yet implemented)
+#			raise AssertionError('matchDataAndModel:\tconvertDataTo1D:\tData Latitude field - not expecting these dimensions: '+str(nc.variables[self.datacoords['lat']].shape))
 					
-	elif self.depthLevel in ['ArcTransect','AntTransect','CanRusTransect']:
+	elif self.depthLevel in ['Transect','PTransect','SOTransect','Equator','ArcTransect','AntTransect','CanRusTransect']:
 		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along ',self.depthLevel,' direction.'			
 		####
 		# Create a lines, then produce a mask along that line.
@@ -274,7 +272,36 @@ class matchDataAndModel:
 		else:	lon2d,lat2d = lons,lats
 
 		mask2d = np.ones_like(lon2d)
-		
+
+		if self.depthLevel == 'Transect':
+			numpoints = 500
+			lon = -28. # W
+			minlat = -89.
+			maxlat = 89.99
+			transectcoords = [(minlat +i*(maxlat-minlat)/numpoints,lon)  for i in np.arange(numpoints)]# lat,lon
+			
+
+		if self.depthLevel == 'PTransect':
+			numpoints = 500
+			lon = 200. # E
+			minlat = -89.
+			maxlat = 89.99
+			transectcoords = [(minlat +i*(maxlat-minlat)/numpoints,lon)  for i in np.arange(numpoints)]# lat,lon
+			
+		if self.depthLevel == 'SOTransect':
+			numpoints = 5000
+			lonmin = -360. # E
+			lonmax = +360. # E			
+			lat = -60.
+			transectcoords = [(lat, minlon +i*(maxlon-minlon)/numpoints)  for i in np.arange(numpoints)]# lat,lon
+			
+		if self.depthLevel == 'Equator':
+			numpoints = 5000
+			lonmin = -360. # E
+			lonmax = +360. # E			
+			lat = -0.
+			transectcoords = [(lat, minlon +i*(maxlon-minlon)/numpoints)  for i in np.arange(numpoints)]# lat,lon
+			
 		if self.depthLevel == 'ArcTransect':
 			numpoints = 300
 			lon = 0.
@@ -305,6 +332,9 @@ class matchDataAndModel:
 			minlat = -89.9
 			maxlat = -40.
 			transectcoords = [(minlat +i*(maxlat-minlat)/numpoints,lon)  for i in np.arange(numpoints)]# lat,lon
+	
+
+
 		
 		for (lat,lon) in sorted(transectcoords):
 			la,lo = bvp.getOrcaIndexCC(lat, lon, lat2d, lon2d, debug=True,)

@@ -58,9 +58,12 @@ def applyLandMask(nc,keys, **kwargs):
 	except: raise AssertionError("applyLandMask.py:\t Model mask not loaded correctly")
 
 	arr = np.ma.array(nc.variables[keys[0]][:]).squeeze()
-	m  = np.ma.masked_where(mask + arr.mask,arr)
-	m += np.ma.masked_invalid(arr).mask
-	return np.ma.masked_where(m ,arr)
+	m   = np.ma.masked_where(mask + arr.mask,arr)
+	m  += np.ma.masked_invalid(arr).mask
+	arr = np.ma.masked_where(m>1 ,arr)
+	print "applyLandMask:\t ",arr.mean(),arr.min(),arr.max(),arr.shape, m.mean()
+	assert 0
+	return arr
 
 def applyLandMask2D(nc,keys, **kwargs):
 	"""
