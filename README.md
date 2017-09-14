@@ -35,6 +35,9 @@ To use this package, the following python packages are required:
 * cartopy 
 * https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/netcdf_manip
 
+Access to this packages can be requested via the web form: http://www.pml.ac.uk/Modelling_at_PML/Access_Code
+
+ 
 Most of these packages can be installed with the command:
 
 ```bash

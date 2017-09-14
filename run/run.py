@@ -29,10 +29,16 @@
 .. moduleauthor:: Lee de Mora <ledm@pml.ac.uk>
 
 """
+from sys import argv
 
 from analysis_parser import analysis_parser
 
 if __name__=="__main__":
+	try: 	configfn = argv[1]
+	except: 
+		configfn = 'runconfig.ini'
+		print "run.py:\tNo config file provided, using default: ", configfn
+
 	analysis_parser( 
-		configfile='runconfig.ini' ,
+		configfile= configfn,
 		)
