@@ -104,13 +104,15 @@ def addSections(
 	FileLists	= {}
 
 	for region in akp.regions:
-		href = 	key+'-'+region
+	    for layer in akp.layers:
+		href = 	key+'-'+region+'-'+layer
 		hrefs.append(href)
 		
 		#####
 		# Title is the main header, SidebarTitles is the side bar title.
-		Titles[href] = 	getLongName(region)
-		SidebarTitles[href] = getLongName(region)	
+		ln  = ' '.join([getLongName(region), getLongName(layer)])
+		Titles[href] = ln
+		SidebarTitles[href] = ln
 							
 		#####
 		# Descriptions is a small sub-header
@@ -129,17 +131,22 @@ def addSections(
 	
 		if akp.makeTS:	
 			files = {}
-			for layer in akp.layers:		
-				files.update({f:1 for f in glob(akp.images_ts +'/*'+region+'*'+layer+'*.png')})
-				files.update({f:1 for f in glob(akp.images_ts +'/*'+layer+'*'+region+'*.png')})
+			#for layer in akp.layers:		
+			files.update({f:1 for f in glob(akp.images_ts +'/*'+region+'*'+layer+'*.png')})
+			files.update({f:1 for f in glob(akp.images_ts +'/*'+layer+'*'+region+'*.png')})
 				
 			vfiles.extend(sorted(files.keys()))
-			
+
+		if akp.makeProfiles:	
+			files = {}
+			files.update({f:1 for f in glob(akp.images_pro +'/*'+region+'*.png')})
+			vfiles.extend(sorted(files.keys()))
+						
 		if akp.makeP2P:
 			files = {}
-			for layer in akp.layers:		
-				files.update({f:1 for f in glob(akp.images_p2p +'/*'+region+'*'+layer+'*.png')})
-				files.update({f:1 for f in glob(akp.images_p2p +'/*'+layer+'*'+region+'*.png')})
+			#for layer in akp.layers:		
+			files.update({f:1 for f in glob(akp.images_p2p +'/*'+region+'*'+layer+'*.png')})
+			files.update({f:1 for f in glob(akp.images_p2p +'/*'+layer+'*'+region+'*.png')})
 			vfiles.extend(sorted(files.keys()))
 					
 		#####

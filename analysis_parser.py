@@ -69,11 +69,17 @@ def analysis_parser(
 	# Load global level keys from the config file.
 	globalKeys =  GlobalSectionParser(configfile)
 	
+
+	#####
+	# Run the evaluation for each True boolean key in the config file section [ActiveKeys].	
 	for key in globalKeys.ActiveKeys:
 		akp = AnalysisKeyParser(configfile, key, debug=True)
+		
+		if akp.dimensions in  [1,]:			
+			metricList = ['metricless',]
 		if akp.dimensions in  [2, 3]:
 			metricList = ['mean','median', '10pc','20pc','30pc','40pc','50pc','60pc','70pc','80pc','90pc','min','max']
-		else:	metricList = ['metricless',]	
+	
 		
 		#####
 		# Time series plots		
@@ -100,7 +106,7 @@ def analysis_parser(
 		        )
 
 		#####
-		# Profile plots
+		# Profile plots (only works for 3 Dimensional data.)
 		if akp.makeProfiles and akp.dimensions == 3:
 			profa = profileAnalysis(
 				modelFiles 	= akp.modelFiles_ts,
@@ -124,7 +130,7 @@ def analysis_parser(
 			)
 			
 		#####
-		# Point to point plots		
+		# Point to point plots	
 		if akp.makeP2P and  akp.dimensions not in  [1,]:
 		
 		    	testsuite_p2p(
@@ -149,7 +155,6 @@ def analysis_parser(
 				annual		= True,
 				noTargets	= True,
 		 	)
-	print globalKeys	 		
 	#####
 	# Make HTML Report
 	if globalKeys.makeReport:

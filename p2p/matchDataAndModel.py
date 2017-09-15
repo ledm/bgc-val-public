@@ -43,7 +43,7 @@ import numpy as np
 ######
 # local imports
 from bgcvaltools import bgcvalpython as bvp 
-
+from bgcvaltools.extractLayer import extractLayer
 
 #####	
 # These are availalble in the module:
@@ -185,7 +185,7 @@ class matchDataAndModel:
 	 
 
 
-  def _convertDataTo1D_(self,):
+  def _convertDataTo1D_old(self,):
    	""" 
    		This routine reduces the In Situ data into a 1D array of data with its lat,lon,depth and time components.
   	"""
@@ -211,7 +211,7 @@ class matchDataAndModel:
 		convertToOneDNC(self.DataFilePruned, self.DataFile1D, debug=True, variables = self.DataVars)
 		nc.close()
 		return
-		
+	
 	mmask = np.ones(nc.variables[self.DataVars[0]].shape)	  
 			
 	if self.depthLevel in ['Surface','100m','200m','500m','1000m','2000m',]:	
@@ -366,7 +366,44 @@ class matchDataAndModel:
   	
   		
 	
+  def _convertDataTo1D_(self,):
+   	""" 
+   		This routine reduces the In Situ data into a 1D array of data with its lat,lon,depth and time components.
+  	"""
+		
+	if not bvp.shouldIMakeFile(self.DataFilePruned,self.DataFile1D,debug=False):
+		print "matchDataAndModel:\tconvertDataTo1D:\talready exists: (DataFile1D):\t",self.DataFile1D
+		return
+
+	print "matchDataAndModel:\tconvertDataTo1D:\topening DataFilePruned:\t",self.DataFilePruned		
+
+	nc = Dataset(self.DataFilePruned,'r')
+		
+	if self.depthLevel == '':
+		print 'matchDataAndModel:\tconvertDataTo1D:\tNo depth level cut or requirement',self.DataFilePruned,'-->',self.DataFile1D
+	  	if len(self.DataVars):	convertToOneDNC(self.DataFilePruned, self.DataFile1D, debug=True, variables = self.DataVars)
+	  	else:			convertToOneDNC(self.DataFilePruned, self.DataFile1D, debug=True)
+	  	nc.close()	  	
+	  	return
+	  	
+	  	
+	if self.datacoords['z'] in ['', None,"''"]:
+		print 'matchDataAndModel:\tconvertDataTo1D:\tNo data depth level coordinate',self.dataType
+		convertToOneDNC(self.DataFilePruned, self.DataFile1D, debug=True, variables = self.DataVars)
+		nc.close()
+		return
 	
+	mmask =  extractLayer(nc,coords,details,layer,data = '',maskWanted=True)	
+			  	
+	mmask +=nc.variables[self.DataVars[0]][:].mask
+	print 'matchDataAndModel:\tconvertDataTo1D:\t',self.depthLevel,'\tMaking mask shape:',mmask.shape		
+	print 'matchDataAndModel:\tconvertDataTo1D:\t',self.depthLevel,'\tMaking flat array:',self.DataFilePruned,'-->',self.DataFile1D	
+	
+	convertToOneDNC(self.DataFilePruned,self.DataFile1D ,newMask=mmask, variables = self.DataVars, debug=True)
+
+  	nc.close()
+  	
+  		
 		
   	
   def _matchModelToData_(self,):

@@ -31,8 +31,10 @@ import os
 from bgcvaltools import bgcvalpython as bvp
 from convertToOneDNC import convertToOneDNC
 from bgcvaltools.dataset import dataset
+from bgcvaltools.extractLayer import extractLayer
 from regions.makeMask import loadMaskMakers, makeMask
 from functions.stdfunctions import extractData
+
 """
 .. module:: timeseriesTools
    :platform: Unix
@@ -254,7 +256,8 @@ class DataLoader:
   	if self.__lay__ == layer:
   		return self.__layDat__
   	else:
-  		 self.__layDat__ = np.ma.array(getHorizontalSlice(self.nc,self.coords,self.details,layer,data = self.Fulldata))
+  		 #self.__layDat__ = np.ma.array(getHorizontalSlice(self.nc,self.coords,self.details,layer,data = self.Fulldata))
+  		 self.__layDat__ = np.ma.array(extractLayer(self.nc,self.coords,self.details,layer,data = self.Fulldata,maskWanted=False))  		 
   		 print "DataLoader:\tgetlayerDat:",self.name,layer
   		 self.__lay__ = layer
   		 return self.__layDat__

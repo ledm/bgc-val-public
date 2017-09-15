@@ -409,7 +409,7 @@ class profileAnalysis:
 	    	dataDlon = dl.load[(r,l,'lon')]		
 	    	dataDarea = self.loadDataAreas(dataDlat,dataDlon)
 		    	
-    		print "profileAnalysis:\t loadData,\tloading ",(r,l), '\tmean (non weighted):\t',meandatad
+    		print "profileAnalysis:\t loadData,\tloading ",(r,l), '\tmean (pre weighting):\t',meandatad
 
 		if 'mean' in self.metrics:
 			dataD[(r,l,'mean')] = np.average(dataDarray, weights = dataDarea)
