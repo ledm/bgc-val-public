@@ -44,7 +44,7 @@ import numpy as np
 # local imports
 from bgcvaltools import bgcvalpython as bvp 
 from alwaysInclude import depthNames
-
+from functions.stdfunctions import extractData
 
 	
 def ApplyDepthSlice(nc,coords,details,z,data,maskWanted=False):
@@ -55,7 +55,7 @@ def ApplyDepthSlice(nc,coords,details,z,data,maskWanted=False):
 	zdim = determineZ(nc,coords,details)
 	
 	if maskWanted:
-		mmask = np.ma.ones_like(data)	  	
+		mmask = np.ma.ones(data.shape)	  	
 		if zdim == 0:	mmask[z,...] = 0
 		if zdim == 1:	mmask[:,z,...] = 0
 		if zdim == 2:	mmask[:,:,z,...] = 0
@@ -78,6 +78,16 @@ def determineZ(nc,coords,details):
 	for d,dim in enumerate(dims):
 		if dim in depthNames: return d
 	raise AssertionError("determineZ:\tERROR:\tNot able to find the depth in the dimensions:"+str(dims)+"\n\t\tPlease add your depth to alwaysInclude.py:depthsNames")
+
+def drawLine(lat1,lat2,lon1,lon2,numpoints=5000):
+	"""
+	draw a list of points in a coordinately straight line between two points.
+
+	"""	
+	latstep = (lat2-lat1)/numpoints
+	lonstep	= (lon2-lon1)/numpoints
+	
+	return [(lat1 + (i*latstep),lon1 + (i*lonstep))  for i in np.arange(numpoints)]
 	
 	
 def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
@@ -198,55 +208,41 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 
 	####
 	# extract data along a specific longitude (ie North South transect)
-	if customLayerType == 'lon':	
-		numpoints = 5000
-		lon = customLayerValue # E
-		minlat = -89.
-		maxlat = 89.99
-		transectcoords = [(lat, minlon +i*(maxlon-minlon)/numpoints)  for i in np.arange(numpoints)]# lat,lon			
-
+	if customLayerType == 'lon': 
+		transectcoords	= drawLine(-89.,89.99,customLayerValue,customLayerValue,)
 	####
 	# extract data along a specific latitude (ie East West transect)
 	if customLayerType == 'lat':	
-		numpoints = 5000
-		lonmin = -360. # E
-		lonmax = +360. # E			
-		lat = customLayerValue	#N
-		transectcoords = [(lat, minlon +i*(maxlon-minlon)/numpoints)  for i in np.arange(numpoints)]# lat,lon	
-	
+		transectcoords	= drawLine(customLayerValue,customLayerValue,-360.,360.,)			
 	####
 	#Some special transects.
 	if layer == 'ArcTransect':
-		numpoints = 300
 		lon = 0.
 		minlat = 50.
 		maxlat = 90.
-		transectcoords = [(minlat +i*(maxlat-minlat)/numpoints,lon)  for i in np.arange(numpoints)]# lat,lon
+		transectcoords	= drawLine(minlat,maxlat,lon,lon,)
 
 		lon = -165.
 		minlat = 60.
 		maxlat = 90.
-		transectcoords.extend([(minlat +i*(maxlat-minlat)/numpoints,lon) for i in np.arange(numpoints)])# lat,lon
+		transectcoords.extend(drawLine(minlat,maxlat,lon,lon,))
 		
 	if layer == 'CanRusTransect':
-		numpoints = 300
 		lon = 83.5
 		minlat = 65.
 		maxlat = 90.
-		transectcoords = [(minlat +i*(maxlat-minlat)/numpoints,lon)  for i in np.arange(numpoints)]# lat,lon
-
+		transectcoords.extend(drawLine(minlat,maxlat,lon,lon,))
 		lon = -96.
 		minlat = 60.
 		maxlat = 90.
 		transectcoords.extend([(minlat +i*(maxlat-minlat)/numpoints,lon) for i in np.arange(numpoints)])# lat,lon
+		transectcoords.extend(drawLine(minlat,maxlat,lon,lon,))
 	
 	if layer == 'AntTransect':
-		numpoints = 500
 		lon = 0.
 		minlat = -89.9
 		maxlat = -40.
-		transectcoords = [(minlat +i*(maxlat-minlat)/numpoints,lon)  for i in np.arange(numpoints)]# lat,lon
-			
+		transectcoords.extend(drawLine(minlat,maxlat,lon,lon,))			
 		
 	lats = nc.variables[coords['lat']][:]
 	lons = nc.variables[coords['lon']][:]
@@ -254,7 +250,7 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 		lon2d,lat2d = np.meshgrid(lons,lats)
 	else:	lon2d,lat2d = lons,lats
 
-	mmask = np.ma.ones_like(data)
+	mmask = np.ones_like(data)
 	mask2d = np.ones_like(lon2d)	
 	try : 	transectcoords
 	except:	raise NameError('extractLayer:\tERROR:\tUnable to define the transect coordinates.\t layer:'+str(layer))

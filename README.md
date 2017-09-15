@@ -201,8 +201,12 @@ Note that:
 * The operations in the `data_convert` and `model_convert` options can be any of the operations in `bgc-val-public/stdfunctions.py`
   or they can be taken from a localfuntion in the localfunction directory. More details below in the [Functions](#Functions) section.
 
-* Layers can be selected from a small list of specific depths, such as `Surface`, `100m`, `500m`, `All` etc... Or from a specific list of 
-  Ocean transects, such as `Equator`, more details in the [Layers](#Layers) section, below.
+* Layers can be selected from a specific list of named layers or transects such as `Surface`, `Equator`, etc..
+  Arbitrary Layers or Transects can also be defined in the config.ini:
+    * Any integer will load that depth layer from the file.
+    * Any number followed by 'm', (ie 500m) will load that depth.
+    * Any transect along a latitude or longitude can be defines. ie (60S, or 28W)
+
 
 * Regions here is a portmanteau for any selection of data based on it's coordinates, or data values.
   Typically, these are spatial regional cuts, such as `NorthernHemisphere`, but the regional cut is not limited to spatial regions.

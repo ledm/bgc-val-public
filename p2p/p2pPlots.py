@@ -89,8 +89,9 @@ class makePlots:
 		shelveDir='',
   		imageDir='',
   		newSlices =['All','Standard'], 
-  		compareCoords=True,  		
-  		noPlots=False,
+  		compareCoords	= True,  		
+  		noPlots		= False,
+		clean		= False,  		
   		dpi = 100): #xfilename,yfilename,saveShelve=True,
 
   
@@ -108,9 +109,10 @@ class makePlots:
   	self.year = year
   	self.shelveDir = shelveDir
   	self.compareCoords = compareCoords
-	self.months = {month_name[i+1]:i for i in xrange(0,12) }
-	self.noPlots = noPlots  
-	
+	self.months 	= {month_name[i+1]:i for i in xrange(0,12) }
+	self.noPlots 	= noPlots  
+	self.clean 	= clean  
+		
 	# details about coordinates and what to load.
   	self.modelcoords	= modelcoords
   	self.modeldetails 	= modeldetails
@@ -237,7 +239,7 @@ class makePlots:
 		except:	self.shelves = [shelveName,]
 
 		
-	if plotsToMake == 0: 
+	if plotsToMake == 0 and self.clean==False: 
 	  	print 'plotWithSlices:\tAll plots and shelve files already made',self.name, newSlice, xkeys,ykeys
 		return
 	

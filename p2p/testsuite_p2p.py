@@ -61,8 +61,9 @@ def testsuite_p2p(
 			grid		= '',			
 			gridFile	= '',
 			annual 		= '',
-			noPlots = False,
-			noTargets = False,
+			noPlots 	= False,
+			noTargets 	= False,
+			clean 		= False,
 			):
 
 	"""
@@ -204,7 +205,8 @@ def testsuite_p2p(
 								workingDir 	= bvp.folder(workingDir),
 								layer 		= layer,
 								grid		= grid,
-								gridFile	= gridFile
+								gridFile	= gridFile,
+								clean		= clean,
 						)
 
   			
@@ -240,7 +242,8 @@ def testsuite_p2p(
 					shelveDir 	= bvp.folder(workingDir),
 					imageDir	= bvp.folder(imageFolder),
 					compareCoords	= True,
-					noPlots		= noPlots
+					noPlots		= noPlots,
+					clean		= clean,
 				     )
 
 			#shelvesAV[model][name][layer] = m.shelvesAV

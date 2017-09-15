@@ -154,6 +154,7 @@ def analysis_parser(
 				noPlots		= False,	# turns off plot making to save space and compute time.
 				annual		= True,
 				noTargets	= True,
+		                clean           = akp.clean,				
 		 	)
 	#####
 	# Make HTML Report
