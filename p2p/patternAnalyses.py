@@ -41,16 +41,16 @@ def InterAnnualPatterns(shelvesAV, jobID, years,Grid):
 	
 	for model in allshelves.models:
 		for name in allshelves.names:
-		    for depthLevel in allshelves.depthLevels:
-		    	print 'InterAnnual analysis:',model,name,depthLevel
+		    for layer in allshelves.layers:
+		    	print 'InterAnnual analysis:',model,name,layer
 			
 			#####
 			# Each year is a different colour.
 			yearslyShelves = {}
 			for y in years:
-				yearslyShelves[y] = reducesShelves(shelvesAV,models=[model],names=[name,],years=[y,],depthLevels=[depthLevel,],sliceslist=months,)
+				yearslyShelves[y] = reducesShelves(shelvesAV,models=[model],names=[name,],years=[y,],layers=[layer,],sliceslist=months,)
 	
-			filenamebase = folder('images/'+model+'-'+jobID+'/Patterns/Interannual/'+name+depthLevel)+model+jobID+name+'_'+years[0]+'-'+years[-1]+depthLevel
+			filenamebase = folder('images/'+model+'-'+jobID+'/Patterns/Interannual/'+name+layer)+model+jobID+name+'_'+years[0]+'-'+years[-1]+layer
 			makePatternStatsPlots(	
 						yearslyShelves, # {legend, shelves}
 						model+' '+name,				# title
@@ -75,11 +75,11 @@ def InterAnnualPatterns(shelvesAV, jobID, years,Grid):
 				continue
 				assert False
 		
-			filenamebase = folder('images/'+model+'-'+jobID+'/Patterns/Interannual/'+name+depthLevel)+model+jobID+name+'_'+years[0]+'-'+years[-1]+depthLevel+'_longtimeseries'
+			filenamebase = folder('images/'+model+'-'+jobID+'/Patterns/Interannual/'+name+layer)+model+jobID+name+'_'+years[0]+'-'+years[-1]+layer+'_longtimeseries'
 			print "makePatternStatsPlots:",{name:longShelves}, model+' '+name,	longMonths,filenamebase,Grid
 			makePatternStatsPlots(	
 						{name:longShelves}, 		# {legend, shelves}
-						model+' '+name+' ' +depthLevel,			# title
+						model+' '+name+' ' +layer,			# title
 						longMonths,			# xkeysLabels
 						filenamebase,			# filename base
 						grid	= Grid,
@@ -88,17 +88,17 @@ def InterAnnualPatterns(shelvesAV, jobID, years,Grid):
 			#####			
 			# One long line showing multiple years - annual.
 			for sl in ['All','Standard']:
-				yearslyShelves = reducesShelves(shelvesAV,models=[model],names=[name,],years=years,depthLevels=[depthLevel,],sliceslist=[sl,],)	
+				yearslyShelves = reducesShelves(shelvesAV,models=[model],names=[name,],years=years,layers=[layer,],sliceslist=[sl,],)	
 
 				if len(yearslyShelves) != len(years):
 					print "len(yearslyShelves) != len(years):",len(yearslyShelves),' != ',len(years)
 					assert False
 		
-				filenamebase = folder('images/'+model+'-'+jobID+'/Patterns/Interannual/'+name+depthLevel)+model+jobID+name+'_'+years[0]+'-'+years[-1]+depthLevel+'_annual'+sl
+				filenamebase = folder('images/'+model+'-'+jobID+'/Patterns/Interannual/'+name+layer)+model+jobID+name+'_'+years[0]+'-'+years[-1]+layer+'_annual'+sl
 				print "makePatternStatsPlots - Annual :",sl,{name:sorted(yearslyShelves)},years, model+' '+name,filenamebase,Grid
 				makePatternStatsPlots(	
 							{name:sorted(yearslyShelves)}, 		# {legend, shelves}
-							model+' '+name+' ' +depthLevel,		# title
+							model+' '+name+' ' +layer,		# title
 							sorted(years),				# xkeysLabels
 							filenamebase,				# filename base
 							grid	= Grid,
@@ -128,23 +128,23 @@ def BGCvsPhysics(shelvesAV, jobID, Grid, physicsModel = 'NEMO' ):
 
 	print "BGCvsPhysics:\tStarting:",model, jobID, bgcnames
 	for year in allshelves.years:
-	  for depthLevel in allshelves.depthLevels:
+	  for layer in allshelves.layers:
 	    for name in bgcnames:
 	      for slicekey, slices in zip(['months','oceans','SHmonths','NHmonths',],[months,Ocean_names,SouthHemispheresMonths,NorthHemispheresMonths]):
 		monthlyShelves = {}
 		monthlyShelves['MLD'] = reducesShelves(shelvesAV,models=[physicsModel,],names=['mld',],years=[year,],sliceslist= slices,)
-		monthlyShelves[name]  = reducesShelves(shelvesAV,models=allshelves.models,names=[name,],years=[year,],sliceslist= slices,depthLevels=[depthLevel,])
+		monthlyShelves[name]  = reducesShelves(shelvesAV,models=allshelves.models,names=[name,],years=[year,],sliceslist= slices,layers=[layer,])
 		for nm in ['temperature','salinity']:
-			monthlyShelves[nm] = reducesShelves(shelvesAV,models=[physicsModel,],names=[nm,],years=[year,],depthLevels=[depthLevel,],sliceslist=slices,)		
+			monthlyShelves[nm] = reducesShelves(shelvesAV,models=[physicsModel,],names=[nm,],years=[year,],layers=[layer,],sliceslist=slices,)		
 	
 		
-		filenamebase = folder('images/'+model+'-'+jobID+'/Patterns/'+year+'/'+name+'_vsPhysics')+model+jobID+name+'_'+year+depthLevel+'_'+slicekey
+		filenamebase = folder('images/'+model+'-'+jobID+'/Patterns/'+year+'/'+name+'_vsPhysics')+model+jobID+name+'_'+year+layer+'_'+slicekey
 		print "BGCvsPhysics:\t",year, model+' '+name,filenamebase,Grid
 		print "monthlyShelves:",monthlyShelves
 		
 		makePatternStatsPlots(	
 					monthlyShelves, 		# {legend, shelves}
-					model+' '+name+' ' +depthLevel +' '+ year,		# title
+					model+' '+name+' ' +layer +' '+ year,		# title
 					slices,				# xkeysLabels
 					filenamebase,				# filename base
 					grid	= Grid,
@@ -157,12 +157,12 @@ def onePatternAtATime(allshelves,):
 	allshelves = listShelvesContents(shelvesAV)
 	for year in allshelves.years:
 	  for name in allshelves.names:
-	    for depthLevel in allshelves.depthLevels:
+	    for layer in allshelves.layers:
 		#####
 		# Produce a set of pattern and a target plots for each of the groups here.
 		
 		for g in groups:
-		    	groups[g] = reducesShelves(shelvesAV,  models =[model,],depthLevels = [depthLevel,], names = [name,], sliceslist =slicesDict[g])
+		    	groups[g] = reducesShelves(shelvesAV,  models =[model,],layers = [layer,], names = [name,], sliceslist =slicesDict[g])
 			print g, groups[g]
 				
 			if len(groups[g])==0:continue 
@@ -170,7 +170,7 @@ def onePatternAtATime(allshelves,):
 			#####
 			# makeTargets:
 			# Make a target diagram of the shelves of this group. 
-		  	filename = folder(imageFolder+'/Targets/'+year+'/'+name+depthLevel+'/'+g)+model+'-'+jobID+'_'+year+'_'+name+depthLevel+'_'+g+'.png'
+		  	filename = folder(imageFolder+'/Targets/'+year+'/'+name+layer+'/'+g)+model+'-'+jobID+'_'+year+'_'+name+layer+'_'+g+'.png'
 			makeTargets(	groups[g], 
 					filename,
 					legendKeys = ['newSlice',],					
@@ -184,7 +184,7 @@ def onePatternAtATime(allshelves,):
 			if xkeys=='':
 				print "Could no find x axis keys!",g,'in',['Oceans','Months']
 				
-		  	filenamebase = folder(imageFolder+'/Patterns/'+year+'/'+name+depthLevel+'/'+g)+'Months-'+model+'-'+jobID+'_'+year+'_'+name+depthLevel
+		  	filenamebase = folder(imageFolder+'/Patterns/'+year+'/'+name+layer+'/'+g)+'Months-'+model+'-'+jobID+'_'+year+'_'+name+layer
 			makePatternStatsPlots(	{name :groups[g],}, # {legend, shelves}
 						name+' '+g,	#xkeysname
 						slicesDict[xkeys],		#xkeysLabels=
@@ -193,7 +193,7 @@ def onePatternAtATime(allshelves,):
 						)
 			#####
 			# After finding all the shelves, we can plot them on the same axis.				
-		  	filenamebase = folder(imageFolder+'/Patterns/'+year+'/'+name+depthLevel+'/ANSH')+'ANSH-Months-'+model+'-'+jobID+'_'+year+'_'+name+depthLevel
+		  	filenamebase = folder(imageFolder+'/Patterns/'+year+'/'+name+layer+'/ANSH')+'ANSH-Months-'+model+'-'+jobID+'_'+year+'_'+name+layer
 		  	
 			makePatternStatsPlots(	{'North Hemisphere' :groups['NorthHemisphereMonths'],
 						 'South Hemisphere' :groups['SouthHemisphereMonths'],
@@ -211,7 +211,7 @@ def modelIntercomparisonAnnual(shelvesAV,imageFolder):
 	allshelves = listShelvesContents(shelvesAV)
 	models 	= allshelves.models
 	names  	= allshelves.names
-	dls     = allshelves.depthLevels
+	dls     = allshelves.layers
 	years	= allshelves.years
 	plots = ['Oceans', 'depthRanges', 'Transects']
 	
@@ -222,7 +222,7 @@ def modelIntercomparisonAnnual(shelvesAV,imageFolder):
 	        data={}
 		for model in models:
 			print "modelIntercomparisonAnnual:",year, name,dl,plot, model, slicesDict[plot]
-			data[model] = reducesShelves(shelvesAV,  models =[model,],depthLevels = [dl,], names = [name,], sliceslist =slicesDict[plot])		
+			data[model] = reducesShelves(shelvesAV,  models =[model,],layers = [dl,], names = [name,], sliceslist =slicesDict[plot])		
 			
 	  	filenamebase = folder(imageFolder+'/Patterns/'+year+name+dl+'/'+plot)+'modelIntercomparisonAnnual-'+year+'_'+name+dl+plot
 		makePatternStatsPlots(	

@@ -1848,35 +1848,35 @@ class shelveMetadata:
    """
    A tool to load the metadata of a shelve.
    """
-   def __init__(self,model='',name='',year='',depthLevel='',newSlice='',xkey='',ykey='',shelve = ''):
+   def __init__(self,model='',name='',year='',layer='',newSlice='',xkey='',ykey='',shelve = ''):
    	self.model 	= model
    	self.name 	= name
    	self.year 	= year   	
-   	self.depthLevel	= depthLevel
+   	self.layer	= layer
    	self.newSlice 	= newSlice
    	self.xkey 	= xkey   	   	   	
    	self.ykey 	= ykey   	   	   	   	
    	self.shelve 	= shelve   	      	
    def __repr__(self):
 	string = ''   
-   	for a in [ self.model,self.name,self.year,self.depthLevel,self.newSlice,self.xkey,self.ykey]:
+   	for a in [ self.model,self.name,self.year,self.layer,self.newSlice,self.xkey,self.ykey]:
    		string+=', '+a
    	string+='\nshelve:'+self.shelve
         return string
    def __str__(self):
 	string = ''   
-   	for a in [ self.model,self.name,self.year,self.depthLevel,self.newSlice,self.xkey,self.ykey]:
+   	for a in [ self.model,self.name,self.year,self.layer,self.newSlice,self.xkey,self.ykey]:
    		if len(a) ==0:continue
    		string+='-'+a
         return string   
        
         
         
-def reducesShelves(AllShelves,models=[],names=[],years=[],depthLevels=[],sliceslist=[],):
+def reducesShelves(AllShelves,models=[],names=[],years=[],layers=[],sliceslist=[],):
 	"""
 	This routine takes the AllShelves dictionary of shelveMetadata then returns a list of shelves.
 	This is useful for producing a target diagram, or a patterns plot.
-	requirements is a list of models, slices, depthLevels that are required.
+	requirements is a list of models, slices, layers that are required.
 	"""
 	emptySMDtype = type(shelveMetadata())
 	outArray = []
@@ -1888,7 +1888,7 @@ def reducesShelves(AllShelves,models=[],names=[],years=[],depthLevels=[],slicesl
 		if len(models) 		and shelveMD.model 	not in models:	continue
 		if len(names) 		and shelveMD.name 	not in names:	continue
 		if len(years) 		and shelveMD.year 	not in years:	continue
-		if len(depthLevels) 	and shelveMD.depthLevel not in depthLevels:continue
+		if len(layers) 	and shelveMD.layer not in layers:continue
 		if len(sliceslist) 	and shelveMD.newSlice 	not in sliceslist:continue
 		outArray.append(shelveMD.shelve)
 	return outArray		
@@ -1901,7 +1901,7 @@ class listShelvesContents:
 	models={}
 	names={}
 	years={}
-	depthLevels={}
+	layers={}
 	sliceslist = {}
 	emptySMDtype = type(shelveMetadata())
 	for shelveMD in AllShelves:
@@ -1912,23 +1912,23 @@ class listShelvesContents:
 		models[shelveMD.model] 		= True
 		names[shelveMD.name] 		= True
 		years[shelveMD.year] 		= True
-		depthLevels[shelveMD.depthLevel]= True				
+		layers[shelveMD.layer]= True				
 		sliceslist[shelveMD.newSlice] 	= True						
 
 	self.models = models.keys()
 	self.names = names.keys()
 	self.years = years.keys()
-	self.depthLevels = depthLevels.keys()
+	self.layers = layers.keys()
 	self.sliceslist = sliceslist.keys()
    def __repr__(self):
 	string = ''   
-   	for a in [ self.models,self.names,self.years,self.depthLevels,self.sliceslist]:
+   	for a in [ self.models,self.names,self.years,self.layers,self.sliceslist]:
    		string+=', '+' '.join(a)
    	string+='\nshelve contents:'+self.shelve
         return string
    def __str__(self):
 	string = ''   
-   	for a in [ self.models,self.names,self.years,self.depthLevels,self.sliceslist]:
+   	for a in [ self.models,self.names,self.years,self.layers,self.sliceslist]:
    		if len(a) ==0:continue
    		string+='-'+' '.join(a)
         return string   

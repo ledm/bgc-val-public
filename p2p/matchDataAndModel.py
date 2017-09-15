@@ -62,7 +62,7 @@ class matchDataAndModel:
   	This code takes the real data from in situ  measurments in netcdf format and the Model data and created two 1D matched netcdfs. 
 	The 1D matched netcdfs are then used to make plots and perform statistical analysis (not in this code).
 	The first step is to produce lightweight "pruned" versions of the files, which have the unused fields stripped out.
-	Some of the datasets are too large to run this code on desktop machine, so in those cases we request a specific depthLevel, ie "Surface".
+	Some of the datasets are too large to run this code on desktop machine, so in those cases we request a specific layer, ie "Surface".
 	Debug: prints more statements.
   """
 
@@ -79,10 +79,11 @@ class matchDataAndModel:
   			model = '', 
   			jobID = '', 
   			year = '', 
-  			depthLevel = '', 
+  			layer = '', 
   			grid = 'ORCA1', 
   			gridFile = '', 
-  			debug = True,):
+  			debug = True,
+  			clean = False,):
 
 	if debug:
 		print "matchDataAndModel:\tINFO:\tStarting matchDataAndModel"
@@ -109,9 +110,9 @@ class matchDataAndModel:
 	self.model = model 
 	self.jobID = jobID 
 	self.year = year
-	self.depthLevel = depthLevel
+	self.layer = layer
 	self.debug = debug	
-		
+	self.clean = clean
 
 	self._meshLoaded_ = False
 	
@@ -124,7 +125,7 @@ class matchDataAndModel:
 	self.compType= 'MaredatMatched-'+self.model+'-'+self.jobID+'-'+self.year
 		
 	if workingDir =='':
-		self.workingDir = bvp.folder('/data/euryale7/scratch/ledm/ukesm_postProcessed/ukesm/outNetCDF/'+'/'.join([self.compType,self.dataType+self.depthLevel]) )
+		self.workingDir = bvp.folder('/data/euryale7/scratch/ledm/ukesm_postProcessed/ukesm/outNetCDF/'+'/'.join([self.compType,self.dataType+self.layer]) )
 	else: 	self.workingDir = workingDir	
 	self.grid = grid
 	if gridFile =='':
@@ -133,12 +134,12 @@ class matchDataAndModel:
 	print "matchDataAndModel:\tINFO:\tGrid:  \t",grid			
 	print "matchDataAndModel:\tINFO:\tGrid File:  \t",gridFile
 	
-	self.matchedShelve 	= bvp.folder(self.workingDir)+self.model+'-'+self.jobID+'_'+self.year+'_'+self.dataType+'_'+self.depthLevel+'_matched.shelve'
-	self.matchesShelve 	= bvp.folder(self.workingDir)+self.model+'-'+self.jobID+'_'+self.year+'_'+self.dataType+'_'+self.depthLevel+'_matches.shelve'
+	self.matchedShelve 	= bvp.folder(self.workingDir)+self.model+'-'+self.jobID+'_'+self.year+'_'+self.dataType+'_'+self.layer+'_matched.shelve'
+	self.matchesShelve 	= bvp.folder(self.workingDir)+self.model+'-'+self.jobID+'_'+self.year+'_'+self.dataType+'_'+self.layer+'_matches.shelve'
 	
 	self.workingDirTmp = 	bvp.folder(self.workingDir+'tmp')
-	self.DataFilePruned=	self.workingDirTmp+'Data_' +self.dataType+'_'+self.depthLevel+'_'+self.model+'-'+self.jobID+'-'+self.year+'_pruned.nc'
-	self.ModelFilePruned=	self.workingDirTmp+'Model_'+self.dataType+'_'+self.depthLevel+'_'+self.model+'-'+self.jobID+'-'+self.year+'_pruned.nc'	
+	self.DataFilePruned=	self.workingDirTmp+'Data_' +self.dataType+'_'+self.layer+'_'+self.model+'-'+self.jobID+'-'+self.year+'_pruned.nc'
+	self.ModelFilePruned=	self.workingDirTmp+'Model_'+self.dataType+'_'+self.layer+'_'+self.model+'-'+self.jobID+'-'+self.year+'_pruned.nc'	
 	
 	self.DataFile1D  	= self.workingDirTmp + basename(self.DataFilePruned).replace('pruned.nc','1D.nc') 
 	self.maskedData1D	= self.workingDir    + basename(self.DataFile1D)
@@ -198,7 +199,7 @@ class matchDataAndModel:
 
 	nc = Dataset(self.DataFilePruned,'r')
 		
-	if self.depthLevel == '':
+	if self.layer == '':
 		print 'matchDataAndModel:\tconvertDataTo1D:\tNo depth level cut or requirement',self.DataFilePruned,'-->',self.DataFile1D
 	  	if len(self.DataVars):	convertToOneDNC(self.DataFilePruned, self.DataFile1D, debug=True, variables = self.DataVars)
 	  	else:			convertToOneDNC(self.DataFilePruned, self.DataFile1D, debug=True)
@@ -214,14 +215,14 @@ class matchDataAndModel:
 	
 	mmask = np.ones(nc.variables[self.DataVars[0]].shape)	  
 			
-	if self.depthLevel in ['Surface','100m','200m','500m','1000m','2000m',]:	
+	if self.layer in ['Surface','100m','200m','500m','1000m','2000m',]:	
 		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along depth direction.'	
-		if self.depthLevel == 'Surface':z = 0.
-		if self.depthLevel == '100m': 	z = 100.			
-		if self.depthLevel == '200m': 	z = 200.
-		if self.depthLevel == '500m': 	z = 500.
-		if self.depthLevel == '1000m': 	z = 1000.
-		if self.depthLevel == '2000m': 	z = 2000.
+		if self.layer == 'Surface':z = 0.
+		if self.layer == '100m': 	z = 100.			
+		if self.layer == '200m': 	z = 200.
+		if self.layer == '500m': 	z = 500.
+		if self.layer == '1000m': 	z = 1000.
+		if self.layer == '2000m': 	z = 2000.
 		
 		print self.datacoords['z']
 		if nc.variables[self.datacoords['z']].ndim ==1:
@@ -233,10 +234,10 @@ class matchDataAndModel:
 			print 'matchDataAndModel:\tconvertDataTo1D:\tDepth field is the wrong shape:', nc.variables[self.datacoords['z']].shape	
 			assert 0
 			
-#	elif self.depthLevel in ['Transect','PTransect',]:
+#	elif self.layer in ['Transect','PTransect',]:
 #		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along longitude direction.'		
-#		if self.depthLevel == 'Transect':	x = -28.
-#		if self.depthLevel == 'PTransect': 	x = 200.
+#		if self.layer == 'Transect':	x = -28.
+#		if self.layer == 'PTransect': 	x = 200.
 #		if nc.variables[self.datacoords['lon']].ndim ==1:						
 #			k =  bvp.getclosestlon(x,nc.variables[self.datacoords['lon']][:],debug=True)
 #			if mmask.ndim == 4:	mmask[:,:,:,k] = 0
@@ -246,10 +247,10 @@ class matchDataAndModel:
 #			# Depth field is the wrong number of dimensions. (Not yet implemented)
 #			raise AssertionError( 'matchDataAndModel:\tconvertDataTo1D:\tLongitude field is the wrong shape:'+str(nc.variables[self.datacoords['lon']].shape))
 #		
-#	elif self.depthLevel in ['SOTransect','Equator']:
+#	elif self.layer in ['SOTransect','Equator']:
 #		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along latitude direction.'			
-#		if self.depthLevel == 'SOTransect':	y = -60.
-#		if self.depthLevel == 'Equator':	y =   0.
+#		if self.layer == 'SOTransect':	y = -60.
+#		if self.layer == 'Equator':	y =   0.
 #
 #		if nc.variables[self.datacoords['lat']].ndim ==1:						
 #			k =  bvp.getclosestlat(y,nc.variables[self.datacoords['lat']][:],debug=True)
@@ -260,8 +261,8 @@ class matchDataAndModel:
 #			# Depth field is the wrong number of dimensions. (Not yet implemented)
 #			raise AssertionError('matchDataAndModel:\tconvertDataTo1D:\tData Latitude field - not expecting these dimensions: '+str(nc.variables[self.datacoords['lat']].shape))
 					
-	elif self.depthLevel in ['Transect','PTransect','SOTransect','Equator','ArcTransect','AntTransect','CanRusTransect']:
-		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along ',self.depthLevel,' direction.'			
+	elif self.layer in ['Transect','PTransect','SOTransect','Equator','ArcTransect','AntTransect','CanRusTransect']:
+		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along ',self.layer,' direction.'			
 		####
 		# Create a lines, then produce a mask along that line.
 		lats = nc.variables[self.datacoords['lat']][:]
@@ -273,7 +274,7 @@ class matchDataAndModel:
 
 		mask2d = np.ones_like(lon2d)
 
-		if self.depthLevel == 'Transect':
+		if self.layer == 'Transect':
 			numpoints = 500
 			lon = -28. # W
 			minlat = -89.
@@ -281,28 +282,28 @@ class matchDataAndModel:
 			transectcoords = [(minlat +i*(maxlat-minlat)/numpoints,lon)  for i in np.arange(numpoints)]# lat,lon
 			
 
-		if self.depthLevel == 'PTransect':
+		if self.layer == 'PTransect':
 			numpoints = 500
 			lon = 200. # E
 			minlat = -89.
 			maxlat = 89.99
 			transectcoords = [(minlat +i*(maxlat-minlat)/numpoints,lon)  for i in np.arange(numpoints)]# lat,lon
 			
-		if self.depthLevel == 'SOTransect':
+		if self.layer == 'SOTransect':
 			numpoints = 5000
 			lonmin = -360. # E
 			lonmax = +360. # E			
 			lat = -60.
 			transectcoords = [(lat, minlon +i*(maxlon-minlon)/numpoints)  for i in np.arange(numpoints)]# lat,lon
 			
-		if self.depthLevel == 'Equator':
+		if self.layer == 'Equator':
 			numpoints = 5000
 			lonmin = -360. # E
 			lonmax = +360. # E			
 			lat = -0.
 			transectcoords = [(lat, minlon +i*(maxlon-minlon)/numpoints)  for i in np.arange(numpoints)]# lat,lon
 			
-		if self.depthLevel == 'ArcTransect':
+		if self.layer == 'ArcTransect':
 			numpoints = 300
 			lon = 0.
 			minlat = 50.
@@ -314,7 +315,7 @@ class matchDataAndModel:
 			maxlat = 90.
 			transectcoords.extend([(minlat +i*(maxlat-minlat)/numpoints,lon) for i in np.arange(numpoints)])# lat,lon
 			
-		if self.depthLevel == 'CanRusTransect':
+		if self.layer == 'CanRusTransect':
 			numpoints = 300
 			lon = 83.5
 			minlat = 65.
@@ -326,7 +327,7 @@ class matchDataAndModel:
 			maxlat = 90.
 			transectcoords.extend([(minlat +i*(maxlat-minlat)/numpoints,lon) for i in np.arange(numpoints)])# lat,lon
 		
-		if self.depthLevel == 'AntTransect':
+		if self.layer == 'AntTransect':
 			numpoints = 500
 			lon = 0.
 			minlat = -89.9
@@ -349,16 +350,16 @@ class matchDataAndModel:
 			mmask = np.tile(mask2d,(mshape[0],1,1))	
 		
 		if mmask.shape != mshape:
-			print 'matchDataAndModel:\tERROR:\tconvertDataTo1D:\t',self.depthLevel,'\tMaking mask shape:',mmask.shape
+			print 'matchDataAndModel:\tERROR:\tconvertDataTo1D:\t',self.layer,'\tMaking mask shape:',mmask.shape
 			assert 0 
 
 	if mmask.min()==1:
-		print 'matchDataAndModel:\tERROR:\tconvertDataTo1D:\t',self.depthLevel,'\tNo data in here.'
+		print 'matchDataAndModel:\tERROR:\tconvertDataTo1D:\t',self.layer,'\tNo data in here.'
 		return 
 			  	
 	mmask +=nc.variables[self.DataVars[0]][:].mask
-	print 'matchDataAndModel:\tconvertDataTo1D:\t',self.depthLevel,'\tMaking mask shape:',mmask.shape		
-	print 'matchDataAndModel:\tconvertDataTo1D:\t',self.depthLevel,'\tMaking flat array:',self.DataFilePruned,'-->',self.DataFile1D	
+	print 'matchDataAndModel:\tconvertDataTo1D:\t',self.layer,'\tMaking mask shape:',mmask.shape		
+	print 'matchDataAndModel:\tconvertDataTo1D:\t',self.layer,'\tMaking flat array:',self.DataFilePruned,'-->',self.DataFile1D	
 	
 	convertToOneDNC(self.DataFilePruned,self.DataFile1D ,newMask=mmask, variables = self.DataVars, debug=True)
 
@@ -373,13 +374,13 @@ class matchDataAndModel:
 		
 	if not bvp.shouldIMakeFile(self.DataFilePruned,self.DataFile1D,debug=False):
 		print "matchDataAndModel:\tconvertDataTo1D:\talready exists: (DataFile1D):\t",self.DataFile1D
-		return
+		if not self.clean: return
 
 	print "matchDataAndModel:\tconvertDataTo1D:\topening DataFilePruned:\t",self.DataFilePruned		
 
 	nc = Dataset(self.DataFilePruned,'r')
 		
-	if self.depthLevel == '':
+	if self.layer == '':
 		print 'matchDataAndModel:\tconvertDataTo1D:\tNo depth level cut or requirement',self.DataFilePruned,'-->',self.DataFile1D
 	  	if len(self.DataVars):	convertToOneDNC(self.DataFilePruned, self.DataFile1D, debug=True, variables = self.DataVars)
 	  	else:			convertToOneDNC(self.DataFilePruned, self.DataFile1D, debug=True)
@@ -393,11 +394,11 @@ class matchDataAndModel:
 		nc.close()
 		return
 	
-	mmask =  extractLayer(nc,coords,details,layer,data = '',maskWanted=True)	
+	mmask =  extractLayer(nc,self.datacoords,self.datadetails,self.layer,data = '',maskWanted=True)	
 			  	
 	mmask +=nc.variables[self.DataVars[0]][:].mask
-	print 'matchDataAndModel:\tconvertDataTo1D:\t',self.depthLevel,'\tMaking mask shape:',mmask.shape		
-	print 'matchDataAndModel:\tconvertDataTo1D:\t',self.depthLevel,'\tMaking flat array:',self.DataFilePruned,'-->',self.DataFile1D	
+	print 'matchDataAndModel:\tconvertDataTo1D:\t',self.layer,'\tMaking mask shape:',mmask.shape		
+	print 'matchDataAndModel:\tconvertDataTo1D:\t',self.layer,'\tMaking flat array:',self.DataFilePruned,'-->',self.DataFile1D	
 	
 	convertToOneDNC(self.DataFilePruned,self.DataFile1D ,newMask=mmask, variables = self.DataVars, debug=True)
 
@@ -414,6 +415,7 @@ class matchDataAndModel:
 	is_i	= ncIS.variables['index'][:]
 	
 	try:
+		if self.clean: assert 0
 		s = shOpen(self.matchedShelve)
 		maxIndex = s['maxIndex']
 		self.maremask = s['maremask']
@@ -432,6 +434,7 @@ class matchDataAndModel:
 		print "matchModelToData:\tCreating shelve:", self.matchedShelve
 
 	try:
+		if self.clean: assert 0	
 		s = shOpen(self.matchesShelve)		
 		lldict  = s['lldict']
 		s.close()
@@ -589,7 +592,7 @@ class matchDataAndModel:
 		#increment by 1 to save/ end, as it has finished, but i is used as a starting point.
 		i+=1
 		if i%10000==0:
-			if self.debug: print "matchModelToData:\t", i,ii,self.dataType,self.depthLevel,':\t',[wt,wz,wla,wlo] ,'--->',[t,z,la,lo]
+			if self.debug: print "matchModelToData:\t", i,ii,self.dataType,self.layer,':\t',[wt,wz,wla,wlo] ,'--->',[t,z,la,lo]
 			
 		if i>1 and i%50000000==0:
 			if self.debug: print "matchModelToData:\tSaving Shelve: ", self.matchedShelve
@@ -622,7 +625,7 @@ class matchDataAndModel:
   def _convertModelToOneD_(self,):
 	if not bvp.shouldIMakeFile(self.ModelFilePruned,self.Model1D,debug=True):
 		print "convertModelToOneD:\tconvertModelToOneD:\talready exists:",self.Model1D
-		return	
+		if not self.clean: return
 	
 	print "convertModelToOneD:\tconvertModelToOneD:\tMaking 1D Model file:", self.ModelFilePruned,'-->', self.Model1D
   	convertToOneDNC(self.ModelFilePruned, self.Model1D,newMask='',debug=self.debug,dictToKeep=self.matches)
@@ -638,7 +641,7 @@ class matchDataAndModel:
 	
 	if not bvp.shouldIMakeFile(self.ModelFilePruned,self.maskedData1D,debug=True):
 		print "applyMaskToData:\tapplyMaskToData:\t", "already exists:",self.maskedData1D
-		return	
+		if not self.clean: return
 		
 	maremask = self.maremask #np.array([int(a) for a in self.maremask] )
 		# zero shouldn't happen
@@ -867,64 +870,6 @@ def main():
 
 
 	
-
-	pCO2 =True
-	if pCO2:
-		datafile = "/data/euryale7/scratch/ledm/iMarNet_postProcessed/iMarNetp2p/./outNetCDF/MaredatMatched-xhonp-clim/pCO2/takahashi2009_month_flux_pCO2_2006c_noHead.nc"
-		#datafile = "/data/euryale7/scratch/ledm/Takahashi2009_pCO2/takahashi2009_month_flux_pCO2_2006c_noHead.nc"
-			#"outNetCDF/MaredatMatched/pCO2/takahashi2009_month_flux_pCO2_2006c_noHead.nc"
-		#datafile = "outNetCDF/MaredatMatched/pCO2/takahashi2009_annual_flux_pCO2_2006c_noHead.nc"
-		if jobID.upper() == 'MEDUSA':		
-			pco2vars = ['xxxx']
-		else:		
-			pco2vars = ["chl","fAirSeaC","pCO2w","netPP",]
-		b = matchDataAndModel(datafile, ModeldiagFile,pco2vars,key=key)	
-
-			
-			
-
-	seawifs = 0#False
-	if seawifs:
-		datafile = "/data/euryale7/scratch/ledm/seawifs_monthly/SeaWiFs_climatology_1997-2007_tiny.nc"
-		#datafile = "outNetCDF/MaredatMatched/pCO2/takahashi2009_annual_flux_pCO2_2006c_noHead.nc"
-
-		Modelvars = ['P1c','Chl1','P2c','Chl2','P3c','Chl3','P4c','Chl4',] #'N1p','N3n','N4n','N5s','N7f',
-				
-		b = matchDataAndModel(datafile, ModelBGCFile,Modelvars,key=key)		# for PFT Chl	
-
-		Modelvars = ["chl",]
-		b = matchDataAndModel(datafile, ModeldiagFile,Modelvars,key=key) 	# for total Chl
-
-
-
-	PP = 0#True
-	if PP:
-		datafile = MareDatFold+"PP100108.nc"
-		#modelFile= "outNetCDF/Climatologies/"+jobID+"_clim_PP.nc"
-		pco2vars = ["PP",]
-		b = matchDataAndModel(datafile, ModeldiagFile,pco2vars,key=key)		
-		
-	
-	
-
-
-		
-	intPP =True
-	if intPP:
-		datafile = "/data/euryale7/scratch/ledm/LestersReportData/PPint_1deg.nc"
-		#modelFile= "outNetCDF/Climatologies/"+jobID+"_clim_IntPP.nc"
-		pco2vars = ["netPP","IntPP"]
-		b = matchDataAndModel(datafile, ModeldiagFile,pco2vars,key=key)	
-	
-
-
-
-
-		
-
-	
-
-
 
 	
 

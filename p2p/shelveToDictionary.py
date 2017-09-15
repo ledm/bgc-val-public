@@ -42,7 +42,7 @@ def shelveToDictionary(shelvesAV):
 	allshelves = listShelvesContents(shelvesAV)
 	models 	= allshelves.models
 	names  	= allshelves.names
-	dls     = allshelves.depthLevels
+	layers   = allshelves.layers
 	years	= allshelves.years
 	slices 	= allshelves.sliceslist
 	
@@ -50,11 +50,11 @@ def shelveToDictionary(shelvesAV):
 	openned = 0
 	for model in models:
 	  for name in names:
-	    for dl in dls:			  
+	    for layer in layers:			  
 	      for year in years:
 	      	for sl in slices:
 
-			shelves = reducesShelves(shelvesAV,  models =[model,],names = [name,],depthLevels = [dl,], years=[year,], sliceslist =[sl,])
+			shelves = reducesShelves(shelvesAV,  models =[model,],names = [name,],layers = [layer,], years=[year,], sliceslist =[sl,])
 			if len(shelves)<1: 
 			#	print metricname, 'found nothing'
 				continue
@@ -65,7 +65,7 @@ def shelveToDictionary(shelvesAV):
 			#if len(shelves)!=1: continue
 			
 
-			print "--------------\noutPutForJASMIN",[model,name,dl,sl],':',shelves
+			print "--------------\noutPutForJASMIN",[model,name,layer,sl],':',shelves
 			
 			s = shOpen(shelves[0])
 			openned+=1
@@ -73,7 +73,7 @@ def shelveToDictionary(shelvesAV):
 					'Taylor.E0', 'Taylor.E', 'Taylor.gamma',  'Taylor.R', 'Taylor.p',
 					'robust.E0', 'robust.E', 'robust.gamma',  'robust.R', 'robust.p',
 					'MNAFE', 'MNFB', 'NMAEF', 'NMBF', ]:
-				metricname = '-'.join([model,name,dl,sl,key])	
+				metricname = '-'.join([model,name,layer,sl,key])	
 				if len(	years)>1: metricname = year+'-'+metricname	
 				outDict[metricname] = s[key]
 				print metricname,':\t',outDict[metricname]

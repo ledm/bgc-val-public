@@ -81,7 +81,7 @@ class makePlots:
   		model = '', 
   		jobID='',
   		year='',
-  		depthLevel='', 
+  		layer='', 
 		modelcoords = '',
 		modeldetails = '',
 		datacoords = '',
@@ -98,7 +98,7 @@ class makePlots:
   	self.yfn =matchedDataFile  	
     	self.name = name
     	self.newSlices = newSlices
-    	self.depthLevel = depthLevel
+    	self.layer = layer
   	
   	self.xtype = model  	
   	self.ytype = datasource	
@@ -123,11 +123,11 @@ class makePlots:
 		
 	
 
-  	if self.shelveDir == '':self.shelveDir = bvp.folder(['shelves',self.xtype,self.year,self.ytype, 'Slices',self.name+self.depthLevel])
+  	if self.shelveDir == '':self.shelveDir = bvp.folder(['shelves',self.xtype,self.year,self.ytype, 'Slices',self.name+self.layer])
   	else:			self.shelveDir = bvp.folder(self.shelveDir)		
 
 	if imageDir=='':	
-		self.imageDir = bvp.folder(['images',self.xtype,'P2P_plots',self.year,self.name+self.depthLevel])
+		self.imageDir = bvp.folder(['images',self.xtype,'P2P_plots',self.year,self.name+self.layer])
 		print "Using default image folder:",self.imageDir
 	else: 			self.imageDir = bvp.folder(imageDir)
 
@@ -152,7 +152,7 @@ class makePlots:
 
 
   def plotWithSlices(self):#,newSlice,):  
-	print "plotWithSlices:\txtype:",self.xtype,"\tytype:",self.ytype,"\tname:",self.name,self.depthLevel
+	print "plotWithSlices:\txtype:",self.xtype,"\tytype:",self.ytype,"\tname:",self.name,self.layer
   	
 	#####
 	# Test if any of the plots exist.
@@ -204,7 +204,7 @@ class makePlots:
 		
 		#####
 		# Don't make Plots for transects with two spacial cuts.
-		#if self.depthLevel.lower().find('transect') >-1 and newSlice not in transectSlices: continue
+		#if self.layer.lower().find('transect') >-1 and newSlice not in transectSlices: continue
 			
 		#####
 		# Does the image exist?	
@@ -226,7 +226,7 @@ class makePlots:
 		she = bvp.shelveMetadata(model=self.model,
 					name=self.name,
 					year=self.year,
-					depthLevel=self.depthLevel,
+					layer=self.layer,
 					newSlice=newSlice,
 					xkey=xk,
 					ykey=yk,
@@ -261,7 +261,7 @@ class makePlots:
 
 	    #####
 	    # Don't make Plots for transects with two spacial cuts.
-	    #if self.depthLevel.lower().find('transect') >-1 and newSlice not in transectSlices: continue	
+	    #if self.layer.lower().find('transect') >-1 and newSlice not in transectSlices: continue	
 	    
 	    for xkey,ykey in product(xkeys,ykeys):
 	    	print "plotWithSlices:\t", newSlice, xkey,ykey
@@ -379,7 +379,7 @@ class makePlots:
 	labelx = getLongName(self.xtype)+' '+getLongName(self.name)+', '+ xunits
 	labely = getLongName(self.ytype)+' '+getLongName(self.name)+', '+ yunits	
 		
-	try: title = getLongName(newSlice)+' '+getLongName(self.name+self.depthLevel)#+getLongName(self.name)
+	try: title = getLongName(newSlice)+' '+getLongName(self.name+self.layer)#+getLongName(self.name)
 	except:title = newSlice+' '+xkey+' vs '+ykey
 			
 	scatterfn  	= filename.replace('.png','_scatter.png')
@@ -413,14 +413,14 @@ class makePlots:
 					datay,
 					robfnquad,
 					titles=[ti1,ti2],
-					title  = ' '.join([getLongName(newSlice),getLongName(self.name),getLongName(self.depthLevel),self.year]),
+					title  = ' '.join([getLongName(newSlice),getLongName(self.name),getLongName(self.layer),self.year]),
 					cbarlabel=cbarlabel, 
 					doLog=doLog,
 					vmin=dmin,vmax=dmax,)
 
 		# Robinson projection plots - Cartopy
 		#makeCartopy = True	# Don't need both.	
-		if newSlice=='Global' and self.depthLevel in ['Surface','100m','200m','500m','1000m',] :
+		if newSlice=='Global' and self.layer in ['Surface','100m','200m','500m','1000m',] :
 		   # ####
 		   # Global, as we have interpollation turned on here.
 		   if bvp.shouldIMakeFile([self.xfn,self.yfn],robfncartopy,debug=False):
@@ -438,7 +438,7 @@ class makePlots:
 					datay,
 					robfncartopy,
 					titles=[ti1,ti2],
-					title  = ' '.join([getLongName(self.name),getLongName(self.depthLevel),self.year]),
+					title  = ' '.join([getLongName(self.name),getLongName(self.layer),self.year]),
 					cbarlabel=cbarlabel, 
 					doLog=doLog,
 					vmin=dmin,vmax=dmax,
@@ -447,7 +447,7 @@ class makePlots:
 			except:
 				print "Cartopy is broken again, can't make: ",robfncartopy
 	
-		if self.depthLevel not in ['Surface','100m','200m','500m','1000m',]:# No point in making these.
+		if self.layer not in ['Surface','100m','200m','500m','1000m',]:# No point in making these.
 		  if bvp.shouldIMakeFile([self.xfn,self.yfn],transectquadfn,debug=False):
 			ti1 = getLongName(self.xtype)
 			ti2 =  getLongName(self.ytype)
@@ -457,20 +457,20 @@ class makePlots:
 			else:	
 				doLog=True
 			print "plotWithSlices:\ttransect quad:",[ti1,ti2],False,dmin,dmax
-			if self.depthLevel in ['ArcTransect','AntTransect','CanRusTransect',]:
+			if self.layer in ['ArcTransect','AntTransect','CanRusTransect',]:
 				bvp.ArcticTransectPlotQuad(nmxx,nmxy, nmxz, 
 					datax,
 					datay,
 					transectquadfn,
 					titles=[ti1,ti2],
-					title  = ' '.join([getLongName(self.name),getLongName(self.depthLevel),self.year]),
+					title  = ' '.join([getLongName(self.name),getLongName(self.layer),self.year]),
 					cbarlabel=cbarlabel, 
 					doLog=doLog,
 					vmin=dmin,
 					vmax=dmax,
 					scatter 	= False,
 					logy		= True,
-					transectName  	= self.depthLevel,
+					transectName  	= self.layer,
 					)			
 			else:
 				bvp.HovPlotQuad(nmxx,nmxy, nmxz, 
@@ -478,7 +478,7 @@ class makePlots:
 					datay,
 					transectquadfn,
 					titles=[ti1,ti2],
-					title  = ' '.join([getLongName(self.name),getLongName(self.depthLevel),self.year]),
+					title  = ' '.join([getLongName(self.name),getLongName(self.layer),self.year]),
 					cbarlabel=cbarlabel, 
 					doLog=doLog,
 					vmin=dmin,
@@ -582,8 +582,8 @@ class makePlots:
 	s['labelx'] = 	labelx
 	s['labely'] = 	labely
 	s['name'] =   	self.name
-	s['depthLevel'] =   self.depthLevel	
-	s['region'] =   self.depthLevel		
+	s['layer'] =   self.layer	
+	s['region'] =   self.layer		
 	s['year'] =   	self.year 
 	s['xtype'] =  	self.xtype
 	s['ytype'] =  	self.ytype
@@ -610,7 +610,7 @@ class makePlots:
   	for xkey,ykey in zip(xcoords,ycoords):
 	    	if xkey not in self.xnc.variables.keys():continue  	    
 	    	if ykey not in self.ync.variables.keys():continue
-		filename = bvp.folder(self.imageDir+'CompareCoords')+'CompareCoords'+self.name+self.depthLevel+xkey+'vs'+ykey+'.png'	    	
+		filename = bvp.folder(self.imageDir+'CompareCoords')+'CompareCoords'+self.name+self.layer+xkey+'vs'+ykey+'.png'	    	
 		if not bvp.shouldIMakeFile([self.xfn,self.yfn],filename,debug=False):continue
 		print "CompareCoords:\tx:",xkey, "\ty:",ykey
 		if xkey not in self.xnc.variables.keys():
@@ -682,7 +682,7 @@ class makePlots:
 	#	if newSlice in slicesDict['Months']:
 	#		 newSlice = bvp.mnStr(self.months[newSlice]+1)+newSlice	
 	#	if dictkey == 'Default': dictkey=''
-	filename = bvp.folder([file_prefix])+self.name+self.depthLevel+'_'+newSlice+'_'+xkey+'vs'+ykey+file_suffix
+	filename = bvp.folder([file_prefix])+self.name+self.layer+'_'+newSlice+'_'+xkey+'vs'+ykey+file_suffix
 
 	return filename
 

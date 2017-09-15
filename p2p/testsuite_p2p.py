@@ -85,14 +85,14 @@ def testsuite_p2p(
 			av['chl']['ERSEM']['File'] 	= Model_Filename_path_.netcdf
 			av['chl']['ERSEM']['Vars'] 	= ['chl',]
 			av['chl']['ERSEM']['grid']	= 'ORCA1'				
-			av['chl']['depthlevels'] 	= ['',]
+			av['chl']['layers'] 	= ['',]
 		where: 
 			'File' is the file path
 			'Vars' is the variable as it is call in the netcdf.
 			'grid' is the model grid name. These grids are linked to a grid mesh file for calculating cell volume, surface area and land masks.
-			'depthlevels' a list of depth levels. This is needed because some WOA files are huges and desktop computers may run the p2p analysis of that data.
-				depthlevels options are ['', 'Surface','100m','200m','500m',]
-				depthlevels = ['',] indicates look at no depth slicing. (Not recommended for big (>500,000 points) datasets! Don't say I didn't warn you.)
+			'layers' a list of depth levels. This is needed because some WOA files are huges and desktop computers may run the p2p analysis of that data.
+				layers options are ['', 'Surface','100m','200m','500m',]
+				layers = ['',] indicates look at no depth slicing. (Not recommended for big (>500,000 points) datasets! Don't say I didn't warn you.)
 
 	    plottingSlices:
 		plottingSlices is a list of regional, temporal, or statistical slices to be given to the analysis for plotting.
@@ -119,7 +119,7 @@ def testsuite_p2p(
 	Returns:
 		shelvesAV:
 		another AutoVivification with the following structure:
-		shelvesAV[model][name][depthLevel][newSlice][xkey] = shelvePath
+		shelvesAV[model][name][layer][newSlice][xkey] = shelvePath
 	
 	testsuite_p2p is not the place for intercomparisons of models, years, or jobID. 
 	This can be done after calling testsuite_p2p.py, and by using the 
@@ -176,16 +176,16 @@ def testsuite_p2p(
 			continue
 						
 	    	#####					
-		# Testing av for presence of depthLevels	
+		# Testing av for presence of layers	
 		if len(layers) ==0:
 			raise AssertionError("testsuite_p2p: \tERROR: no layers provided.")
 			
 		#####
 		# Made it though the initial tests. Time to start the analysis.
 		print "testsuite_p2p.py:\tINFO:\tMade it though initial tests."
-		for depthLevel in layers:
-			depthLevel = str(depthLevel)
-			print "testsuite_p2p.py:\tINFO:\tRunning:",model,jobID, year, name, depthLevel
+		for layer in layers:
+			layer = str(layer)
+			print "testsuite_p2p.py:\tINFO:\tRunning:",model,jobID, year, name, layer
 			#####
 			# matchDataAndModel:
 			# Match observations and model. 
@@ -202,7 +202,7 @@ def testsuite_p2p(
 								jobID		= jobID,
 								year		= year,
 								workingDir 	= bvp.folder(workingDir),
-								depthLevel 	= depthLevel,
+								layer 		= layer,
 								grid		= grid,
 								gridFile	= gridFile
 						)
@@ -223,7 +223,7 @@ def testsuite_p2p(
 				print "Plotting slices provided, using ",nplottingSlices					
 
 					
-			#imageDir	= bvp.folder(imageFolder +'/P2Pplots/'+year+'/'+name+depthLevel)	
+			#imageDir	= bvp.folder(imageFolder +'/P2Pplots/'+year+'/'+name+layer)	
 			m = makePlots(	b.MatchedDataFile, 
 					b.MatchedModelFile, 
 					name, 
@@ -231,7 +231,7 @@ def testsuite_p2p(
 					datasource	= datasource,
 					model 		= model,
 					jobID		= jobID,
-					depthLevel 	= depthLevel,
+					layer 		= layer,
 					year 		= year, 
 		  			modelcoords 	= modelcoords,
 		  			modeldetails 	= modeldetails,
@@ -243,7 +243,7 @@ def testsuite_p2p(
 					noPlots		= noPlots
 				     )
 
-			#shelvesAV[model][name][depthLevel] = m.shelvesAV
+			#shelvesAV[model][name][layer] = m.shelvesAV
 			shelvesAV.extend(m.shelvesAV)
 			
 			#####
@@ -259,7 +259,7 @@ def testsuite_p2p(
 			#####
 			# makeTargets:
 			# Make a target diagram of all matches for this particular dataset. 
-			#filename = bvp.folder(imageFolder+'/Targets/'+year+'/AllSlices')+model+'-'+jobID+'_'+year+'_'+name+depthLevel+'.png'
+			#filename = bvp.folder(imageFolder+'/Targets/'+year+'/AllSlices')+model+'-'+jobID+'_'+year+'_'+name+layer+'.png'
 			#t = makeTargets(	m.shelves, 
 			#			filename,
 			#			#name=name,
@@ -272,7 +272,7 @@ def testsuite_p2p(
 			if annual:	groups = {'Oceans':[],'depthRanges':[], 'BGCVal':[],}
 			else:		groups = {'Oceans':[],'Months':[],'Seasons':[],'NorthHemisphereMonths':[],'SouthHemisphereMonths':[],'depthRanges':[],'BGCVal':[],}
 			for g in groups:
-			    	groups[g] = bvp.reducesShelves(shelvesAV,  models =[model,],depthLevels = [depthLevel,], names = [name,], sliceslist =slicesDict[g])
+			    	groups[g] = bvp.reducesShelves(shelvesAV,  models =[model,],layers = [layer,], names = [name,], sliceslist =slicesDict[g])
 				print g, groups[g]
 				
 				if len(groups[g])==0:continue 
@@ -280,7 +280,7 @@ def testsuite_p2p(
 				#####
 				# makeTargets:
 				# Make a target diagram of the shelves of this group. 
-			  	filename = bvp.folder(imageFolder+'/Targets/'+year+'/'+name+depthLevel+'/'+g)+model+'_'+jobID+'_'+year+'_'+name+depthLevel+'_'+g+'.png'
+			  	filename = bvp.folder(imageFolder+'/Targets/'+year+'/'+name+layer+'/'+g)+model+'_'+jobID+'_'+year+'_'+name+layer+'_'+g+'.png'
 				makeTargets(	groups[g], 
 						filename,
 						legendKeys = ['newSlice',],					
@@ -294,7 +294,7 @@ def testsuite_p2p(
 				if xkeys=='':
 					print "Could no find x axis keys!",g,'in',['Oceans','Months','BGCVal']
 					
-			  	filenamebase = bvp.folder(imageFolder+'/Patterns/'+year+'/'+name+depthLevel+'/'+g)+'Months_'+model+'_'+jobID+'_'+year+'_'+name+depthLevel
+			  	filenamebase = bvp.folder(imageFolder+'/Patterns/'+year+'/'+name+layer+'/'+g)+'Months_'+model+'_'+jobID+'_'+year+'_'+name+layer
 				makePatternStatsPlots(	{name :groups[g],}, # {legend, shelves}
 							name+' '+g,	#xkeysname
 							slicesDict[xkeys],		#xkeysLabels=
@@ -305,7 +305,7 @@ def testsuite_p2p(
 			if not annual:
 				#####
 				# After finding all the shelves, we can plot them on the same axis.				
-			  	filenamebase = bvp.folder(imageFolder+'/Patterns/'+year+'/'+name+depthLevel+'/ANSH')+'ANSH-Months_'+model+'_'+jobID+'_'+year+'_'+name+depthLevel
+			  	filenamebase = bvp.folder(imageFolder+'/Patterns/'+year+'/'+name+layer+'/ANSH')+'ANSH-Months_'+model+'_'+jobID+'_'+year+'_'+name+layer
 			  	
 				makePatternStatsPlots(	{'North Hemisphere' :groups['NorthHemisphereMonths'],
 							 'South Hemisphere' :groups['SouthHemisphereMonths'],
@@ -327,7 +327,7 @@ def testsuite_p2p(
 			if len(layers)<=1: continue	
 			outShelves = {}
 			for dl in layers:
-				outShelves[dl] = bvp.reducesShelves(shelvesAV,  models =[model,],depthLevels = [dl,], names = [name,], sliceslist =slicesDict[g])	
+				outShelves[dl] = bvp.reducesShelves(shelvesAV,  models =[model,],layers = [dl,], names = [name,], sliceslist =slicesDict[g])	
 		  	filenamebase = bvp.folder(imageFolder+'/Patterns/'+year+'/'+name+'AllDepths/')+'AllDepths_'+g+'_'+model+'_'+jobID+'_'+year+'_'+name
 			makePatternStatsPlots(	outShelves, 
 						name+' '+g,
