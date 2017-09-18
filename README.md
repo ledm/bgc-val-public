@@ -23,7 +23,7 @@ This package utilises:
 * Versioning in git (using gitlab)
 * Web visible html summary reports.
 
-
+Please cite this package as: 
 
 # Requirements
 

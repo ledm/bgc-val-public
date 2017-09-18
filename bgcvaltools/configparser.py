@@ -89,28 +89,36 @@ def linkActiveKeys(Config,):
 
 
 def findReplaceFlags(Config, section, string):
-	# Look for the important flags, then swap them in
-	if string.find('$YEAR') >-1:
-		yr = parseOptionOrDefault(Config, section, 'year')
-		string = string.replace('$YEAR', str(yr))
-	if string.find('$JOBID') >-1:
-		yr = parseOptionOrDefault(Config, section, 'jobID')
-		string = string.replace('$JOBID', str(yr))
-	if string.find('$NAME') >-1:
-		yr = parseOptionOrDefault(Config, section, 'name')
-		string = string.replace('$NAME', str(yr))	
-	if string.find('$MODEL') >-1:
-		yr = parseOptionOrDefault(Config, section, 'model')
-		string = string.replace('$MODEL', str(yr))
-
-	if string.find('$BASEDIR_MODEL') >-1:
-		yr = parseOptionOrDefault(Config, section, 'basedir_model')
-		string = string.replace('$BASEDIR_MODEL', str(yr))
-	if string.find('$BASEDIR_OBS') >-1:
-		yr = parseOptionOrDefault(Config, section, 'basedir_obs')
-		string = string.replace('$BASEDIR_OBS', str(yr))
-						
-	return string
+	# Look for the important flags, then swap them in.
+	flags = ['year', 'jobid','name','model','basedir_model','basedir_obs']
+	for flag in flags:
+		lookingFor = '$'+flag.upper()
+		if string.find(lookingFor) ==-1:continue
+		fl = parseOptionOrDefault(Config, section, flag.lower())
+		string = string.replace(lookingFor, str(fl))		
+	return string	
+		
+#	if string.find('$YEAR') >-1:
+#		yr = parseOptionOrDefault(Config, section, 'year')
+#		string = string.replace('$YEAR', str(yr))
+#	if string.find('$JOBID') >-1:
+#		yr = parseOptionOrDefault(Config, section, 'jobID')
+#		string = string.replace('$JOBID', str(yr))
+#	if string.find('$NAME') >-1:
+#		yr = parseOptionOrDefault(Config, section, 'name')
+#		string = string.replace('$NAME', str(yr))	
+#	if string.find('$MODEL') >-1:
+#		yr = parseOptionOrDefault(Config, section, 'model')
+#		string = string.replace('$MODEL', str(yr))
+#
+#	if string.find('$BASEDIR_MODEL') >-1:
+#		yr = parseOptionOrDefault(Config, section, 'basedir_model')
+#		string = string.replace('$BASEDIR_MODEL', str(yr))
+#	if string.find('$BASEDIR_OBS') >-1:
+#		yr = parseOptionOrDefault(Config, section, 'basedir_obs')
+#		string = string.replace('$BASEDIR_OBS', str(yr))
+#						
+#	return string
 	
 
 def parseFilepath(Config,section, option,expecting1=True,optional=True):
@@ -314,13 +322,13 @@ class GlobalSectionParser:
   		fn,
   		defaultSection = 'Global',
   		debug=True):
-  	if not fn: 
-  		raise AssertionError("GlobalSectionParser:\t Did not get a config filename: \""+fn+"\"") 
-	if debug: 
+  	if not fn:
+  		raise AssertionError("GlobalSectionParser:\t Did not get a config filename: \""+fn+"\"")
+	if debug:
 		print "------------------------------------------------------------------"
 		print "GlobalKeyParser:\tBeginning to call GlobalSectionParser for ", fn
-	self.__cp__ = checkConfig(fn)    
-	self.__fn__ = fn	
+	self.__cp__ = checkConfig(fn)
+	self.__fn__ = fn
 
 	self.jobID 		= self.__cp__.get(defaultSection, 'jobID')
 	self.year  		= self.__cp__.get(defaultSection, 'year')	

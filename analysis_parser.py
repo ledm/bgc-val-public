@@ -80,7 +80,6 @@ def analysis_parser(
 		if akp.dimensions in  [2, 3]:
 			metricList = ['mean','median', '10pc','20pc','30pc','40pc','50pc','60pc','70pc','80pc','90pc','min','max']
 	
-		
 		#####
 		# Time series plots		
 		if akp.makeTS: 
@@ -131,8 +130,7 @@ def analysis_parser(
 			
 		#####
 		# Point to point plots	
-		if akp.makeP2P and  akp.dimensions not in  [1,]:
-		
+		if akp.makeP2P and  akp.dimensions not in [1,]:
 		    	testsuite_p2p(
 		                modelFile	= akp.modelFile_p2p,
 		                dataFile 	= akp.dataFile,    		
