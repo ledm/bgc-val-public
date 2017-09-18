@@ -321,6 +321,19 @@ The dataset class defined in bgcvaltools/dataset.py and based on netCDF4.Dataset
 
 # Layers
 
+Layers can be selected from a specific list of named layers or transects such as `Surface`, `Equator`, etc..
+
+Any arbitrary depth layer or transects along a constant lattitude or congitude can also be defined in the `runconfig.ini` file:
+* Any integer will load that depth layer from the file.
+* Any number followed by 'm', (ie `500m`) will calucate the layer of that depth, then extract that layer. 
+* Any transect along a latitude or longitude can be defines. ie (60S, or 28W). This works for both 1 and 2 dimensional coordinate systems.
+
+
+
+
+
+
+
 
 
 
