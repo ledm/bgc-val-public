@@ -95,6 +95,33 @@ def isSingle(ls):
 	if len(ls)==1: return True
 	return False            
 
+def removeDuplicates(seq):
+	seen = set()
+	seen_add = seen.add
+	return [x for x in seq if not (x in seen or seen_add(x))]
+	
+def fnToTitle(fn,ignores= []):
+	"""	This script takes a filename and returned a usable description of the plot title.
+	"""
+	titlelist=  os.path.basename(fn).replace('.png', '').replace('_',' ').split(' ')
+	
+	titlelist = removeDuplicates(titlelist)
+	
+	IgnoreList = ['percentiles', 'BGCVal', '','10-90pc','5-95pc','sum','Sum',]
+	
+	title = []
+	for i,t in enumerate(titlelist):
+		# remove redundent versus field
+		if t.find('vs')>-1:	continue
+		if t in IgnoreList:	continue
+		if t in ignores:	continue
+		ln = getLongName(t)
+		if ln in IgnoreList:continue
+		title.append(ln)
+	return 	titleify(title)
+		
+		
+
 def addSections(
 		akp,
 		indexhtmlfn,
@@ -127,9 +154,6 @@ def addSections(
 		# Descriptions is a small sub-header
 		desc = ''
 		Descriptions[href] = desc
-
-
-		
 		
 		#####
 		# A list of files to put in this group.
@@ -137,13 +161,12 @@ def addSections(
 		#####
 		# Determine the list of files:
 		vfiles = []
-	
+		
 		if akp.makeTS:	
 			files = {}
 			#for layer in akp.layers:		
 			files.update({f:1 for f in glob(akp.images_ts +'/*'+region+'*'+layer+'*.png')})
 			files.update({f:1 for f in glob(akp.images_ts +'/*'+layer+'*'+region+'*.png')})
-				
 			vfiles.extend(sorted(files.keys()))
 
 		if akp.makeProfiles:	
@@ -167,9 +190,7 @@ def addSections(
 		
 			#####
 			# Create custom title by removing extra bits.
-			#title = filenameToTitle(relfn)
-
-			FileLists[href][relfn] = htmlTools.fnToTitle(relfn) 
+			FileLists[href][relfn] = fnToTitle(relfn) 
 			print "Adding ",relfn,"to script"
 						
 	htmlTools.AddSubSections(indexhtmlfn,
@@ -180,65 +201,74 @@ def addSections(
 			Descriptions=Descriptions,
 			FileLists=FileLists)
 
-
 	
-	
+#####
+# Assumes multiple jobIDs and only one model and scenario.
 def addComparisonSection(
 		globalkeys,
 		indexhtmlfn,
 		imagesfold,
 		reportdir,
-		key='',
 		model='',
 		scenario='',
 		):
 
+	jobIDs = globalkeys.jobIDs
 	#####
 	# href is the name used for the html 
-	SectionTitle= titleify([model, scenario,key]) 
+	SectionTitle= titleify([model, scenario]) 
 	hrefs 		= []
 	Titles		= {}
 	SidebarTitles 	= {}
 	Descriptions	= {}
 	FileLists	= {}
-
-
-	href = 	hrefify(['comp', key, model, scenario])
-	hrefs.append(href)
+	filecount	= 0
+	for key in globalkeys.ActiveKeys:
 	
-	#####
-	# Title is the main header, SidebarTitles is the side bar title.
-	Titles[href] 		= titleify(['Comparison of', model, scenario, key])
-	SidebarTitles[href] 	= titleify([ key,'Comparison',])
+		href = 	hrefify(['Comparison', key, model, scenario])
+		hrefs.append(href)
+	
+		#####
+		# Title is the main header, SidebarTitles is the side bar title.
+		Titles[href] 		= titleify([ key, ])
+		SidebarTitles[href] 	= titleify([ key, ])
 						
-	#####
-	# Descriptions is a small sub-header
-	desc = ''
-	Descriptions[href] = titleify(['Time series comparison of the', model, key, 'in the scenario',scenario])
+		#####
+		# Descriptions is a small sub-header
+		desc = ''
+		Descriptions[href] = titleify(['Comparison of the time developement of the', model,
+					'models', key, 
+					'in the scenario',scenario, 
+					'for the jobs: ',' '.join(jobIDs)])
 
-	#####
-	# A list of files to put in this group.
-	FileLists[href] = {}
+
+		#####
+		# A list of files to put in this group.
+		FileLists[href] = {}
 	
-	#####
-	# Determine the list of files:
-	vfiles = []	
-	
-	filecheck = globalkeys.images_comp +'/' +wildcardify([model, scenario, key])+'*.png'
-	files = {f:1 for f in glob(filecheck)}
-	vfiles.extend(sorted(files.keys()))
+		#####
+		# Determine the list of files:
+		vfiles = []	
+		
+
+		filecheck = globalkeys.images_comp +'/' +wildcardify([model, scenario, key])+'*.png'
+		files = {f:1 for f in glob(filecheck)}
+		vfiles.extend(sorted(files.keys()))
 
 			
-	#####
-	# Create plot headers for each file.
-	for fn in vfiles:
 		#####
-		# Copy image to image folder and return relative path.
-		relfn = addImageToHtml(fn, imagesfold, reportdir)
+		# Create plot headers for each file.
+		ignoreList = [model,scenario,]		
+		for fn in vfiles:
+			#####
+			# Copy image to image folder and return relative path.
+			relfn = addImageToHtml(fn, imagesfold, reportdir)
 	
-		FileLists[href][relfn] = htmlTools.fnToTitle(relfn) 
-		print "Adding ",relfn,"to script"
-						
+			FileLists[href][relfn] = fnToTitle(relfn,ignores=ignoreList) 
+			print "Adding ",relfn,"to script"
+		filecount+=len(vfiles)			
+	if filecount==0:return			
+				
 	htmlTools.AddSubSections(indexhtmlfn,
 			hrefs,
 			SectionTitle,
@@ -247,6 +277,91 @@ def addComparisonSection(
 			Descriptions=Descriptions,
 			FileLists=FileLists)
 			
+
+def addTimeSeriesSection(
+		akp,
+		indexhtmlfn,
+		imagesfold,
+		reportdir,
+		debug=False
+		):
+	if not akp.makeTS: return
+	
+	key 	= akp.key
+	model 	= akp.model
+	scenario = akp.scenario
+	jobID 	= akp.jobID
+	
+	#####
+	# href is the name used for the html 
+	SectionTitle	= titleify([jobID,key ,'time series',]) 		
+	hrefs 		= []
+	Titles		= {}
+	SidebarTitles 	= {}
+	Descriptions	= {}
+	FileLists	= {}
+	filecount	= 0
+	
+	for region in akp.regions:
+	    for layer in akp.layers:
+		href = 	hrefify([key, region,layer, 'ts',model,scenario,jobID])
+		hrefs.append(href)
+		
+		#####
+		# Title is the main header, SidebarTitles is the side bar title.
+		Titles[href] 		= titleify(['Time series of ', key,'in',jobID])
+		SidebarTitles[href] 	= titleify([region, layer])
+							
+		#####
+		# Descriptions is a small sub-header
+
+		desc = ['Timeseries of the', model, 'model\'s',key, ]
+		if len(akp.datasource):	desc += ['against',akp.datasource,'data',]
+		desc += ['for the job', jobID, 
+			'under the',scenario,'scenario', 
+			'in the', region, 'region',
+			'at',  layer+'.']
+		Descriptions[href] =  titleify(desc)
+			
+		#####
+		# A list of files to put in this group.
+		FileLists[href] = {}
+		
+		#####
+		# Determine the list of files:
+		vfiles = []
+		files = {}
+		filecheck = akp.images_ts +'/' +wildcardify([model, scenario,jobID, key,region,layer,])+'*.png'		
+		#files.update({f:1 for f in glob(akp.images_ts +'/*'+region+'*'+layer+'*.png')})
+		#files.update({f:1 for f in glob(akp.images_ts +'/*'+layer+'*'+region+'*.png')})
+		files = {f:1 for f in glob(filecheck)}
+		vfiles.extend(sorted(files.keys()))
+					
+		#####
+		# Create plot headers for each file.
+		ignoreList = [model,scenario,jobID,]		
+		for fn in vfiles:
+			#####
+			# Copy image to image folder and return relative path.
+			relfn = addImageToHtml(fn, imagesfold, reportdir)
+		
+			#####
+			# Create custom title by removing extra bits.
+			FileLists[href][relfn] = fnToTitle(relfn,ignores=ignoreList) 
+			
+			if debug:print "Adding ",relfn,"to script"
+		filecount+=len(vfiles)			
+	if filecount==0:return
+							
+	htmlTools.AddSubSections(indexhtmlfn,
+			hrefs,
+			SectionTitle,
+			SidebarTitles=SidebarTitles,
+			Titles=Titles, 
+			Descriptions=Descriptions,
+			FileLists=FileLists)
+
+
 			
 def addProfilesSection(
 		akp,
@@ -265,28 +380,32 @@ def addProfilesSection(
 	
 	#####
 	# href is the name used for the html 
-	SectionTitle= titleify([ key, model, jobID, scenario,]) 
+	SectionTitle	= titleify([jobID,key ,'profiles',]) 	
 	hrefs 		= []
 	Titles		= {}
 	SidebarTitles 	= {}
 	Descriptions	= {}
 	FileLists	= {}
-
+	filecount = 0
+	
 	for region in akp.regions:
 		href = 	hrefify([key, region, 'profile',model,scenario,jobID])
 		hrefs.append(href)
 		
 		#####
 		# Title is the main header, SidebarTitles is the side bar title.
-		Titles[href] 		= titleify(['profile', model, jobID, scenario,  region,  key])
-		SidebarTitles[href] 	= titleify([jobID, region, ])
+		Titles[href] 		= titleify(['Profiles of', key,'in',jobID])	
+		SidebarTitles[href] 	= titleify([region, ])
 							
 		#####
 		# Descriptions is a small sub-header
-		desc = ''
-		Descriptions[href] = desc
-
-
+		desc = ['Depth profile of the', model, 'model\'s',key, ]
+		if len(akp.datasource):	desc += ['against',akp.datasource,'data',]
+		desc += ['for the job', jobID, 
+			'under the',scenario,'scenario', 
+			'in the', region, 'region.']
+								
+		Descriptions[href] =  titleify(desc)
 		#####
 		# A list of files to put in this group.
 		FileLists[href] = {}
@@ -296,14 +415,15 @@ def addProfilesSection(
 		vfiles = []
 	
 
-		if akp.makeProfiles:	
-			files = {}
-			files.update({f:1 for f in glob(akp.images_pro +'/*'+region+'*.png')})
-			vfiles.extend(sorted(files.keys()))
+		files = {}
+		filecheck = akp.images_pro +'/' +wildcardify([model, scenario,jobID, key,region,])+'*.png'		
+		files = {f:1 for f in glob(filecheck)}
+		vfiles.extend(sorted(files.keys()))
 						
 				
 		#####
 		# Create plot headers for each file.
+		ignoreList = [model,scenario,jobID,]		
 		for fn in vfiles:
 			#####
 			# Copy image to image folder and return relative path.
@@ -311,106 +431,29 @@ def addProfilesSection(
 		
 			#####
 			# Create custom title by removing extra bits.
-			FileLists[href][relfn] = htmlTools.fnToTitle(relfn) 
+			FileLists[href][relfn] = fnToTitle(relfn,ignores=ignoreList) 
 			
 			if debug:print "Adding ",relfn,"to script"
-						
-	htmlTools.AddSubSections(indexhtmlfn,
-			hrefs,
-			SectionTitle,
-			SidebarTitles=SidebarTitles,#
-			Titles=Titles, 
-			Descriptions=Descriptions,
-			FileLists=FileLists)				
-
-def addTimeSeriesSection(
-		akp,
-		indexhtmlfn,
-		imagesfold,
-		reportdir,
-		debug=False
-		):
-
-	key = akp.key
-	model = akp.model
-	scenario = akp.scenario
-	jobID = akp.jobID
-	
-	#####
-	# href is the name used for the html 
-	SectionTitle= titleify([ key, model, jobID, scenario,]) 
-	hrefs 		= []
-	Titles		= {}
-	SidebarTitles 	= {}
-	Descriptions	= {}
-	FileLists	= {}
-
-	for region in akp.regions:
-	    for layer in akp.layers:
-		href = 	hrefify([key, region,layer, 'ts',model,scenario,jobID])
-		hrefs.append(href)
-		
-		#####
-		# Title is the main header, SidebarTitles is the side bar title.
-		Titles[href] 		= titleify(['Timeseries', model, jobID, scenario,  region, layer, key])
-		SidebarTitles[href] 	= titleify([jobID, region, layer])
+		filecount+=len(vfiles)			
+	if filecount==0:return
 							
-		#####
-		# Descriptions is a small sub-header
-		desc = ''
-		Descriptions[href] = desc
-
-
-		#####
-		# A list of files to put in this group.
-		FileLists[href] = {}
-		
-		#####
-		# Determine the list of files:
-		vfiles = []
-	
-		if akp.makeTS:	
-			files = {}
-			#for layer in akp.layers:		
-			files.update({f:1 for f in glob(akp.images_ts +'/*'+region+'*'+layer+'*.png')})
-			files.update({f:1 for f in glob(akp.images_ts +'/*'+layer+'*'+region+'*.png')})
-				
-			vfiles.extend(sorted(files.keys()))
-
-		#if akp.makeProfiles:	
-		#	files = {}
-		#	files.update({f:1 for f in glob(akp.images_pro +'/*'+region+'*.png')})
-		#	vfiles.extend(sorted(files.keys()))
-						
-				
-		#####
-		# Create plot headers for each file.
-		for fn in vfiles:
-			#####
-			# Copy image to image folder and return relative path.
-			relfn = addImageToHtml(fn, imagesfold, reportdir)
-		
-			#####
-			# Create custom title by removing extra bits.
-			FileLists[href][relfn] = htmlTools.fnToTitle(relfn) 
-			
-			if debug:print "Adding ",relfn,"to script"
-						
 	htmlTools.AddSubSections(indexhtmlfn,
 			hrefs,
 			SectionTitle,
 			SidebarTitles=SidebarTitles,#
 			Titles=Titles, 
 			Descriptions=Descriptions,
-			FileLists=FileLists)
+			FileLists=FileLists)	
 			
+						
 def addP2PSection(
 		akp,
 		indexhtmlfn,
 		imagesfold,
 		reportdir,
 		):
-
+	if not akp.makeP2P: return
+	
 	key = akp.key
 	model = akp.model
 	scenario = akp.scenario
@@ -418,45 +461,55 @@ def addP2PSection(
 	year = akp.year	
 	#####
 	# href is the name used for the html 
-	SectionTitle= ' '.join([ getLongName(key), model, jobID, scenario,year,]) #getLongName(key)
-	hrefs 	= []
-	Titles	= {}
-	SidebarTitles = {}
-	Descriptions= {}
+	SectionTitle	= titleify([jobID,key ,'p2p in',year]) 				
+		
+	#SectionTitle= ' '.join([ getLongName(key), model, jobID, scenario,year,]) #getLongName(key)
+	hrefs 		= []
+	Titles		= {}
+	SidebarTitles 	= {}
+	Descriptions	= {}
 	FileLists	= {}
-
+	filecount	= 0
+	
 	for region in akp.regions:
 	    for layer in akp.layers:
-		href = 	'-'.join([key, region,layer, 'p2p',year,model,scenario,jobID])
+		href = 	hrefify([key, region,layer, 'p2p',year,model,scenario,jobID])
 		hrefs.append(href)
 		
 		#####
 		# Title is the main header, SidebarTitles is the side bar title.
-		Titles[href] 		= ' '.join(['P2P',model, jobID, scenario,  getLongName(region), getLongName(layer), getLongName(key), year])
-		SidebarTitles[href] 	= ' '.join(['P2P',jobID, getLongName(region), getLongName(layer)])
-							
+		Titles[href] 		= titleify([ key,'point to point plots for',jobID,'in',region, layer])
+		SidebarTitles[href] 	= titleify([ region, layer])
+		
 		#####
 		# Descriptions is a small sub-header
-		desc = ''
-		Descriptions[href] = desc
-
+		Descriptions[href] =  titleify(['Point to point comparison plots',
+						'of the ', model, 'model\'s',key, 
+						'against',akp.datasource,'data',
+						'for the job', jobID, 
+						'under the',scenario,'scenario', 
+						'in the', region, 'region',
+						'at', layer+'.'])
 
 		#####
 		# A list of files to put in this group.
 		FileLists[href] = {}
+		
 		#####
 		# Determine the list of files:
 		vfiles = []
 	
-		if akp.makeP2P:
-			files = {}
-			#for layer in akp.layers:		
-			files.update({f:1 for f in glob(akp.images_p2p +'/*'+region+'*'+layer+'*.png')})
-			files.update({f:1 for f in glob(akp.images_p2p +'/*'+layer+'*'+region+'*.png')})
-			vfiles.extend(sorted(files.keys()))
-				
+		files = {}
+		filecheck = akp.images_p2p +'/' +wildcardify([model, scenario,jobID, key,region,layer,year,])+'*.png'				
+	#	filecheck = akp.images_p2p +'/' +wildcardify([model, key,layer,region, year])+'*.png'
+		files = {f:1 for f in glob(filecheck)}		
+		#files.update({f:1 for f in glob(akp.images_p2p +'/*'+region+'*'+layer+'*.png')})
+		#files.update({f:1 for f in glob(akp.images_p2p +'/*'+layer+'*'+region+'*.png')})
+		vfiles.extend(sorted(files.keys()))
+		filecount+=len(vfiles)
 		#####
 		# Create plot headers for each file.
+		ignoreList = [model,scenario,jobID,]
 		for fn in vfiles:
 			#####
 			# Copy image to image folder and return relative path.
@@ -464,10 +517,10 @@ def addP2PSection(
 		
 			#####
 			# Create custom title by removing extra bits.
-			#title = filenameToTitle(relfn)
-
-			FileLists[href][relfn] = htmlTools.fnToTitle(relfn) 
+			FileLists[href][relfn] = fnToTitle(relfn,ignores=ignoreList) 
 			print "Adding ",relfn,"to script"
+
+	if filecount==0:return
 						
 	htmlTools.AddSubSections(indexhtmlfn,
 			hrefs,
@@ -477,11 +530,11 @@ def addP2PSection(
 			Descriptions=Descriptions,
 			FileLists=FileLists)			
 
+
 def htmlMakerFromConfig(
 		configfn,
 		doZip = False
 	):
-
 
 	globalkeys = GlobalSectionParser(configfn)
 
@@ -523,26 +576,25 @@ def htmlMakerFromConfig(
 				descriptionText,
 				)
 				
+	if globalkeys.makeComp:
+		addComparisonSection(
+			globalkeys,
+			indexhtmlfn,
+			imagesfold,
+			reportdir,
+			model=model,
+			scenario=scenario,
+			)
+				
 	#####
 	# This looping forces the report to match the order.
 	for key,model,scenario in product(globalkeys.ActiveKeys, globalkeys.models,globalkeys.scenarios):
-
-		if globalkeys.makeComp:
-			addComparisonSection(
-				globalkeys,
-				indexhtmlfn,
-				imagesfold,
-				reportdir,
-				key=key,
-				model=model,
-				scenario=scenario,
-				)
-				
+			
 		
  	    	for jobID in globalkeys.jobIDs:	
 
- 	        
 			akp = globalkeys.AnalysisKeyParser[(model,jobID,globalkeys.years[0],scenario,key)]
+			
 			addTimeSeriesSection(
 				akp,
 				indexhtmlfn,
@@ -558,6 +610,7 @@ def htmlMakerFromConfig(
 				)
 								
 	  	    	for year in globalkeys.years:
+				akp = globalkeys.AnalysisKeyParser[(model,jobID,year,scenario,key)]	
 				addP2PSection(
 					akp,
 					indexhtmlfn,

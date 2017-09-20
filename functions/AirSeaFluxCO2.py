@@ -35,16 +35,20 @@ from bgcvaltools.dataset import dataset
 from bgcvaltools.configparser import GlobalSectionParser
 
 
-gsp = GlobalSectionParser("runconfig.ini")
-nc = dataset(gsp.gridFile,'r')
-try:	
-	model_area = nc.variables['area'][:]
-except:
-	model_area = nc.variables['e1t'][:]*nc.variables['e2t'][:]
-nc.close()
 
 
-def TotalAirSeaFluxCO2(nc,keys):
+model_area 	= {}
+
+def loadDataArea(gridfn):
+	global model_area
+	nc = dataset(gridfn,'r')
+	try:	mo = nc.variables['area'][:]		
+	except:	mo = nc.variables['e1t'][:]*nc.variables['e2t'][:]
+	model_area[gridfn] = mo.squeeze()
+	nc.close()
+	
+
+def TotalAirSeaFluxCO2(nc,keys,**kwargs):
 	"""
 	This function calculated the total Air Sea FLux for the MEDUSA model in the eORCA grid.
 	"""
@@ -53,8 +57,19 @@ def TotalAirSeaFluxCO2(nc,keys):
 	try:	arr = nc.variables[keys[0]][:].squeeze() * factor	# mmolC/m2/d
 	except: 
 		raise AssertionError("TotalAirSeaFluxCO2:\tNot able to load "+str(keys[0])+" from netcdf "+str(nc.filename))		
+
+
+	if 'gridfn' not in kwargs.keys():
+		raise AssertionError("TotalAirSeaFluxCO2:\t Needs an `gridfn` kwarg to run calculation.")	
+	gridfn = kwargs['gridfn']
 	
-	if arr.ndim ==2: arr = arr*model_area
+	try:	area = model_area[gridfn]
+	except:
+		loadDataArea(gridfn)
+		area = model_area[gridfn]
+		
+	
+	if arr.ndim ==2: arr = arr*area
 	else: 
 		raise AssertionError("TotalAirSeaFluxCO2:\t"+str(keys[0])+" from netcdf "+str(nc.filename) +" has an unexpected number of dimensions: "+str(arr.ndim))
 	return arr.sum()

@@ -78,7 +78,8 @@ class makePlots:
   		matchedModelFile, 
   		name, 
   		datasource = '',
-  		model = '', 
+  		model = '',
+  		scenario = '', 
   		jobID='',
   		year='',
   		layer='', 
@@ -106,6 +107,7 @@ class makePlots:
   	  	
   	self.model = model  	
   	self.jobID = jobID
+  	self.scenario=scenario
   	self.year = year
   	self.shelveDir = shelveDir
   	self.compareCoords = compareCoords
@@ -210,7 +212,8 @@ class makePlots:
 			
 		#####
 		# Does the image exist?	
-		filename = self.getFileName(newSlice,xk,yk)
+		#filename = self.getFileName(newSlice,xk,yk)
+		filename = self.plotname([newSlice,])
 		if bvp.shouldIMakeFile([self.xfn,self.yfn],filename,debug=False):
 			plotsToMake+=1
 		else:
@@ -279,8 +282,8 @@ class makePlots:
 		ns = ''.join(newSlice)
 	else: ns = newSlice
 	self.shelveName = self.shelveDir +self.name+'_'+ns+'_'+xkey+'vs'+ykey+'.shelve'		
- 	filename = self.getFileName(newSlice,xkey,ykey)
- 	
+ 	#filename = self.getFileName(newSlice,xkey,ykey)
+ 	filename = self.plotname([newSlice,])
 	print "plotWithSlices:\tINFO:\tinvestigating:",(newSlice), filename
 	if not bvp.shouldIMakeFile([self.xfn,self.yfn],self.shelveName,debug=False) \
 		and not bvp.shouldIMakeFile([self.xfn,self.yfn],filename,debug=False): return
@@ -680,9 +683,15 @@ class makePlots:
 	#	if newSlice in slicesDict['Months']:
 	#		 newSlice = bvp.mnStr(self.months[newSlice]+1)+newSlice	
 	#	if dictkey == 'Default': dictkey=''
+	
 	return bvp.folder(self.imageDir)+'_'.join([self.model,self.jobID,self.name,self.layer,newSlice,xkey,ykey,self.xtype,self.year])+'.png'
 
-
+  def plotname(self,ls):
+	pn = bvp.folder(self.imageDir)
+	listt = [self.model, self.scenario, self.jobID,	self.name,self.layer,self.year]
+	listt.extend(ls)
+	pn += '_'.join(listt)+'.png'
+	return pn
 
 
 

@@ -78,6 +78,7 @@ class matchDataAndModel:
   			datasource = '',
   			model = '', 
   			jobID = '', 
+  			scenario='',
   			year = '', 
   			layer = '', 
   			grid = 'ORCA1', 
@@ -109,6 +110,7 @@ class matchDataAndModel:
 	self.datasource = datasource
 	self.model = model 
 	self.jobID = jobID 
+	self.scenario=scenario
 	self.year = year
 	self.layer = layer
 	self.debug = debug	

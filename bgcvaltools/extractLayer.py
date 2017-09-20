@@ -77,7 +77,7 @@ def determineZ(nc,coords,details):
 	dims = nc.variables[details['vars'][0]].dimensions	
 	for d,dim in enumerate(dims):
 		if dim in depthNames: return d
-	raise AssertionError("determineZ:\tERROR:\tNot able to find the depth in the dimensions:"+str(dims)+"\n\t\tPlease add your depth to alwaysInclude.py:depthsNames")
+	raise AssertionError("determineZ:\tERROR:\tNot able to find the depth in the dimensions:"+str(dims)+"\n\t\tdepthNames:"+str(depthNames)+"\n\t\tPlease add your depth to alwaysInclude.py:depthsNames")
 
 def drawLine(lat1,lat2,lon1,lon2,numpoints=5000):
 	"""
@@ -101,9 +101,7 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 		
 	if type(data) ==type(''): 
 		data = extractData(nc,details)
-	dims = nc.variables[details['vars'][0]].dimensions
-	if len(dims) != data.ndim:
-		raise AssertionError("extractLayer:\tERROR:\tunusual layer 'type'provided: "+str(layer)+', type: '+str(type(layer))) 	
+
 	
 	#####
 	# This is when a numbered specific layer is requested
@@ -128,6 +126,9 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 	# Data is 1D or 2D
 	if data.squeeze().ndim in [1,2]: return data	
 
+	dims = nc.variables[details['vars'][0]].dimensions
+	if len(dims) != data.ndim:
+		raise AssertionError("extractLayer:\tERROR:\tunusual layer 'type'provided: "+str(layer)+', type: '+str(type(layer))) 	
 	
 	#####
 	# First checks:

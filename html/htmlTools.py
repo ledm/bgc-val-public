@@ -100,7 +100,7 @@ def fnToTitle(fn,jobID='u-a'):
 	
 	titlelist = removeDuplicates(titlelist)
 	
-	IgnoreList = ['percentiles', 'BGCVal', 'MEDUSA','','10-90pc','5-95pc',]
+	IgnoreList = ['percentiles', 'BGCVal', '','10-90pc','5-95pc',]
 	
 	title = ''
 	for i,t in enumerate(titlelist):
@@ -112,7 +112,7 @@ def fnToTitle(fn,jobID='u-a'):
 		
 		ln = 	getLongName(t)
 		if ln in IgnoreList:continue
-		title += ln+', '
+		title += ln+' '
 	return title[:-2]
 	
 	

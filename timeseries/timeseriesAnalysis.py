@@ -59,6 +59,7 @@ class timeseriesAnalysis:
 		datasource	= '',
 		model 		= '',
 		jobID		= '',
+		scenario	= '',
 		layers	 	= '',
 		regions	 	= '',			
 		metrics	 	= '',
@@ -114,6 +115,7 @@ class timeseriesAnalysis:
 	self.datadetails 	= datadetails						
 	self.datasource		= datasource
 	self.model 		= model
+	self.scenario           = scenario
 	self.jobID		= jobID
 	self.layers	 	= layers
 	self.regions	 	= regions			
@@ -563,7 +565,9 @@ class timeseriesAnalysis:
 	for r in self.regions:
 	    for l in self.layers:	
 		if type(l) in [type(0),type(0.)]:continue
- 		mapfilename = bvp.folder(self.imageDir)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
+	 	mapfilename = self.plotname([r,l,'map',])	    				    
+		#mapfilename = bvp.folder(self.imageDir)+'_'.join([self.model, self.scenario, self.jobID,r, l, self.dataType,'map'])+'.png'				
+ 		#mapfilename = bvp.folder(self.imageDir)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
    		modeldata	= mDL.load[(r,l)]
    		modellat	= mDL.load[(r,l,'lat')]
    		modellon	= mDL.load[(r,l,'lon')]
@@ -651,7 +655,8 @@ class timeseriesAnalysis:
 		    	
 		    title = ' '.join([getLongName(t) for t in [r,str(l),self.datasource, self.dataType]])
 		    for greyband in  ['10-90pc',]: #'MinMax', 
-			filename = bvp.folder(self.imageDir)+'_'.join(['percentiles',self.jobID,self.dataType,r,str(l),greyband])+'.png'
+	 		filename = self.plotname([r,l,'percentiles',greyband])	    				    
+			#filename = bvp.folder(self.imageDir)+'_'.join(['percentiles',self.jobID,self.dataType,r,str(l),greyband])+'.png'
                         if self.debug: print "timeseriesAnalysis:\t makePlots.\tInvestigating:",filename
 
 			if not bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):continue
@@ -661,7 +666,8 @@ class timeseriesAnalysis:
 	    	# Percentiles plots.		  	    
 	    	for m in self.metrics: 
 	    		if m not in ['sum', ]: continue 
-			filename = bvp.folder(self.imageDir)+'_'.join([m,self.jobID,self.dataType,r,str(l),m,])+'.png'
+	 		filename = self.plotname([r,l,m,])	    			    		
+			#filename = bvp.folder(self.imageDir)+'_'.join([m,self.jobID,self.dataType,r,str(l),m,])+'.png'
                         if self.debug: print "timeseriesAnalysis:\t makePlots.\tInvestigating:",filename
 
 			if not bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):	continue
@@ -683,7 +689,8 @@ class timeseriesAnalysis:
 	    	# Mean plots.
 	    	for m in self.metrics:  
 	    		if m not in ['mean', 'metricless',]: continue
-			filename = bvp.folder(self.imageDir)+'_'.join([m,self.jobID,self.dataType,r,str(l),m,])+'.png'
+	 		filename = self.plotname([r,l,m,])	    		
+			#filename = bvp.folder(self.imageDir)+'_'.join([m,self.jobID,self.dataType,r,str(l),m,])+'.png'
 		        if self.debug: print "timeseriesAnalysis:\t makePlots.\tInvestigating:",filename
 			if not bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):	continue
 			    		
@@ -769,14 +776,21 @@ class timeseriesAnalysis:
 	runmapplots=False
 	for r in self.regions:
 	  	for l in self.layers:	
-	 		mapfilename = bvp.folder(self.imageDir)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
+	 		mapfilename = self.plotname([r,l,'map',])
+	 		#bvp.folder(self.imageDir)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
 			if bvp.shouldIMakeFile(self.modelFiles[-1],mapfilename,debug=False):runmapplots = True
  	if runmapplots:
 		self.mapplotsRegionsLayers() 		
 
 			
 			
-			
+  def plotname(self,ls):
+	pn = bvp.folder(self.imageDir)
+	listt = [self.model, self.scenario, self.jobID,	self.dataType,]
+	listt.extend(ls)
+	pn += '_'.join(listt)+'.png'
+	return pn
+						
 			
 			
 			

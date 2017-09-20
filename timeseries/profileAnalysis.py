@@ -55,6 +55,7 @@ class profileAnalysis:
 		datadetails 	= '',								
 		datasource	= '',
 		model 		= '',
+		scenario	= '',
 		jobID		= '',
 		layers	 	= '',
 		regions	 	= '',			
@@ -82,6 +83,7 @@ class profileAnalysis:
 	self.datadetails 	= datadetails						
 	self.datasource		= datasource
 	self.model 		= model
+	self.scenario		= scenario
 	self.jobID		= jobID
 	self.layers	 	= layers
 	self.regions	 	= regions			
@@ -569,25 +571,35 @@ class profileAnalysis:
 
 
 		title = ' '.join([getLongName(t) for t in [r,m,self.dataType]])	
-	    	profilefn = bvp.folder(self.imageDir)+'_'.join(['profile',self.jobID,self.dataType,r,m,])+'.png'
+		
+		profilefn =  self.plotname([r,m,'profile'])
+		#bvp.folder(self.imageDir)+'_'.join([self.model, self.scenario, self.jobID,r, m, self.dataType,'profile'])+'.png'		
+	    	#profilefn = bvp.folder(self.imageDir)+'_'.join([,self.jobID,self.dataType,r,m,])+'.png'
 	    	axislabel = getLongName(self.modeldetails['name'])+', '+getLongName(self.modeldetails['units'])
 		if  bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],profilefn,debug=False):					    	
 			tsp.profilePlot(modeldata,data,profilefn, modelZcoords = modelZcoords, dataZcoords= dataZcoords, xaxislabel = axislabel,title = title,)			
 			
 		if self.doHov:	
-		    	hovfilename = bvp.folder(self.imageDir)+'_'.join(['profilehov',self.jobID,self.dataType,r,m,])+'.png'
+			hovfilename =  self.plotname([r,m,'profilehov'])		
+			#hovfilename =  bvp.folder(self.imageDir)+'_'.join([self.model, self.scenario, self.jobID,r, m, self.dataType,'profilehov'])+'.png'				
+		    	#hovfilename = bvp.folder(self.imageDir)+'_'.join(['profilehov',self.jobID,self.dataType,r,m,])+'.png'
 			if  bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename,debug=False):				
 				tsp.hovmoellerPlot(modeldata,data,hovfilename, modelZcoords = modelZcoords, dataZcoords= dataZcoords, title = title,zaxislabel =axislabel, diff=False)		
 	
-		    	hovfilename_diff = bvp.folder(self.imageDir)+'_'.join(['profileDiff',self.jobID,self.dataType,r,m,])+'.png'
+		    	#hovfilename_diff = bvp.folder(self.imageDir)+'_'.join(['profileDiff',self.jobID,self.dataType,r,m,])+'.png'
+			hovfilename_diff =  self.plotname([r,m,'profileDiff'])				    	
+			#hovfilename_diff =  bvp.folder(self.imageDir)+'_'.join([self.model, self.scenario, self.jobID, r, m, self.dataType,'profileDiff'])+'.png'
 			if  bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename_diff,debug=False):					    	
 				tsp.hovmoellerPlot(modeldata,data,hovfilename_diff, modelZcoords = modelZcoords, dataZcoords= dataZcoords, title = title,zaxislabel =axislabel,diff=True)		
 	
 
 
-			
-			
-			
+  def plotname(self,ls):
+	pn = bvp.folder(self.imageDir)
+	listt = [self.model, self.scenario, self.jobID,	self.dataType,]
+	listt.extend(ls)
+	pn += '_'.join(listt)+'.png'
+	return pn
 			
 			
 			
