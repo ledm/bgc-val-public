@@ -127,7 +127,6 @@ class timeseriesAnalysis:
 	self.noNewFiles		= noNewFiles
 	
 
-		
   	self.shelvefn 		= bvp.folder(self.workingDir)+'_'.join([self.jobID,self.dataType,])+'.shelve'
 	self.shelvefn_insitu	= bvp.folder(self.workingDir)+'_'.join([self.jobID,self.dataType,])+'_insitu.shelve'
 

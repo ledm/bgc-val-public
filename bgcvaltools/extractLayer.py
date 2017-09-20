@@ -101,7 +101,6 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 		
 	if type(data) ==type(''): 
 		data = extractData(nc,details)
-
 	dims = nc.variables[details['vars'][0]].dimensions
 	if len(dims) != data.ndim:
 		raise AssertionError("extractLayer:\tERROR:\tunusual layer 'type'provided: "+str(layer)+', type: '+str(type(layer))) 	
@@ -119,7 +118,6 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 	if type(layer) == type('string'):	pass
 	else:	raise AssertionError("extractLayer:\tERROR:\tunusual layer 'type'provided: "+str(layer)+', type: '+str(type(layer)))
 
-	
 	#####
 	# Basic fields:
 	# If no layer requested.	
@@ -128,8 +126,7 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 
 	#####	
 	# Data is 1D or 2D
-	if data.ndim == 2: return data	
-	if data.ndim == 1: return data	
+	if data.squeeze().ndim in [1,2]: return data	
 
 	
 	#####

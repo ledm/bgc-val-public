@@ -33,6 +33,7 @@
 import ConfigParser
 import os
 from glob import glob
+from itertools import product
 
 from functions.stdfunctions import std_functions  
 from bgcvaltools.tdicts import tdicts
@@ -97,7 +98,17 @@ def findReplaceFlags(Config, section, string):
 		fl = parseOptionOrDefault(Config, section, flag.lower())
 		string = string.replace(lookingFor, str(fl))		
 	return string	
-		
+
+def findReplaceFlag(string, flag, value):
+	"""
+	Looking for $FLAG in the string. 
+	If found, we replace $FLAG with value
+	"""
+	lookingFor = '$'+flag.upper()
+	if string.find(lookingFor) ==-1: return string
+	string = string.replace(lookingFor, value)		
+	return string	
+			
 #	if string.find('$YEAR') >-1:
 #		yr = parseOptionOrDefault(Config, section, 'year')
 #		string = string.replace('$YEAR', str(yr))
@@ -154,7 +165,7 @@ def parseFilepath(Config,section, option,expecting1=True,optional=True):
 	return outputFiles
 
 	
-def parseList(Config,section,option):
+def parseList(Config,section,option,findreplace=True):
 	"""
 	This tool loads an string from config file and returns it as a list.
 	"""
@@ -164,7 +175,9 @@ def parseList(Config,section,option):
 		print "No option ",option," in section: ",section
 		return ''
 		
-	list1 = findReplaceFlags(Config,section, list1)	
+	if findreplace:
+		list1 = findReplaceFlags(Config,section, list1)	
+	list1 = list1.replace('\t', ' ')
 	list1 = list1.replace(',', ' ')
 	list1 = list1.replace('  ', ' ')
 	list1 = list1.replace('\'', '')
@@ -210,7 +223,7 @@ def get_str(Config, section, option,debug=False):
 		if debug: print "Unable to load:",section, option
 	return ''
 
-def parseOptionOrDefault(Config,section,option,parsetype='',debug=True, optional=True):
+def parseOptionOrDefault(Config,section,option,parsetype='',debug=True, optional=True,findreplace=True):
 	"""#####
 	This tool lets you create a Defaults section, and set some fields as defaults.
 	 	ie: model_lat is always nav_lat, unless other specified.
@@ -222,14 +235,18 @@ def parseOptionOrDefault(Config,section,option,parsetype='',debug=True, optional
 		raise AssertionError("parseOptionOrDefault:\tNo defaults provided.")		
 		
 	if parsetype in ['', 'string','str']:
-		value   = findReplaceFlags(Config,section,get_str(Config, section, option))	
-		default = findReplaceFlags(Config,section, get_str(Config, defaultSection, option))	
+		if findreplace:
+			value   = findReplaceFlags(Config,section,get_str(Config, section, option))
+			default = findReplaceFlags(Config,section, get_str(Config, defaultSection, option))
+		else:	
+			value   = get_str(Config, section, option)
+			default = get_str(Config, defaultSection, option)
 		
 	if parsetype.lower() in ['list', ]:
-		try:	default = parseList(Config,defaultSection,option)
+		try:	default = parseList(Config,defaultSection,option,findreplace=findreplace)
 		except: default = ''
 
-		try:	value = parseList(Config,section,option)
+		try:	value = parseList(Config,section,option,findreplace=findreplace)
 		except: value = ''	
 
 	if parsetype.lower() in ['int', ]:
@@ -330,109 +347,216 @@ class GlobalSectionParser:
 	self.__cp__ = checkConfig(fn)
 	self.__fn__ = fn
 
-	self.jobID 		= self.__cp__.get(defaultSection, 'jobID')
-	self.year  		= self.__cp__.get(defaultSection, 'year')	
-	self.model 		= self.__cp__.get(defaultSection, 'model')
-	self.scenario 		= self.__cp__.get(defaultSection, 'scenario')
-			
-	self.makeReport 	= parseBoolean(self.__cp__, defaultSection, 'makeReport',	default=True)	
-	self.makeProfiles 	= parseBoolean(self.__cp__, defaultSection, 'makeProfiles',	default=True)	
-	self.makeP2P 		= parseBoolean(self.__cp__, defaultSection, 'makeP2P',		default=True)	
-	self.makeTS	 	= parseBoolean(self.__cp__, defaultSection, 'makeTS',		default=True)	
-	self.clean 		= parseBoolean(self.__cp__, defaultSection, 'clean',		default=False)
-		
-	self.images_ts		= parseOptionOrDefault(self.__cp__, defaultSection, 'images_ts',  )
-	self.images_pro 	= parseOptionOrDefault(self.__cp__, defaultSection, 'images_pro', )	
-	self.images_p2p 	= parseOptionOrDefault(self.__cp__, defaultSection, 'images_p2p', )
-	self.postproc_ts  	= parseOptionOrDefault(self.__cp__, defaultSection, 'postproc_ts',  )
-	self.postproc_pro 	= parseOptionOrDefault(self.__cp__, defaultSection, 'postproc_prp', )
-	self.postproc_p2p 	= parseOptionOrDefault(self.__cp__, defaultSection, 'postproc_p2p', )
-	self.reportdir 		= parseOptionOrDefault(self.__cp__, defaultSection, 'reportdir', )
-	self.gridFile 		= parseFilepath(self.__cp__, defaultSection, 'gridFile',  )#expecting1=True, optional=False)	
-	self.modelgrid		= parseOptionOrDefault(self.__cp__, defaultSection, 'modelgrid')		
 	self.ActiveKeys 	= linkActiveKeys(self.__cp__)
+	self.jobIDs 		= parseList(self.__cp__, defaultSection, 'jobIDs'  )
+	self.years  		= parseList(self.__cp__, defaultSection, 'years'   )
+	self.models 		= parseList(self.__cp__, defaultSection, 'models'  )
+	self.scenarios 		= parseList(self.__cp__, defaultSection, 'scenario')
+
+	self.makeReport 	= parseBoolean(self.__cp__, defaultSection, 'makeReport',	default=True)	
+	self.makeComp 		= parseBoolean(self.__cp__, defaultSection, 'makeComp',		default=True)
+	self.clean 		= parseBoolean(self.__cp__, defaultSection, 'clean',		default=False)
+
+	self.reportdir 		= self.parseFilepath( 'reportdir', 	expecting1=True, optional=True, outputDir=True)
+	self.images_comp	= self.parseFilepath( 'images_comp', 	expecting1=True, optional=True, outputDir=True)	
+			
+	self.AnalysisKeyParser = {}	
+	for (m,j,y,s,k) in product(self.models,self.jobIDs, self.years, self.scenarios,self.ActiveKeys):
+		self.AnalysisKeyParser[(m,j,y,s,k)] = AnalysisKeyParser(fn,model = m,	jobID = j, year  = y, scenario=s, key = k,)
+
 				
   def __print__(self):
 	print "------------------------------------------------------------------"
 	print "GlobalSectionParser."
 	print "File:				", self.__fn__
-	print "model:				", self.model	
-	print "jobID:				", self.jobID
-	print "scenario:			", self.scenario	
-	print "year:				", self.year	
-	print "makeTS:				", self.makeTS
-	print "makeP2P:				", self.makeP2P
-	print "makeProfiles:			", self.makeProfiles
+	print "ActiveKeys:			", self.ActiveKeys		
+	print "models:				", self.models	
+	print "jobIDs:				", self.jobIDs
+	print "years:				", self.years	
+	print "scenarios:			", self.scenarios	
 	print "makeReport:			", self.makeReport
-							
-	print "timeseries image folder:		", self.images_ts
-	print "P2P image folder:		", self.images_p2p	
-	print "Profile image folder:		", self.images_pro	
-	print "timeseries postprocessed files:	", self.postproc_ts
-	print "Profile postprocessed files:	", self.postproc_pro	
-	print "p2p postprocessed files:		", self.postproc_p2p
+	print "makeComp:			", self.makeComp	
+	print "reportdir:			", self.reportdir							
+	print "images_comp:			", self.images_comp								
 
-	print "grid File:			", self.gridFile	
-	print "model grid:			", self.modelgrid
-	print "ActiveKeys:			", self.ActiveKeys
-	
 	return''
   def __repr__(self): return self.__print__()
   def __str__( self): return self.__print__()				
   
+  def parseFilepath(self, option,expecting1=True,optional=True,outputDir=False):
+	"""
+	This is for parsing a file path, a list of filepaths (separated by spaces), or a wildcard filepath.
+	The expecting1 flag is a switch to check for a single file as an output. 
+	If a single file is expected, and 
+	"""
+	self.__cp__ = checkConfig(self.__cp__)
+	
+	# Load raw string from config1
+	filepath = parseOptionOrDefault(self.__cp__, 'Global', option,findreplace=False)
+
+	#####
+	# Replace all the $FLAGS in the path.
+	filepath = findReplaceFlag(filepath, 	'models', 	'_'.join(self.models))	
+	filepath = findReplaceFlag(filepath, 	'jobIDs', 	'_'.join(self.jobIDs))	
+	filepath = findReplaceFlag(filepath, 	'years', 	'_'.join(self.years))	
+	filepath = findReplaceFlag(filepath, 	'scenarios', 	'_'.join(self.scenarios))
+	
+	if filepath.find('$')>-1:
+		raise AssertionError("GlobalSectionParser:\tparseFilepath:\t"+str(option)+"\tUnable to replace all the $PATH KEYS. "+\
+		"\n\t\tAvailable options are: $MODELS, $JOBIDS, $YEARS, $SCENARIOS, (in that order)."+\
+		"\n\t\tAfter replacing $FLAGS, Filepath was:"+str(filepath))		
+		
+
+	#####
+	# Expecting an output directory, which may not exist yet.
+	if outputDir: return filepath
+	
+	outputFiles = []
+	#####
+	# Looking for files which have to exist already
+	if len(filepath.split(' '))>1:
+		for fn in filepath.split(' '):
+			outputFiles.extend(glob(fn))
+	else:	outputFiles.extend(glob(filepath))
+
+	if len(filepath) >0 and len(outputFiles)==0:
+		print "GlobalSectionParser:\tparseFilepath:\tfilepath:",filepath, "\n\t\toutputFiles:",outputFiles
+		if not optional:
+			raise AssertionError("GlobalSectionParser:\tparseFilepath:\tUnable to locate the requested file.")		
+	
+	if expecting1:
+		if len(outputFiles) == 1: return outputFiles[0]
+		if len(outputFiles) == 0 and optional: return ''
+		raise AssertionError("parseFilepath:\tExpecting a single file, but found multiple files.")
+		
+	if optional and len(outputFiles) ==0:
+		return ''
+	
+	return outputFiles 	
+  	
+  	
+  	
+  	
+
   
   	
 class AnalysisKeyParser:
-  def __init__(self,fn,key,debug=True):
+  def __init__(self,fn,
+  		model = '',
+  		jobID = '',
+  		year  = '',
+  		scenario='',
+  		key   = '',
+  		debug=True):
 	self.__fn__ = fn
 	if debug: 
 		print "------------------------------------------------------------------"
 		print "AnalysisKeyParser:\tBeginning to call AnalysisKeyParser for ", key
 	self.__cp__ = checkConfig(fn)  
 
-	section = key
-	self.jobID		= parseOptionOrDefault(self.__cp__, section, 'jobID')
-	self.year		= parseOptionOrDefault(self.__cp__, section, 'year')	
+	self.section 	= key
+	self.model 	= model
+	self.jobID 	= jobID
+	self.year	= year
+	self.scenario 	= scenario
+	self.key 	= key
 
-	self.clean		= parseOptionOrDefault(self.__cp__, section, 'clean',		parsetype='bool')
-	self.makeProfiles 	= parseOptionOrDefault(self.__cp__, section, 'makeProfiles',	parsetype='bool')	
-	self.makeP2P 		= parseOptionOrDefault(self.__cp__, section, 'makeP2P',		parsetype='bool')	
-	self.makeTS	 	= parseOptionOrDefault(self.__cp__, section, 'makeTS',		parsetype='bool')
-	
-	self.name		= self.__cp__.get(section, 'name')	
-	self.units		= self.__cp__.get(section, 'units')		
-	self.dimensions		= self.__cp__.getint(section, 'dimensions')
+	self.akp_id 	= 	(self.model,self.jobID,self.year,self.scenario,self.key)
+	#self.jobID		= parseOptionOrDefault(self.__cp__, section, 'jobID')
+	#self.year		= parseOptionOrDefault(self.__cp__, section, 'year')	
+	#self.model		= parseOptionOrDefault(self.__cp__, section, 'model')	
+
+	self.name		= self.__cp__.get(self.section, 'name')	
+	self.units		= self.__cp__.get(self.section, 'units')		
+	self.dimensions		= self.__cp__.getint(self.section, 'dimensions')
 		
-	self.modelFiles_ts 	= parseFilepath(self.__cp__, section, 'modelFiles',expecting1=False, )#optional=False)
-	self.modelFile_p2p 	= parseFilepath(self.__cp__, section, 'modelFile_p2p',expecting1=True,)# optional=True)	
+	self.clean		= parseOptionOrDefault(self.__cp__, self.section, 'clean',		parsetype='bool')
+	self.makeProfiles 	= parseOptionOrDefault(self.__cp__, self.section, 'makeProfiles',	parsetype='bool')	
+	self.makeP2P 		= parseOptionOrDefault(self.__cp__, self.section, 'makeP2P',		parsetype='bool')	
+	self.makeTS	 	= parseOptionOrDefault(self.__cp__, self.section, 'makeTS',		parsetype='bool')
 	
-	self.dataFile   	= parseFilepath(self.__cp__, section, 'dataFile',  expecting1=True, )#optional=False)
-	self.gridFile 		= parseFilepath(self.__cp__, section, 'gridFile',  expecting1=True, optional=False)
 
-	self.modelcoords	 = parseCoordinates(self.__cp__, section, 'model')
-	self.datacoords 	 = parseCoordinates(self.__cp__, section, 'data' )
-
-	self.modeldetails 	= parseDetails(self.__cp__, section, 'model')
-	self.datadetails  	= parseDetails(self.__cp__, section, 'data' )
+	self.modelcoords	 = parseCoordinates(self.__cp__, self.section, 'model')
+	self.datacoords 	 = parseCoordinates(self.__cp__, self.section, 'data' )
+	self.modeldetails 	= parseDetails(self.__cp__, self.section, 'model')
+	self.datadetails  	= parseDetails(self.__cp__, self.section, 'data' )
 	
-	self.datasource		= parseOptionOrDefault(self.__cp__, section, 'datasource')
-	self.model		= parseOptionOrDefault(self.__cp__, section, 'model')	
-	self.modelgrid		= parseOptionOrDefault(self.__cp__, section, 'modelgrid')	
+	self.datasource		= parseOptionOrDefault(self.__cp__, self.section, 'datasource')
+	self.modelgrid		= parseOptionOrDefault(self.__cp__, self.section, 'modelgrid')	
 
-	self.regions 		= parseOptionOrDefault(self.__cp__, section, 'regions',parsetype='list')
-	self.layers 		= parseOptionOrDefault(self.__cp__, section, 'layers', parsetype='list')
+	self.regions 		= parseOptionOrDefault(self.__cp__, self.section, 'regions',parsetype='list')
+	self.layers 		= parseOptionOrDefault(self.__cp__, self.section, 'layers', parsetype='list')
+
 		
-	self.images_ts		= parseOptionOrDefault(self.__cp__, section, 'images_ts',  )
-	self.images_pro 	= parseOptionOrDefault(self.__cp__, section, 'images_pro', )
-	self.images_p2p 	= parseOptionOrDefault(self.__cp__, section, 'images_p2p', )	
-	self.postproc_ts  	= parseOptionOrDefault(self.__cp__, section, 'postproc_ts',  )
-	self.postproc_pro 	= parseOptionOrDefault(self.__cp__, section, 'postproc_pro', )	
-	self.postproc_p2p 	= parseOptionOrDefault(self.__cp__, section, 'postproc_p2p', )
-	self.reportdir 		= parseOptionOrDefault(self.__cp__, section, 'reportdir', )
+	self.modelFiles_ts 	= self.parseFilepath('modelFiles',	expecting1=False,optional=True )  #optional=False)
+	self.modelFile_p2p 	= self.parseFilepath('modelFile_p2p',	expecting1=True, optional=True ) # optional=True)	
 	
+	self.dataFile   	= self.parseFilepath('dataFile',  	expecting1=True, optional=True ) #optional=False)
+	self.gridFile 		= self.parseFilepath('gridFile',  	expecting1=True, optional=False)
+	
+
+	self.images_ts		= self.parseFilepath( 'images_ts',  	expecting1=True, optional=True, outputDir=True)
+	self.images_pro 	= self.parseFilepath( 'images_pro', 	expecting1=True, optional=True, outputDir=True)
+	self.images_p2p 	= self.parseFilepath( 'images_p2p', 	expecting1=True, optional=True, outputDir=True)	
+	self.postproc_ts  	= self.parseFilepath( 'postproc_ts', 	expecting1=True, optional=True, outputDir=True )
+	self.postproc_pro 	= self.parseFilepath( 'postproc_pro', 	expecting1=True, optional=True, outputDir=True)	
+	self.postproc_p2p 	= self.parseFilepath( 'postproc_p2p', 	expecting1=True, optional=True, outputDir=True)
+
+			
 	if debug: self.__print__()
 
-  	
+  def parseFilepath(self, option,expecting1=True,optional=True,outputDir=False):
+	"""
+	This is for parsing a file path, a list of filepaths (separated by spaces), or a wildcard filepath.
+	The expecting1 flag is a switch to check for a single file as an output. 
+	If a single file is expected, and 
+	"""
+	self.__cp__ = checkConfig(self.__cp__)
+	
+	# Load raw string from config1
+	filepath = parseOptionOrDefault(self.__cp__, self.section, option,findreplace=False)
+
+	#####
+	# Replace all the $FLAGS in the path.
+	filepath = findReplaceFlag(filepath, 	'model', 	self.model)	
+	filepath = findReplaceFlag(filepath, 	'jobID', 	self.jobID)	
+	filepath = findReplaceFlag(filepath, 	'year', 	self.year)	
+	filepath = findReplaceFlag(filepath, 	'scenario', 	self.scenario)	
+	filepath = findReplaceFlag(filepath, 	'key', 		self.key)			
+	filepath = findReplaceFlag(filepath, 	'name',		self.name)				
+	
+	if filepath.find('$')>-1:
+		raise AssertionError("parseFilepath:\t"+str(option)+"\tUnable to replace all the $PATH KEYS. "+\
+		"\n\t\tAvailable options are: $MODEL, $JOBID, $YEAR, $SCENARIO, $KEY, $NAME (in that order)."+\
+		"\n\t\tAfter replacing $FLAGS, Filepath was:"+str(filepath))		
+		
+	outputFiles = []
+
+	#####
+	# Expecting an output directory, which may not exist yet.
+	if outputDir: return filepath
+
+	#####
+	# Looking for files which have to exist already
+	if len(filepath.split(' '))>1:
+		for fn in filepath.split(' '):
+			outputFiles.extend(glob(fn))
+	else:	outputFiles.extend(glob(filepath))
+
+	if len(filepath) >0 and len(outputFiles)==0:
+		print "parseFilepath:\tfilepath:",filepath, "\n\t\toutputFiles:",outputFiles
+		if not optional:
+			raise AssertionError("parseFilepath:\tUnable to locate the requested file.")		
+	
+	if expecting1:
+		if len(outputFiles) == 1: return outputFiles[0]
+		if len(outputFiles) == 0 and optional: return ''
+		raise AssertionError("parseFilepath:\tExpecting a single file, but found multiple files.")
+		
+	if optional and len(outputFiles) ==0:
+		return ''
+	
+	return outputFiles 	
   	
   	
   
@@ -440,26 +564,22 @@ class AnalysisKeyParser:
 	print "------------------------------------------------------------------"
 	print "AnalysisKeyParser."
 	print "File:		", self.__fn__
+	print "model:		", self.model
 	print "jobID:		", self.jobID
+	print "year:		", self.year
+	print "scenario:	", self.scenario	
+	print "name:		", self.name
+		
+	print "units:		", self.units
+	print "datasource:	", self.datasource
+	print "dimensions:	", self.dimensions
+
 	print "clean:		", self.clean
 	print "makeProfiles:	", self.makeProfiles
 	print "makeP2P:		", self.makeP2P
 	print "makeTS:		", self.makeTS
 					
-	print "timeseries image folder:		", self.images_ts
-	print "Profile image folder:		", self.images_pro
-	print "P2P image folder:		", self.images_p2p		
-	print "timeseries postprocessed files:	", self.postproc_ts
-	print "profile postprocessed files:	", self.postproc_pro
-	print "p2p postprocessed files:		", self.postproc_p2p
-
-	print "year:		", self.year
-	print "name:		", self.name
-	print "units:		", self.units
-	print "datasource:	", self.datasource
-	print "model:		", self.model
-	print "dimensions:	", self.dimensions
-			
+								
 	print "model Files (ts):", self.modelFiles_ts
 	print "model Files (p2p):", self.modelFile_p2p
 	print "data File:	", self.dataFile
@@ -474,6 +594,14 @@ class AnalysisKeyParser:
 
 	print "regions:		", self.regions
 	print "layers:		", self.layers
+	
+	print "timeseries image folder:		", self.images_ts
+	print "Profile image folder:		", self.images_pro
+	print "P2P image folder:		", self.images_p2p		
+	print "timeseries postprocessed files:	", self.postproc_ts
+	print "profile postprocessed files:	", self.postproc_pro
+	print "p2p postprocessed files:		", self.postproc_p2p
+		
 	return''
   def __repr__(self): return self.__print__()
   def __str__( self): return self.__print__()		

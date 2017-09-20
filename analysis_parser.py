@@ -34,14 +34,9 @@
 #####
 # Load Standard Python modules:
 from sys import argv,exit
-from os.path import exists
-from calendar import month_name
-from socket import gethostname
-from glob import glob
-from scipy.interpolate import interp1d
 import numpy as np
 import os,sys
-from getpass import getuser
+from itertools import product
 
 #####
 # Load specific local code:
@@ -49,7 +44,7 @@ from bgcvaltools import bgcvalpython as bvp
 from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesTools as tst
-
+from timeseries import comparisonAnalysis
 from p2p.testsuite_p2p import testsuite_p2p
 
 from bgcvaltools.dataset import dataset
@@ -67,14 +62,13 @@ def analysis_parser(
 
 	#####
 	# Load global level keys from the config file.
-	globalKeys =  GlobalSectionParser(configfile)
-	
+	gk =  GlobalSectionParser(configfile)
+	#print gk
+	#assert 0
 
 	#####
 	# Run the evaluation for each True boolean key in the config file section [ActiveKeys].	
-	for key in globalKeys.ActiveKeys:
-		akp = AnalysisKeyParser(configfile, key, debug=True)
-		
+	for (model,jobID,year,scenario,key),akp in gk.AnalysisKeyParser.items():
 		if akp.dimensions in  [1,]:			
 			metricList = ['metricless',]
 		if akp.dimensions in  [2, 3]:
@@ -154,9 +148,18 @@ def analysis_parser(
 				noTargets	= True,
 		                clean           = akp.clean,				
 		 	)
+		
+	#####
+	# Comparison Plots.
+
+	#####
+	if gk.makeComp:	
+	    	comparisonAnalysis(configfile)
+		 	
+		
 	#####
 	# Make HTML Report
-	if globalKeys.makeReport:
+	if gk.makeReport:
 		htmlMakerFromConfig(configfile)
 	else:
 		print "analysis_parser:\tReport maker  is switched Off. To turn it on, use the makeReport boolean flag in "

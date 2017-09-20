@@ -390,7 +390,7 @@ class makePlots:
 	robfncartopy	= filename.replace('.png','_robinquad-cartopy.png')		
 	transectquadfn	= filename.replace('.png','_transect.png')			
 	histfnxy 	= filename.replace('.png','_hist.png')
-	histsfnxy 	= filename.replace('.png','_hists.png')				
+	#histsfnxy 	= filename.replace('.png','_hists.png')				
 	
 	#####
 	# Can turn off plots to run analysis faster.
@@ -508,11 +508,11 @@ class makePlots:
 			else:	bvp.histPlot(datax, datay,  histfnxy, Title=histtitle, labelx=labelx,labely=labely,dpi=self.dpi,xaxislabel =histxaxis, logx = True, )
 
 		# Simultaneous histograms plot	- triple
-		if bvp.shouldIMakeFile([self.xfn,self.yfn],histsfnxy,debug=False):
-			xaxislabel= getLongName(self.name)+', '+ xunits
-			if self.name in noXYLogs or dmin*dmax <=0.:				
-				bvp.histsPlot(datax, datay,  histsfnxy, Title=title, labelx=self.xtype,labely=self.ytype,xaxislabel =xaxislabel)	
-			else:	bvp.histsPlot(datax, datay,  histsfnxy, Title=title, labelx=self.xtype,labely=self.ytype,xaxislabel =xaxislabel, logx = True, )
+		#if bvp.shouldIMakeFile([self.xfn,self.yfn],histsfnxy,debug=False):
+		#	xaxislabel= getLongName(self.name)+', '+ xunits
+		#	if self.name in noXYLogs or dmin*dmax <=0.:				
+		#		bvp.histsPlot(datax, datay,  histsfnxy, Title=title, labelx=self.xtype,labely=self.ytype,xaxislabel =xaxislabel)	
+		#	else:	bvp.histsPlot(datax, datay,  histsfnxy, Title=title, labelx=self.xtype,labely=self.ytype,xaxislabel =xaxislabel, logx = True, )
 							
 			
 		#####
@@ -668,10 +668,6 @@ class makePlots:
   def getFileName(self,newSlice,xkey,ykey):
   	#####
   	# This needs some work.
-	file_prefix = self.imageDir #bvp.folder(['images',self.xtype,'P2P_plots',self.year,self.name+self.region,])
-
-	file_suffix = '_'+self.xtype+'_'+self.year+'.png'
-	
 	#for dictkey,dictlist in slicesDict.items():
 	#	if dictkey=='AllSlices':continue
 	#	if newSlice not in dictlist: continue
@@ -684,9 +680,7 @@ class makePlots:
 	#	if newSlice in slicesDict['Months']:
 	#		 newSlice = bvp.mnStr(self.months[newSlice]+1)+newSlice	
 	#	if dictkey == 'Default': dictkey=''
-	filename = bvp.folder([file_prefix])+self.name+self.layer+'_'+newSlice+'_'+xkey+'vs'+ykey+file_suffix
-
-	return filename
+	return bvp.folder(self.imageDir)+'_'.join([self.model,self.jobID,self.name,self.layer,newSlice,xkey,ykey,self.xtype,self.year])+'.png'
 
 
 

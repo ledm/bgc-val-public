@@ -27,3 +27,4 @@ from timeseriesTools import *
 from timeseriesAnalysis import timeseriesAnalysis
 from profileAnalysis import profileAnalysis
 from extentMaps import extentMaps
+from comparisonAnalysis import comparisonAnalysis
