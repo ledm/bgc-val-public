@@ -227,8 +227,10 @@ be set in the `[Global]` section and ommited elsewhere.
 Some values can not be set in the `[Global]`, for instance the `name`, and `model_vars`
 and `model_convert` fields are by definition unique for each analysis.
 
-The values used in `[Global]` for `jobID`, `year`, `model` can be put into paths using `$JOBID`, `$YEAR` or `$MODEL`.
+The values used in `[Global]` for `jobIDs`, `years`, `models` and  `scenarios` can be put into paths using `$JOBID`, `$YEAR` or `$MODEL`.
 Similarly, `$NAME` can be used as a stand in for the name option for of each analysis. 
+
+In addition, multiple analyses can be compared by using a list of jobIDs. 
 
 
 
@@ -236,9 +238,10 @@ The following is a typical `[Global]` section:
 ```ini
 [Global]
 
-jobID            : u-am927              ; Unique run/simulation/job identifier
-year             : 2055                 ; Year to look at for p2p.
-model            : MEDUSA               ; model name
+jobIDs            : u-am927              ; Unique run/simulation/job identifier
+years             : 2055                 ; Year to look at for p2p.
+models            : MEDUSA               ; model name
+scenarios	  : historical		 ; scenario
 
 ; -------------------------------
 ; Boolean flags
