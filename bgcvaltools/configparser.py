@@ -414,7 +414,7 @@ class GlobalSectionParser:
 	if len(filepath) >0 and len(outputFiles)==0:
 		print "GlobalSectionParser:\tparseFilepath:\tfilepath:",filepath, "\n\t\toutputFiles:",outputFiles
 		if not optional:
-			raise AssertionError("GlobalSectionParser:\tparseFilepath:\tUnable to locate the requested file.")		
+			raise AssertionError("GlobalSectionParser:\tparseFilepath:\tUnable to locate the file: "+str(filepath))		
 	
 	if expecting1:
 		if len(outputFiles) == 1: return outputFiles[0]
@@ -543,12 +543,12 @@ class AnalysisKeyParser:
 	if len(filepath) >0 and len(outputFiles)==0:
 		print "parseFilepath:\tfilepath:",filepath, "\n\t\toutputFiles:",outputFiles
 		if not optional:
-			raise AssertionError("parseFilepath:\tUnable to locate the requested file.")		
+			raise AssertionError("parseFilepath:\tUnable to locate the requested file: "+str(filepath))		
 	
 	if expecting1:
 		if len(outputFiles) == 1: return outputFiles[0]
 		if len(outputFiles) == 0 and optional: return ''
-		raise AssertionError("parseFilepath:\tExpecting a single file, but found multiple files.")
+		raise AssertionError("parseFilepath:\tExpecting a single file, but found multiple files:"+str(outputFiles))
 		
 	if optional and len(outputFiles) ==0:
 		return ''
