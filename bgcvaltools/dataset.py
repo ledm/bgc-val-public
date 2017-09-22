@@ -40,11 +40,14 @@ from sys import argv
 class dataset:
 	
     def __init__(self,filename,readflag='r',Quiet=True):
-	self.__filename__ = filename
-	self.netcdfPath = filename
-	self.filename 	= filename
+    	filename 		= filename.replace('//','/')
 	
-	self.dataset = netCDF4.Dataset(filename,'r')
+	try: 	self.dataset = netCDF4.Dataset(filename,readflag)
+	except:	raise RuntimeError('dataset.py: Unable to open file: '+str(filename))
+
+	self.__filename__ 	= filename
+	self.netcdfPath 	= filename
+	self.filename 		= filename		
 
 	#####
 	# link to various fields, so that the user experience is similar.
@@ -118,8 +121,8 @@ class dataset:
 
 
 if __name__=="__main__":
-    fn=None
-    nc=dataset(argv[1],Quiet=False)
+    	fn=None
+    	nc=dataset(argv[1],Quiet=False)
     
     
     	  

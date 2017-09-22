@@ -109,27 +109,7 @@ def findReplaceFlag(string, flag, value):
 	string = string.replace(lookingFor, value)		
 	return string	
 			
-#	if string.find('$YEAR') >-1:
-#		yr = parseOptionOrDefault(Config, section, 'year')
-#		string = string.replace('$YEAR', str(yr))
-#	if string.find('$JOBID') >-1:
-#		yr = parseOptionOrDefault(Config, section, 'jobID')
-#		string = string.replace('$JOBID', str(yr))
-#	if string.find('$NAME') >-1:
-#		yr = parseOptionOrDefault(Config, section, 'name')
-#		string = string.replace('$NAME', str(yr))	
-#	if string.find('$MODEL') >-1:
-#		yr = parseOptionOrDefault(Config, section, 'model')
-#		string = string.replace('$MODEL', str(yr))
-#
-#	if string.find('$BASEDIR_MODEL') >-1:
-#		yr = parseOptionOrDefault(Config, section, 'basedir_model')
-#		string = string.replace('$BASEDIR_MODEL', str(yr))
-#	if string.find('$BASEDIR_OBS') >-1:
-#		yr = parseOptionOrDefault(Config, section, 'basedir_obs')
-#		string = string.replace('$BASEDIR_OBS', str(yr))
-#						
-#	return string
+
 	
 
 def parseFilepath(Config,section, option,expecting1=True,optional=True):
@@ -357,9 +337,16 @@ class GlobalSectionParser:
 	self.makeComp 		= parseBoolean(self.__cp__, defaultSection, 'makeComp',		default=True)
 	self.clean 		= parseBoolean(self.__cp__, defaultSection, 'clean',		default=False)
 
+	self.basedir_model	= self.parseFilepath( 'basedir_model', 	expecting1=True, optional=True,)
+	self.basedir_obs	= self.parseFilepath( 'basedir_obs', 	expecting1=True, optional=True,)	
+			
 	self.reportdir 		= self.parseFilepath( 'reportdir', 	expecting1=True, optional=True, outputDir=True)
 	self.images_comp	= self.parseFilepath( 'images_comp', 	expecting1=True, optional=True, outputDir=True)	
-			
+	
+
+	self.modelgrid		= parseOptionOrDefault(self.__cp__, defaultSection, 'modelgrid')	
+	self.gridFile 		= self.parseFilepath('gridFile',  	expecting1=True, optional=False)
+					
 	self.AnalysisKeyParser = {}	
 	for (m,j,y,s,k) in product(self.models,self.jobIDs, self.years, self.scenarios,self.ActiveKeys):
 		self.AnalysisKeyParser[(m,j,y,s,k)] = AnalysisKeyParser(fn,model = m,	jobID = j, year  = y, scenario=s, key = k,)
@@ -378,7 +365,8 @@ class GlobalSectionParser:
 	print "makeComp:			", self.makeComp	
 	print "reportdir:			", self.reportdir							
 	print "images_comp:			", self.images_comp								
-
+	print "model grid:                      ", self.modelgrid
+	print "gridFile:                        ", self.gridFile	
 	return''
   def __repr__(self): return self.__print__()
   def __str__( self): return self.__print__()				
@@ -400,6 +388,10 @@ class GlobalSectionParser:
 	filepath = findReplaceFlag(filepath, 	'jobIDs', 	'_'.join(self.jobIDs))	
 	filepath = findReplaceFlag(filepath, 	'years', 	'_'.join(self.years))	
 	filepath = findReplaceFlag(filepath, 	'scenarios', 	'_'.join(self.scenarios))
+	try:	filepath = findReplaceFlag(filepath, 	'basedir_model',	 self.basedir_model)
+	except: pass
+	try:	filepath = findReplaceFlag(filepath, 	'basedir_obs',	 	self.basedir_obs)
+	except: pass	
 	
 	if filepath.find('$')>-1:
 		raise AssertionError("GlobalSectionParser:\tparseFilepath:\t"+str(option)+"\tUnable to replace all the $PATH KEYS. "+\
@@ -487,7 +479,9 @@ class AnalysisKeyParser:
 	self.regions 		= parseOptionOrDefault(self.__cp__, self.section, 'regions',parsetype='list')
 	self.layers 		= parseOptionOrDefault(self.__cp__, self.section, 'layers', parsetype='list')
 
-		
+	self.basedir_model	= self.parseFilepath('basedir_model', 	expecting1=True, optional=True,)			
+	self.basedir_obs	= self.parseFilepath('basedir_obs', 	expecting1=True, optional=True,)				
+	
 	self.modelFiles_ts 	= self.parseFilepath('modelFiles',	expecting1=False,optional=True )  #optional=False)
 	self.modelFile_p2p 	= self.parseFilepath('modelFile_p2p',	expecting1=True, optional=True ) # optional=True)	
 	
@@ -524,7 +518,10 @@ class AnalysisKeyParser:
 	filepath = findReplaceFlag(filepath, 	'scenario', 	self.scenario)	
 	filepath = findReplaceFlag(filepath, 	'key', 		self.key)			
 	filepath = findReplaceFlag(filepath, 	'name',		self.name)				
-	
+	try:	filepath = findReplaceFlag(filepath, 	'basedir_model',self.basedir_model)					
+	except:	pass
+	try:	filepath = findReplaceFlag(filepath, 	'basedir_obs', self.basedir_obs)					
+	except:	pass	
 	if filepath.find('$')>-1:
 		raise AssertionError("parseFilepath:\t"+str(option)+"\tUnable to replace all the $PATH KEYS. "+\
 		"\n\t\tAvailable options are: $MODEL, $JOBID, $YEAR, $SCENARIO, $KEY, $NAME (in that order)."+\
