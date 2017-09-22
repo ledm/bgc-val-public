@@ -101,7 +101,8 @@ def removeDuplicates(seq):
 	return [x for x in seq if not (x in seen or seen_add(x))]
 	
 def fnToTitle(fn,ignores= []):
-	"""	This script takes a filename and returned a usable description of the plot title.
+	"""	
+	This script takes a filename and returned a usable description of the plot title.
 	"""
 	titlelist=  os.path.basename(fn).replace('.png', '').replace('_',' ').split(' ')
 	
@@ -120,86 +121,60 @@ def fnToTitle(fn,ignores= []):
 		title.append(ln)
 	return 	titleify(title)
 		
-		
-
-def addSections(
-		akp,
-		indexhtmlfn,
-		imagesfold,
-		reportdir,
-		key):
+def descriptionMaker(akp,
+		plotdesc 	= '',
+		model		= '',
+		key		= '',		
+		scenario	= '',
+		jobID		= '',				
+		region		= '',
+		layer		= '',):
+	"""	
+	This script takes the details and returned a description for the header.
+	"""
 	
-	raise  AssertionError("addSections:\tthis function is deprecated.") 
 	
-	#####
-	# href is the name used for the html 
-	SectionTitle= ' '.join([ getLongName(key), akp.model, akp.jobID, akp.scenario,akp.year,]) #getLongName(key)
-	hrefs 	= []
-	Titles	= {}
-	SidebarTitles = {}
-	Descriptions= {}
-	FileLists	= {}
+	desc 						 = [plotdesc, 'of the']
+	if len(model)>0:			desc	+= [model, 'model\'s',]
+	if len(key):				desc	+= [key,]
+	if len(akp.datasource):			desc 	+= ['against',akp.datasource,'data',]	
+	if len(jobID)>0:			desc	+= ['for the job', jobID,]
+	if len(model)>0:			desc	+= [model, 'model\'s',]	
+	if len(scenario)>0:			desc	+= ['under the',scenario,'scenario', ]
+	if region not in ['', 'regionless']:	desc	+= ['in the', region, 'region',]
+	if layer not in ['', 'layerless']:	desc	+= ['at', layer,]				
 
-	for region in akp.regions:
-	    for layer in akp.layers:
-		href = 	key+'-'+region+'-'+layer
-		hrefs.append(href)
-		
-		#####
-		# Title is the main header, SidebarTitles is the side bar title.
-		Titles[href] 		= ' '.join([akp.model, akp.jobID, akp.scenario, akp.year, getLongName(region), getLongName(layer), getLongName(key)])
-		SidebarTitles[href] 	= ' '.join([akp.jobID, getLongName(region), getLongName(layer)])
+	return titleify(desc)+'.'
+	
+#	desc = ['Timeseries of the', model, 'model\'s',key, ]
+#		if len(akp.datasource):	desc += ['against',akp.datasource,'data',]
+#		desc += ['for the job', jobID, 
+#			'under the',scenario,'scenario', 
+#			'in the', region, 'region',
+#			'at',  layer+'.']
+#		Descriptions[href] =  titleify(desc)
+#			
+#		#####
+#		# Descriptions is a small sub-header
+#		desc = ['Depth profile of the', model, 'model\'s',key, ]
+#		if len(akp.datasource):	desc += ['against',akp.datasource,'data',]
+#		desc += ['for the job', jobID, 
+#			'under the',scenario,'scenario', 
+#			'in the', region, 'region.']
+#			
+#						
+#	
+#	p2p =  titleify(['Point to point comparison',
+#					'of the ', model, 'model\'s',key, 
+#					'against',akp.datasource,'data',
+#					'for the job', jobID, 
+#					'under the',scenario,'scenario', 
+#					'in the', region, 'region',
+#					'at', layer+'.'])
+#						
 							
-		#####
-		# Descriptions is a small sub-header
-		desc = ''
-		Descriptions[href] = desc
-		
-		#####
-		# A list of files to put in this group.
-		FileLists[href] = {}
-		#####
-		# Determine the list of files:
-		vfiles = []
-		
-		if akp.makeTS:	
-			files = {}
-			#for layer in akp.layers:		
-			files.update({f:1 for f in glob(akp.images_ts +'/*'+region+'*'+layer+'*.png')})
-			files.update({f:1 for f in glob(akp.images_ts +'/*'+layer+'*'+region+'*.png')})
-			vfiles.extend(sorted(files.keys()))
 
-		if akp.makeProfiles:	
-			files = {}
-			files.update({f:1 for f in glob(akp.images_pro +'/*'+region+'*.png')})
-			vfiles.extend(sorted(files.keys()))
-						
-		if akp.makeP2P:
-			files = {}
-			#for layer in akp.layers:		
-			files.update({f:1 for f in glob(akp.images_p2p +'/*'+region+'*'+layer+'*.png')})
-			files.update({f:1 for f in glob(akp.images_p2p +'/*'+layer+'*'+region+'*.png')})
-			vfiles.extend(sorted(files.keys()))
-					
-		#####
-		# Create plot headers for each file.
-		for fn in vfiles:
-			#####
-			# Copy image to image folder and return relative path.
-			relfn = addImageToHtml(fn, imagesfold, reportdir)
-		
-			#####
-			# Create custom title by removing extra bits.
-			FileLists[href][relfn] = fnToTitle(relfn) 
-			print "Adding ",relfn,"to script"
-						
-	htmlTools.AddSubSections(indexhtmlfn,
-			hrefs,
-			SectionTitle,
-			SidebarTitles=SidebarTitles,#
-			Titles=Titles, 
-			Descriptions=Descriptions,
-			FileLists=FileLists)
+			
 
 	
 #####
@@ -315,13 +290,21 @@ def addTimeSeriesSection(
 		#####
 		# Descriptions is a small sub-header
 
-		desc = ['Timeseries of the', model, 'model\'s',key, ]
-		if len(akp.datasource):	desc += ['against',akp.datasource,'data',]
-		desc += ['for the job', jobID, 
-			'under the',scenario,'scenario', 
-			'in the', region, 'region',
-			'at',  layer+'.']
-		Descriptions[href] =  titleify(desc)
+		desc = descriptionMaker(akp,
+			plotdesc 	= 'Timeseries',
+			model		= model,
+			key		= key,		
+			scenario	= scenario,
+			jobID		= jobID,				
+			region		= region,
+			layer		= layer,)
+#	desc = ['Timeseries of the', model, 'model\'s',key, ]
+#		if len(akp.datasource):	desc += ['against',akp.datasource,'data',]
+#		desc += ['for the job', jobID, 
+#			'under the',scenario,'scenario', 
+#			'in the', region, 'region',
+#			'at',  layer+'.']
+		Descriptions[href] =  desc
 			
 		#####
 		# A list of files to put in this group.
@@ -399,13 +382,23 @@ def addProfilesSection(
 							
 		#####
 		# Descriptions is a small sub-header
-		desc = ['Depth profile of the', model, 'model\'s',key, ]
-		if len(akp.datasource):	desc += ['against',akp.datasource,'data',]
-		desc += ['for the job', jobID, 
-			'under the',scenario,'scenario', 
-			'in the', region, 'region.']
+		#desc = ['Depth profile of the', model, 'model\'s',key, ]
+		#if len(akp.datasource):	desc += ['against',akp.datasource,'data',]
+		#desc += ['for the job', jobID, 
+		#	'under the',scenario,'scenario', 
+		#	'in the', region, 'region.']
 								
 		Descriptions[href] =  titleify(desc)
+		desc = descriptionMaker(akp,
+			plotdesc 	= 'Depth profile',
+			model		= model,
+			key		= key,		
+			scenario	= scenario,
+			jobID		= jobID,				
+			region		= region,
+			)
+		Descriptions[href] =  desc
+				
 		#####
 		# A list of files to put in this group.
 		FileLists[href] = {}
@@ -445,6 +438,8 @@ def addProfilesSection(
 			Descriptions=Descriptions,
 			FileLists=FileLists)	
 			
+
+
 						
 def addP2PSection(
 		akp,
@@ -483,14 +478,22 @@ def addP2PSection(
 		
 		#####
 		# Descriptions is a small sub-header
-		Descriptions[href] =  titleify(['Point to point comparison plots',
-						'of the ', model, 'model\'s',key, 
-						'against',akp.datasource,'data',
-						'for the job', jobID, 
-						'under the',scenario,'scenario', 
-						'in the', region, 'region',
-						'at', layer+'.'])
-
+		#Descriptions[href] =  titleify(['Point to point comparison plots',
+		#				'of the ', model, 'model\'s',key, 
+		#				'against',akp.datasource,'data',
+		#				'for the job', jobID, 
+		#				'under the',scenario,'scenario', 
+		#				'in the', region, 'region',
+		#				'at', layer+'.'])
+		desc = descriptionMaker(akp,
+			plotdesc 	= 'Point to point comparison',
+			model		= model,
+			key		= key,		
+			scenario	= scenario,
+			jobID		= jobID,				
+			region		= region,
+			layer		= layer,)
+		Descriptions[href] = desc	
 		#####
 		# A list of files to put in this group.
 		FileLists[href] = {}

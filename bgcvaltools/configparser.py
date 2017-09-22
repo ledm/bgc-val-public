@@ -164,6 +164,7 @@ def parseList(Config,section,option,findreplace=True):
 	list1 = list1.replace('\"', '')	
 	while list1.count('  ')>0: 
 		list1 = list1.replace('  ', ' ')
+	#if len(list1)==0: return []
 	return list1.split(' ')
 
 
@@ -328,10 +329,22 @@ class GlobalSectionParser:
 	self.__fn__ = fn
 
 	self.ActiveKeys 	= linkActiveKeys(self.__cp__)
+	
 	self.jobIDs 		= parseList(self.__cp__, defaultSection, 'jobIDs'  )
+	self.jobID		= parseOptionOrDefault(self.__cp__, defaultSection, 'jobID')
+	if len(self.jobIDs)==0:	self.jobIDs = [self.jobID,]	
+	
 	self.years  		= parseList(self.__cp__, defaultSection, 'years'   )
+	self.year		= parseOptionOrDefault(self.__cp__, defaultSection, 'year')	
+	if len(self.years)==0:	self.years = [self.year,]
+	
 	self.models 		= parseList(self.__cp__, defaultSection, 'models'  )
+	self.model		= parseOptionOrDefault(self.__cp__, defaultSection, 'model')	
+	if len(self.models)==0:	self.models = [self.model,]
+	
 	self.scenarios 		= parseList(self.__cp__, defaultSection, 'scenario')
+	self.scenario		= parseOptionOrDefault(self.__cp__, defaultSection, 'scenario')	
+	if len(self.scenarios)==0:	self.scenarios = [self.scenario,]
 
 	self.makeReport 	= parseBoolean(self.__cp__, defaultSection, 'makeReport',	default=True)	
 	self.makeComp 		= parseBoolean(self.__cp__, defaultSection, 'makeComp',		default=True)
