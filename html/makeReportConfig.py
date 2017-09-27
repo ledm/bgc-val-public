@@ -132,50 +132,25 @@ def descriptionMaker(akp,
 	"""	
 	This script takes the details and returned a description for the header.
 	"""
-	
-	
 	desc 						 = [plotdesc, 'of the']
 	if len(model)>0:			desc	+= [model, 'model\'s',]
 	if len(key):				desc	+= [key,]
 	if len(akp.datasource):			desc 	+= ['against',akp.datasource,'data',]	
 	if len(jobID)>0:			desc	+= ['for the job', jobID,]
-	if len(model)>0:			desc	+= [model, 'model\'s',]	
 	if len(scenario)>0:			desc	+= ['under the',scenario,'scenario', ]
 	if region not in ['', 'regionless']:	desc	+= ['in the', region, 'region',]
 	if layer not in ['', 'layerless']:	desc	+= ['at', layer,]				
-
 	return titleify(desc)+'.'
-	
-#	desc = ['Timeseries of the', model, 'model\'s',key, ]
-#		if len(akp.datasource):	desc += ['against',akp.datasource,'data',]
-#		desc += ['for the job', jobID, 
-#			'under the',scenario,'scenario', 
-#			'in the', region, 'region',
-#			'at',  layer+'.']
-#		Descriptions[href] =  titleify(desc)
-#			
-#		#####
-#		# Descriptions is a small sub-header
-#		desc = ['Depth profile of the', model, 'model\'s',key, ]
-#		if len(akp.datasource):	desc += ['against',akp.datasource,'data',]
-#		desc += ['for the job', jobID, 
-#			'under the',scenario,'scenario', 
-#			'in the', region, 'region.']
-#			
-#						
-#	
-#	p2p =  titleify(['Point to point comparison',
-#					'of the ', model, 'model\'s',key, 
-#					'against',akp.datasource,'data',
-#					'for the job', jobID, 
-#					'under the',scenario,'scenario', 
-#					'in the', region, 'region',
-#					'at', layer+'.'])
-#						
-							
+					
 
-			
-
+def guessLeadMetric(
+		globalkeys,
+		):
+	if len(globalkeys.models)>1: 	return 'model'
+	if len(globalkeys.jobIDs)>1: 	return 'jobID'	
+	if len(globalkeys.scenarios)>1: return 'scenario'
+	#default:
+	return 'jobID'		
 	
 #####
 # Assumes multiple jobIDs and only one model and scenario.
@@ -186,6 +161,7 @@ def addComparisonSection(
 		reportdir,
 		model='',
 		scenario='',
+		leadMetric = '',		
 		):
 
 	jobIDs = globalkeys.jobIDs
@@ -197,7 +173,7 @@ def addComparisonSection(
 	SidebarTitles 	= {}
 	Descriptions	= {}
 	FileLists	= {}
-	filecount	= 0
+	filecount	=  0
 	for key in globalkeys.ActiveKeys:
 	
 		href = 	hrefify(['Comparison', key, model, scenario])
@@ -258,18 +234,24 @@ def addTimeSeriesSection(
 		indexhtmlfn,
 		imagesfold,
 		reportdir,
-		debug=False
+		leadMetric='jobID',
+		debug=True,		
 		):
 	if not akp.makeTS: return
 	
 	key 	= akp.key
+	name	= akp.name
 	model 	= akp.model
 	scenario = akp.scenario
 	jobID 	= akp.jobID
 	
+	if leadMetric.lower() == 'jobid': leadm	= jobID
+	if leadMetric.lower() == 'model': leadm	= model
+	if leadMetric.lower() == 'scenario': leadm	= scenario
+			
 	#####
 	# href is the name used for the html 
-	SectionTitle	= titleify([jobID,key ,'time series',]) 		
+	SectionTitle	= titleify([leadm,name ,'time series',]) 		
 	hrefs 		= []
 	Titles		= {}
 	SidebarTitles 	= {}
@@ -279,12 +261,13 @@ def addTimeSeriesSection(
 	
 	for region in akp.regions:
 	    for layer in akp.layers:
-		href = 	hrefify([key, region,layer, 'ts',model,scenario,jobID])
+		if debug: print "addTimeSeriesSection: ",model, scenario,jobID, name,region,layer,
+		href = 	hrefify([name, region,layer, 'ts',model,scenario,jobID])
 		hrefs.append(href)
 		
 		#####
 		# Title is the main header, SidebarTitles is the side bar title.
-		Titles[href] 		= titleify(['Time series of ', key,'in',jobID])
+		Titles[href] 		= titleify(['Time series of ', name,'in',jobID])
 		SidebarTitles[href] 	= titleify([region, layer])
 							
 		#####
@@ -293,7 +276,7 @@ def addTimeSeriesSection(
 		desc = descriptionMaker(akp,
 			plotdesc 	= 'Timeseries',
 			model		= model,
-			key		= key,		
+			key		= name,		
 			scenario	= scenario,
 			jobID		= jobID,				
 			region		= region,
@@ -314,12 +297,12 @@ def addTimeSeriesSection(
 		# Determine the list of files:
 		vfiles = []
 		files = {}
-		filecheck = akp.images_ts +'/' +wildcardify([model, scenario,jobID, key,region,layer,])+'*.png'		
+		filecheck = akp.images_ts +'/' +wildcardify([model, scenario,jobID, name,region,layer,])+'*.png'		
 		#files.update({f:1 for f in glob(akp.images_ts +'/*'+region+'*'+layer+'*.png')})
 		#files.update({f:1 for f in glob(akp.images_ts +'/*'+layer+'*'+region+'*.png')})
 		files = {f:1 for f in glob(filecheck)}
 		vfiles.extend(sorted(files.keys()))
-					
+		if debug: print "addTimeSeriesSection: checking:",filecheck			
 		#####
 		# Create plot headers for each file.
 		ignoreList = [model,scenario,jobID,]		
@@ -387,8 +370,7 @@ def addProfilesSection(
 		#desc += ['for the job', jobID, 
 		#	'under the',scenario,'scenario', 
 		#	'in the', region, 'region.']
-								
-		Descriptions[href] =  titleify(desc)
+		#Descriptions[href] =  titleify(desc)
 		desc = descriptionMaker(akp,
 			plotdesc 	= 'Depth profile',
 			model		= model,
@@ -501,15 +483,17 @@ def addP2PSection(
 		#####
 		# Determine the list of files:
 		vfiles = []
-	
 		files = {}
-		filecheck = akp.images_p2p +'/' +wildcardify([model, scenario,jobID, key,region,layer,year,])+'*.png'				
+		filecheck = akp.images_p2p +'/' +wildcardify([model, scenario,jobID, key,layer, year, region,])+'*.png'				
 	#	filecheck = akp.images_p2p +'/' +wildcardify([model, key,layer,region, year])+'*.png'
 		files = {f:1 for f in glob(filecheck)}		
 		#files.update({f:1 for f in glob(akp.images_p2p +'/*'+region+'*'+layer+'*.png')})
 		#files.update({f:1 for f in glob(akp.images_p2p +'/*'+layer+'*'+region+'*.png')})
 		vfiles.extend(sorted(files.keys()))
 		filecount+=len(vfiles)
+		#if filecount == 0:
+		#	print filecheck
+		#	assert 0
 		#####
 		# Create plot headers for each file.
 		ignoreList = [model,scenario,jobID,]
@@ -536,7 +520,8 @@ def addP2PSection(
 
 def htmlMakerFromConfig(
 		configfn,
-		doZip = False
+		doZip = False,
+		browswer = 'google-chrome',
 	):
 
 	globalkeys = GlobalSectionParser(configfn)
@@ -578,7 +563,8 @@ def htmlMakerFromConfig(
 				indexhtmlfn,
 				descriptionText,
 				)
-				
+	leadMetric = guessLeadMetric(	globalkeys)
+					
 	if globalkeys.makeComp:
 		addComparisonSection(
 			globalkeys,
@@ -587,8 +573,10 @@ def htmlMakerFromConfig(
 			reportdir,
 			model=model,
 			scenario=scenario,
+			leadMetric = leadMetric,			
 			)
-				
+
+		
 	#####
 	# This looping forces the report to match the order.
 	for key,model,scenario in product(globalkeys.ActiveKeys, globalkeys.models,globalkeys.scenarios):
@@ -603,6 +591,7 @@ def htmlMakerFromConfig(
 				indexhtmlfn,
 				imagesfold,
 				reportdir,
+				leadMetric = leadMetric,
 				)
 				
 			addProfilesSection(
@@ -624,7 +613,7 @@ def htmlMakerFromConfig(
 
         tar = "tar cfvz  report-"+hrefify(globalkeys.jobIDs)+".tar.gz "+reportdir
 
-	print "-------------\nSuccess\ntest with:\nfirefox",indexhtmlfn
+	print "-------------\nSuccess\ntest with:\n",browswer,indexhtmlfn
 	print "To zip it up:\n",tar
 	if doZip:
 		import subprocess

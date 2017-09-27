@@ -331,20 +331,21 @@ class GlobalSectionParser:
 	self.ActiveKeys 	= linkActiveKeys(self.__cp__)
 	
 	self.jobIDs 		= parseList(self.__cp__, defaultSection, 'jobIDs'  )
-	self.jobID		= parseOptionOrDefault(self.__cp__, defaultSection, 'jobID')
-	if len(self.jobIDs)==0:	self.jobIDs = [self.jobID,]	
+	jobID			= parseOptionOrDefault(self.__cp__, defaultSection, 'jobID')
+	if len(self.jobIDs)==0:	self.jobIDs = [jobID,]	
 	
 	self.years  		= parseList(self.__cp__, defaultSection, 'years'   )
-	self.year		= parseOptionOrDefault(self.__cp__, defaultSection, 'year')	
-	if len(self.years)==0:	self.years = [self.year,]
+	year			= parseOptionOrDefault(self.__cp__, defaultSection, 'year')	
+	if len(self.years)==0:	self.years = [year,]
 	
 	self.models 		= parseList(self.__cp__, defaultSection, 'models'  )
-	self.model		= parseOptionOrDefault(self.__cp__, defaultSection, 'model')	
-	if len(self.models)==0:	self.models = [self.model,]
+	model			= parseOptionOrDefault(self.__cp__, defaultSection, 'model')	
+	if len(self.models)==0:	self.models = [model,]
 	
 	self.scenarios 		= parseList(self.__cp__, defaultSection, 'scenario')
-	self.scenario		= parseOptionOrDefault(self.__cp__, defaultSection, 'scenario')	
-	if len(self.scenarios)==0:	self.scenarios = [self.scenario,]
+	scenario		= parseOptionOrDefault(self.__cp__, defaultSection, 'scenario')	
+	if len(self.scenarios)==0:	self.scenarios = [scenario,]
+
 
 	self.makeReport 	= parseBoolean(self.__cp__, defaultSection, 'makeReport',	default=True)	
 	self.makeComp 		= parseBoolean(self.__cp__, defaultSection, 'makeComp',		default=True)
@@ -358,7 +359,7 @@ class GlobalSectionParser:
 	
 
 	self.modelgrid		= parseOptionOrDefault(self.__cp__, defaultSection, 'modelgrid')	
-	self.gridFile 		= self.parseFilepath('gridFile',  	expecting1=True, optional=False)
+	self.gridFile 		= self.parseFilepath('gridFile',  	expecting1=True, optional=True)
 					
 	self.AnalysisKeyParser = {}	
 	for (m,j,y,s,k) in product(self.models,self.jobIDs, self.years, self.scenarios,self.ActiveKeys):
@@ -401,6 +402,12 @@ class GlobalSectionParser:
 	filepath = findReplaceFlag(filepath, 	'jobIDs', 	'_'.join(self.jobIDs))	
 	filepath = findReplaceFlag(filepath, 	'years', 	'_'.join(self.years))	
 	filepath = findReplaceFlag(filepath, 	'scenarios', 	'_'.join(self.scenarios))
+
+	filepath = findReplaceFlag(filepath, 	'model',  	self.models[0])		
+	filepath = findReplaceFlag(filepath, 	'jobID', 	self.jobIDs[0])		
+	filepath = findReplaceFlag(filepath, 	'year', 	self.years[0])		
+	filepath = findReplaceFlag(filepath, 	'scenario', 	self.scenarios[0])			
+		
 	try:	filepath = findReplaceFlag(filepath, 	'basedir_model',	 self.basedir_model)
 	except: pass
 	try:	filepath = findReplaceFlag(filepath, 	'basedir_obs',	 	self.basedir_obs)
@@ -522,7 +529,7 @@ class AnalysisKeyParser:
 	
 	# Load raw string from config1
 	filepath = parseOptionOrDefault(self.__cp__, self.section, option,findreplace=False)
-
+	print '1',option, filepath
 	#####
 	# Replace all the $FLAGS in the path.
 	filepath = findReplaceFlag(filepath, 	'model', 	self.model)	
@@ -535,6 +542,8 @@ class AnalysisKeyParser:
 	except:	pass
 	try:	filepath = findReplaceFlag(filepath, 	'basedir_obs', self.basedir_obs)					
 	except:	pass	
+	print '2',option, filepath
+		
 	if filepath.find('$')>-1:
 		raise AssertionError("parseFilepath:\t"+str(option)+"\tUnable to replace all the $PATH KEYS. "+\
 		"\n\t\tAvailable options are: $MODEL, $JOBID, $YEAR, $SCENARIO, $KEY, $NAME (in that order)."+\

@@ -220,28 +220,31 @@ Note that:
 ### Global Section
 
 The `[Global]` section of the `runconfig.ini` file contains the global flags and the default settings for each field.
-
 For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses, so it can safely
-be set in the `[Global]` section and ommited elsewhere. 
+be set as a default value the `[Global]` section and ommited elsewhere. 
+
+The Global options `jobID`, `year`, `model` and  `scenario` can be singular values.
+For instance, if the evaluation only needs to run over one model, year, jobID, or scenario.
+However, any of these options can be set to multiple fields in by instead using the options: `jobIDs`, `years`, `models` and  `scenarios`.
+For instance, if the evaluation needs to compare multiple models, years, jobs or scenarios.
+
+In addition, the values defined in the `[Global]` for `jobID`, `year`, `model` and  `scenario`
+can be used to define specific paths at runtime. 
+For instance, paths using `$JOBID`, `$YEAR` or `$MODEL`.
+Similarly, `$NAME` can be used as a stand in for the name option for of each analysis. 
 
 Some values can not be set in the `[Global]`, for instance the `name`, and `model_vars`
 and `model_convert` fields are by definition unique for each analysis.
-
-The values used in `[Global]` for `jobIDs`, `years`, `models` and  `scenarios` can be put into paths using `$JOBID`, `$YEAR` or `$MODEL`.
-Similarly, `$NAME` can be used as a stand in for the name option for of each analysis. 
-
-In addition, multiple analyses can be compared by using a list of jobIDs. 
-
 
 
 The following is a typical `[Global]` section:
 ```ini
 [Global]
+jobID             : u-am927              ; Unique run/simulation/job identifier
+years             : 1980 1990            ; Year to look at for p2p.
+model             : MEDUSA               ; model name
+scenario	  : historical		 ; scenario
 
-jobIDs            : u-am927              ; Unique run/simulation/job identifier
-years             : 2055                 ; Year to look at for p2p.
-models            : MEDUSA               ; model name
-scenarios	  : historical		 ; scenario
 
 ; -------------------------------
 ; Boolean flags

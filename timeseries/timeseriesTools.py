@@ -324,8 +324,8 @@ class DataLoader:
   	arr_z 	= []  	
 
 
-	latnames = ['lat','latitude','latbnd','nav_lat','y',u'lat',]
-	lonnames = ['lon','longitude','lonbnd','nav_lon','x',u'lon',]
+	latnames = ['lat','latitude','latbnd','nav_lat','y',u'lat','j',]
+	lonnames = ['lon','longitude','lonbnd','nav_lon','x',u'lon','i',]
 	
 
 	####
@@ -373,8 +373,7 @@ class DataLoader:
   			arr_lon.append(lo)
   			  			
   	  else:
-  		print "Unknown dimensions order", dims
-  		assert False	
+  		raise AssertionError("timeseriestools.py:\tcreateOneDDataArray:\tUnknown dimensions order: "+str(dims))
   		  			
   	elif dat.ndim == 1:
    	  if dims[0] == 'index':

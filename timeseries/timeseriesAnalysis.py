@@ -393,9 +393,9 @@ class timeseriesAnalysis:
 	area  = np.ma.masked_where(tmask[0]==0,area )
 	pvol = np.ma.masked_where(tmask==0,pvol)	
 	
-	print "timeseriesAnalysis:\t loadModelWeightsDict\tWARNING:\t this is a hack added at the last minute for the nemo-medusa ukesm run and will not work elsewhere."
-	lats = nc.variables['nav_lat'][:]
-	lons = nc.variables['nav_lon'][:]
+	#print "timeseriesAnalysis:\t loadModelWeightsDict\tWARNING:\t this is a hack added at the last minute for the nemo-medusa ukesm run and will not work elsewhere."
+	lats = nc.variables[self.modelcoords['lat']][:]
+	lons = nc.variables[self.modelcoords['lon']][:]
 	nc.close()
 
 	self.weightsDict={}	
