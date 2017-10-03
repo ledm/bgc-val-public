@@ -46,6 +46,17 @@ from bgcvaltools.configparser import GlobalSectionParser
 
 colourList = ['green','blue','red','orange','purple','black',]
 
+
+def guessLeadMetric(
+		globalkeys,
+		):
+	if len(globalkeys.models)>1: 	return 'model'
+	if len(globalkeys.jobIDs)>1: 	return 'jobID'	
+	if len(globalkeys.scenarios)>1: return 'scenario'
+	#default:
+	return 'jobID'		
+	
+	
 def comparisonAnalysis(configfile):
 
 	#####
@@ -58,13 +69,16 @@ def comparisonAnalysis(configfile):
 	models 		= globalkeys.models
 	scenarios 	= globalkeys.scenarios
 	jobIDs	 	= globalkeys.jobIDs
-	colours		= {j:c for j,c in zip(jobIDs,colourList)}
+
 	
 	#####
 	times 	= {}
 	data 	= {}
 	regions = {}
 	layers 	= {}	
+
+	leadmetric = guessLeadMetric(globalkeys)
+
 
 	#####
 	# Load model data	
@@ -82,8 +96,12 @@ def comparisonAnalysis(configfile):
 		print "comparisonAnalysis:\topening: ",shelvefn
 		sh = shopen(shelvefn)
 		print sh.keys()
-		modeldataD = sh['modeldata']
-		sh.close()
+		try:
+			modeldataD = sh['modeldata']
+			sh.close()			
+		except:	
+			sh.close()
+			continue
 		data[(key,model,scenario, jobID)] = modeldataD
 		print "Loaded", (key,model,scenario, jobID)		
 
@@ -100,7 +118,8 @@ def comparisonAnalysis(configfile):
 	
 	#####
 	# Make the plots, comparing differnet jobIDs
-	if len(jobIDs)>1:
+	if leadmetric=='jobID' and len(jobIDs)>1:
+		colours		= {j:c for j,c in zip(jobIDs,colourList)}			
    	    	for (key, model, scenario,region,layer,metric) in product(ActiveKeys, models, scenarios,regions, layers,metrics):
 			timesD = {}
 			arrD   = {}
@@ -132,5 +151,74 @@ def comparisonAnalysis(configfile):
 				colours		= colours,
 			)
 			
+	#####
+	# Make the plots, comparing differnet models
+	if leadmetric=='model' and len(models)>1:	
+		colours		= {j:c for j,c in zip(models,colourList)}				
+   	    	for (key, jobID, scenario,region,layer,metric) in product(ActiveKeys, jobIDs, scenarios,regions, layers,metrics):
+			timesD = {}
+			arrD   = {}
+	
+			units = globalkeys.AnalysisKeyParser[(models[0],jobID,globalkeys.years[0],scenario,key)].units
+		
+			for model in models:
+			
+				try:	mdata = data[(key,model,scenario, jobID)][(region,layer,metric)]
+				except:	continue
+
+				timesD[model] 	= sorted(mdata.keys())
+				arrD[model]	= [mdata[t] for t in timesD[model]]
+		
+			if not len(arrD.keys()):continue	
+		
+			title = ' '.join([getLongName(i) for i in [scenario,jobID, region, layer, metric, key]])	
+			filename =  bvp.folder(globalkeys.images_comp)+'_'.join([ scenario, jobID, region, layer, metric, key])+'.png'
+		
+			tsp.multitimeseries(
+				timesD, 		# model times (in floats)
+				arrD,			# model time series
+				data 		= -999,		# in situ data distribution
+				title 		= title,
+				filename	= filename,
+				units 		= units,
+				plotStyle 	= 'Together',
+				lineStyle	= 'DataOnly',
+				colours		= colours,
+			)			
+
+	#####
+	# Make the plots, comparing differnet scenarios
+	if leadmetric=='scenario' and len(scenarios)>1:	
+		colours		= {j:c for j,c in zip(scenarios,colourList)}					
+   	    	for (key, model, jobID,region,layer,metric) in product(ActiveKeys, models, jobIDs,regions, layers,metrics):
+			timesD = {}
+			arrD   = {}
+	
+			units = globalkeys.AnalysisKeyParser[(model,jobID,globalkeys.years[0],scenarios[0],key)].units
+		
+			for scenario in scenarios:
+			
+				try:	mdata = data[(key,model,scenario, jobID)][(region,layer,metric)]
+				except:	continue
+
+				timesD[scenario] 	= sorted(mdata.keys())
+				arrD[scenario]	= [mdata[t] for t in timesD[scenario]]
+		
+			if not len(arrD.keys()):continue	
+		
+			title = ' '.join([getLongName(i) for i in [model, jobID, region, layer, metric, key]])	
+			filename =  bvp.folder(globalkeys.images_comp)+'_'.join([model, jobID, region, layer, metric, key])+'.png'
+		
+			tsp.multitimeseries(
+				timesD, 		# model times (in floats)
+				arrD,			# model time series
+				data 		= -999,		# in situ data distribution
+				title 		= title,
+				filename	= filename,
+				units 		= units,
+				plotStyle 	= 'Together',
+				lineStyle	= 'DataOnly',
+				colours		= colours,
+			)
 			
 			

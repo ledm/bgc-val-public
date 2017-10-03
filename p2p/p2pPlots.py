@@ -259,8 +259,8 @@ class makePlots:
 	#lat and lon
 	self.xy = np.ma.array(self.xnc.variables[self.modelcoords['lat']][:])
 	self.yy = np.ma.array(self.ync.variables[self.datacoords['lat']][:])
-	self.xx = np.ma.array(self.xnc.variables[self.modelcoords['lon']][:])
-	self.yx = np.ma.array(self.ync.variables[self.datacoords['lon']][:])
+	self.xx = bvp.makeLonSafeArr(np.ma.array(self.xnc.variables[self.modelcoords['lon']][:]))
+	self.yx = bvp.makeLonSafeArr(np.ma.array(self.ync.variables[self.datacoords['lon']][:]))
 	
 	for newSlice in self.newSlices:	
 

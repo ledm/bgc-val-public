@@ -39,7 +39,7 @@ import shutil
 from bgcvaltools import bgcvalpython as bvp
 import timeseriesTools as tst 
 import timeseriesPlots as tsp 
-from bgcvaltools.makeEORCAmasks import makeMaskNC
+from bgcvaltools.makeMaskNC import makeMaskNC
 from bgcvaltools.dataset import dataset
 from longnames.longnames import getLongName
 from functions.stdfunctions import extractData
@@ -66,6 +66,7 @@ class profileAnalysis:
 		gridFile	= '',
 		clean		= True,
 		debug		= True,
+		strictFileCheck = False,
 		):
 		
 	#####
@@ -95,6 +96,14 @@ class profileAnalysis:
 	self.debug		= debug
 	self.clean		= clean
 
+	####
+	# 	Do some tests on whether the files are present/absent	
+	if len(modelFiles) == 0:
+		print "analysis-profiles.py:\tWARNING:\tmodel files are not provided:",modelFiles
+		return
+		if strictFileCheck: assert 0
+		
+		
   	self.gridmaskshelve 	= bvp.folder(self.workingDir)+'_'.join([self.grid,])+'_masks.shelve'		
   	self.shelvefn 		= bvp.folder(self.workingDir)+'_'.join(['profile',self.jobID,self.dataType,])+'.shelve'
 	self.shelvefn_insitu	= bvp.folder(self.workingDir)+'_'.join(['profile',self.jobID,self.dataType,])+'_insitu.shelve'
@@ -227,8 +236,9 @@ class profileAnalysis:
 		print "profileAnalysis:\tloadModel:\tloading new file:",self.dataType,fn,
 		nc = dataset(fn,'r')
 		ts = tst.getTimes(nc,self.modelcoords)
-		meantime = np.mean(ts)
-		print "\ttime:",meantime
+		dates = tst.getDates(nc,self.modelcoords) 		
+		meantimes = np.mean(ts)
+		print "\ttime:",meantimes
 		
 		#DL = tst.DataLoader(fn,nc,self.modelcoords,self.modeldetails, regions = self.regions, layers = self.layers,)
 		nc = dataset(fn,'r')
@@ -236,30 +246,51 @@ class profileAnalysis:
 		
 		for r in self.regions:
 		  for m in self.metrics:
-			if m =='mean':
+		    	if m =='mean':		  
+		  	    if len(ts) == 1:
+				#####
+				# One time step per file.
+				
 				data = bvp.mameanaxis(np.ma.masked_where((self.modelMasks[r] != 1) + dataAll.mask,dataAll), axis=(1,2))
 				
-				if self.debug:print "profileAnalysis:\tloadModel.",r,m,self.dataType,'\tyear:',int(meantime), 'mean:',data.mean()
+				if self.debug: print "profileAnalysis:\tloadModel.",r,m,self.dataType,'\tyear:',int(meantimes), 'mean:',data.mean(),data.shape
 				#if self.debug:print "profileAnalysis:\tloadModel.",self.dataType, data.shape, data.min(),data.max(), dataAll.shape ,self.modelMasks[r].shape, dataAll.min(),dataAll.max()
-				
 				alllayers = []
 				for l,d in enumerate(data):
 					#print "Saving model data profile",r,m,l,d
-					modeldataD[(r,l,m)][meantime] = d
+					modeldataD[(r,l,m)][meantimes] = d
 					alllayers.append(l)
 					
 				#####
 				# Add a masked value in layers where there is no data.
-				
 				for l in self.mlayers:
 					if l in alllayers:continue
-					modeldataD[(r,l,m)][meantime] = np.ma.masked
+					modeldataD[(r,l,m)][meantimes] = np.ma.masked
 					
+		  	    else:
+				#####
+				# multiple time steps per file.
+				for t, meantime in enumerate(ts):
+					dataAllt  = dataAll[t]
+					data = bvp.mameanaxis(np.ma.masked_where((self.modelMasks[r] != 1) + dataAllt.mask,dataAllt), axis=(1,2))
+				
+					if self.debug: print "profileAnalysis:\tloadModel.",r,m,self.dataType,'\tyear:',int(meantime), 'mean:',data.mean(),data.shape
+					alllayers = []
+					for l,d in enumerate(data):
+						#print "Saving model data profile",r,m,l,d,t,meantime
+						modeldataD[(r,l,m)][meantime] = d
+						alllayers.append(l)
+					
+					#####
+					# Add a masked value in layers where there is no data.
+					for l in self.mlayers:
+						if l in alllayers:continue
+						modeldataD[(r,l,m)][meantime] = np.ma.masked					
 			else:
 				print 'ERROR:',m, "not implemented in profile"
 				assert 0
 								
-		readFiles.append(fn)		
+		readFiles.append(fn)
 		openedFiles+=1			
 
 		nc.close()
@@ -286,10 +317,11 @@ class profileAnalysis:
 	self.maskfn = bvp.folder(self.workingDir+'/masks')+self.grid+'_masks.nc'
 	
 	if not os.path.exists(self.maskfn):
-		print "Making mask file",self.maskfn
+		print "Making mask file",self.maskfn, 'from',self.gridFile
 
-		makeMaskNC(self.maskfn, self.regions, self.grid,gridfn= self.gridFile)
-	
+		makeMaskNC(self.maskfn, self.regions, self.grid,self.modelcoords,gridfn= self.gridFile)
+	else:
+		print "Mask file exists:",self.maskfn
 	self.modelMasks= {}
 	
 	ncmasks = dataset(self.maskfn,'r')
@@ -303,7 +335,7 @@ class profileAnalysis:
 			newmask = bvp.folder(self.workingDir+'/masks')+self.grid+'_masks_'+r+'.nc'
 
 			if not os.path.exists(newmask):
-				makeMaskNC(newmask, [r,], self.grid,gridfn= self.gridFile)
+				makeMaskNC(newmask, [r,], self.grid,self.modelcoords,gridfn= self.gridFile)
 			nc = dataset(newmask,'r')
 			self.modelMasks[r] = nc.variables[r][:]
 			nc.close()			

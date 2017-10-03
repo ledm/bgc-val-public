@@ -162,7 +162,7 @@ def testsuite_p2p(
 		
 		#####
 		# Testing av for presence of model keyword
-	    	print "testsuite_p2p.py: \tINFO:\t",model,jobID, year, name#, av[name][model]
+	    	print "testsuite_p2p.py: \tINFO:\t",model,jobID, year, name #, av[name][model]
 			
 
 		#####
@@ -211,8 +211,6 @@ def testsuite_p2p(
 								clean		= clean,
 						)
 
-  			
-  										
 			#####
 			# makePlots:
 			# Make some plots of the point to point datasets.

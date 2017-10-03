@@ -40,6 +40,8 @@ from matplotlib import pyplot
 from mpl_toolkits.basemap import Basemap
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.colors import LogNorm
+from netCDF4 import num2date
+from bgcvaltools.dataset import dataset
 try:
 	import cartopy.crs as ccrs
 	import cartopy.io.shapereader as shapereader
@@ -181,6 +183,28 @@ def listFiles(a, want=100, listType = 'even' ,first = 30,last = 30):
 	# remove duplicates and sort
 	newlist =sorted({n:True for n in newlist}.keys())
 	return newlist
+	
+
+def getTimes(nc, coords):
+	"""
+	Loads the times from the netcdf.
+	"""
+	if type(nc) == type('filename'):
+		nc = dataset(nc,'r')
+	dtimes = num2date(nc.variables[coords['t']][:], nc.variables[coords['t']].units,calendar=coords['cal'])[:]
+	ts = np.array([float(dt.year) + dt.dayofyr/365. for dt in dtimes])
+	return ts
+
+def getDates(nc, coords):
+	"""
+	Loads the times from the netcdf.
+	"""
+	if type(nc) == type('filename'):
+		nc = dataset(nc,'r')
+	dtimes = num2date(nc.variables[coords['t']][:], nc.variables[coords['t']].units,calendar=coords['cal'])[:]
+	return dtimes
+	
+	
 	
 
 def makeThisSafe(arr,debug = True, key='',noSqueeze=False):
@@ -1605,6 +1629,7 @@ def getOrcaIndexCC(lat,lon, latcc, loncc, debug=True,):	#slowMethod=False,llrang
 	"""
 	km = 10.E20
 	la_ind, lo_ind = -1,-1
+	loncc = makeLonSafeArr(loncc)
 	lat = makeLatSafe(lat)
 	lon = makeLonSafe(lon)	
 	
@@ -1683,16 +1708,34 @@ def getclosestlat(x,lats,debug=True):
 	return best
 	
 	
+def getclosesttime(t,times,debug=True):
+	"""	
+	Locate the closest time point compared to an array. 
+	Returns an index
+	"""
+	d = 1e20
+	best = -1
+	if times.ndim >1: 
+		print "getclosesttime:\tFATAL:\tThis code only works for 1D latitute arrays"
+		assert False
 	
+	for i,xx in enumerate(times.squeeze()):
+		d2 = abs(t-xx)
+		if d2<d:
+		   d=d2
+		   best = i
+		  # print 'getclosesttime:',i,t,xx,times.shape, 'best:',best
+	if debug: print 'getclosesttime: target', t,'index:', best, 'distance:',d,', closest model:', times[best]
+	return best	
 	
 def makeLonSafe(lon):
 	"""
 	Makes sure that the value is between -180 and 180.
 	"""
 	while True:
-		if -180<lon<=180:return lon
-		if lon<=-180:lon+=360.
-		if lon> 180:lon-=360.		
+		if -180.<lon<=180.:	return lon
+		if lon<=-180.:		lon+=360.
+		if lon> 180.:		lon-=360.		
 	
 def makeLatSafe(lat):
 	"""

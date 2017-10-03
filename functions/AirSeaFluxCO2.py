@@ -74,6 +74,38 @@ def TotalAirSeaFluxCO2(nc,keys,**kwargs):
 		raise AssertionError("TotalAirSeaFluxCO2:\t"+str(keys[0])+" from netcdf "+str(nc.filename) +" has an unexpected number of dimensions: "+str(arr.ndim))
 	return arr.sum()
 
+def TotalAirSeaFluxCO2kgm2s(nc,keys,**kwargs):
+	"""
+	This function calculated the total Air Sea FLux for the CMIP5 models. in kg m-2 s-1
+	"""
+	factor =  365.25 *24.*60.*60. / 1.E12
+	
+	try:	arr = nc.variables[keys[0]][:].squeeze() * factor	# mmolC/m2/d
+	except: 
+		raise AssertionError("TotalAirSeaFluxCO2kgm2s:\tNot able to load "+str(keys[0])+" from netcdf "+str(nc.filename))		
+
+
+	if 'gridfile' not in kwargs.keys():
+		raise AssertionError("TotalAirSeaFluxCO2kgm2s:\t Needs an `gridfile` kwarg to run calculation.")	
+	gridfn = kwargs['gridfile']
+	
+	try:	area = model_area[gridfn]
+	except:
+		loadDataArea(gridfn)
+		area = model_area[gridfn]
+		
+	
+	if arr.ndim ==2: 
+		arr = arr*area
+		return arr.sum()
+	elif arr.ndim ==3: 
+		out =[]
+		for t in np.arange(arr.shape[0]):
+			out.append((arr[t]*area).sum())
+		return out
+	raise AssertionError("TotalAirSeaFluxCO2kgm2s:\t"+str(keys[0])+" from netcdf "+str(nc.filename) +" has an unexpected number of dimensions: "+str(arr.ndim))
+
+	
 #def takaTotal(nc,keys):
 #	arr = nc.variables['TFLUXSW06'][:].squeeze()	# 10^12 g Carbon year^-1
 #	arr = -1.E12* arr /1.E15#/ 365.				#g Carbon/day

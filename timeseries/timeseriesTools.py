@@ -55,6 +55,15 @@ def getTimes(nc, coords):
 	ts = np.array([float(dt.year) + dt.dayofyr/365. for dt in dtimes])
 	return ts
 
+def getDates(nc, coords):
+	"""
+	Loads the times from the netcdf.
+	"""
+	if type(nc) == type('filename'):
+		nc = dataset(nc,'r')
+	dtimes = num2date(nc.variables[coords['t']][:], nc.variables[coords['t']].units,calendar=coords['cal'])[:]
+	return dtimes
+	
 
 def loadData(nc,details):
 	"""
@@ -396,11 +405,19 @@ class DataLoader:
   		arr_lon = [0.,]
   	    		  	
   	  else:
-  		print "Unknown dimensions order", dims
-  		assert False	  	
+  	  	
+  	  	for t,d  in enumerate(dat):
+  			arr.append(d)
+  			arr_t.append(t)
+  			arr_z.append(0)
+  			arr_lat.append(0)
+  			arr_lon.append(0)
+
+  		#print "Unknown dimensions order: "+str(dims)
+  		#assert 0
   	else:
-  		print "Unknown dimensions order", dims
-  		assert False
+  		print "Unknown dimensions order: "+str(dims)
+  		assert 0
   			
 
   	arr = np.ma.masked_invalid(np.ma.array(arr))

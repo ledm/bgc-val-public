@@ -290,29 +290,7 @@ def parseBoolean(Config, section, option, default= True):
 	try:	return Config.getboolean(section, option)
 	except:	return default
 
-def parseDetails(Config,section,m_or_d='model'):
-	"""
-	This tool creates a coordinate dictionary describing the evaluation details. 
-	"""
-	if m_or_d.lower() not in ['model','data']:
-		raise AssertionError("parseDetails:\tExpecting model or data, but found: "+str(m_or_d))
 
-	Config = checkConfig(Config)
-	details = {}
-	details['name'] 	= Config.get(section,'name')
-	details['units'] 	= Config.get(section,'units')
-	details['vars'] 	= parseList(Config,section,m_or_d+'_vars')
-	details['convert'] 	= parseFunction(Config,section,m_or_d+'_convert')
-	
-	#####
-	# Looking for kwargs to pass to convert:
-	for option in Config.options(section):
-		searchFor =  m_or_d+'_convert_'
-		findstr = option.find(searchFor)
-		if findstr==-1:	continue
-		kwargkey = option[len(searchFor):]
-		details[kwargkey] = Config.get(section,option)
-	return details
 
 
 class GlobalSectionParser:
@@ -487,11 +465,6 @@ class AnalysisKeyParser:
 	self.makeP2P 		= parseOptionOrDefault(self.__cp__, self.section, 'makeP2P',		parsetype='bool')	
 	self.makeTS	 	= parseOptionOrDefault(self.__cp__, self.section, 'makeTS',		parsetype='bool')
 	
-
-	self.modelcoords	 = parseCoordinates(self.__cp__, self.section, 'model')
-	self.datacoords 	 = parseCoordinates(self.__cp__, self.section, 'data' )
-	self.modeldetails 	= parseDetails(self.__cp__, self.section, 'model')
-	self.datadetails  	= parseDetails(self.__cp__, self.section, 'data' )
 	
 	self.datasource		= parseOptionOrDefault(self.__cp__, self.section, 'datasource')
 	self.modelgrid		= parseOptionOrDefault(self.__cp__, self.section, 'modelgrid')	
@@ -501,6 +474,11 @@ class AnalysisKeyParser:
 
 	self.basedir_model	= self.parseFilepath('basedir_model', 	expecting1=True, optional=True,)			
 	self.basedir_obs	= self.parseFilepath('basedir_obs', 	expecting1=True, optional=True,)				
+
+	self.modelcoords	= parseCoordinates(self.__cp__, self.section, 'model')
+	self.datacoords 	= parseCoordinates(self.__cp__, self.section, 'data' )
+	self.modeldetails 	= self.parseDetails( 'model')
+	self.datadetails  	= self.parseDetails( 'data' )
 	
 	self.modelFiles_ts 	= self.parseFilepath('modelFiles',	expecting1=False,optional=True )  #optional=False)
 	self.modelFile_p2p 	= self.parseFilepath('modelFile_p2p',	expecting1=True, optional=True ) # optional=True)	
@@ -519,6 +497,23 @@ class AnalysisKeyParser:
 			
 	if debug: self.__print__()
 
+  def replaceString(self, string):
+	print 'replaceString\tin:', string,
+	#####
+	# Replace all the $FLAGS in the path.
+	string = findReplaceFlag(string, 	'model', 	self.model)	
+	string = findReplaceFlag(string, 	'jobID', 	self.jobID)	
+	string = findReplaceFlag(string, 	'year', 	self.year)	
+	string = findReplaceFlag(string, 	'scenario', 	self.scenario)	
+	string = findReplaceFlag(string, 	'key', 		self.key)			
+	string = findReplaceFlag(string, 	'name',		self.name)				
+	try:	string = findReplaceFlag(string, 	'basedir_model',self.basedir_model)					
+	except:	pass
+	try:	string = findReplaceFlag(string, 	'basedir_obs', self.basedir_obs)				
+	except:	pass	
+	print '\tout:', string
+	return string
+  	
   def parseFilepath(self, option,expecting1=True,optional=True,outputDir=False):
 	"""
 	This is for parsing a file path, a list of filepaths (separated by spaces), or a wildcard filepath.
@@ -529,20 +524,7 @@ class AnalysisKeyParser:
 	
 	# Load raw string from config1
 	filepath = parseOptionOrDefault(self.__cp__, self.section, option,findreplace=False)
-	print '1',option, filepath
-	#####
-	# Replace all the $FLAGS in the path.
-	filepath = findReplaceFlag(filepath, 	'model', 	self.model)	
-	filepath = findReplaceFlag(filepath, 	'jobID', 	self.jobID)	
-	filepath = findReplaceFlag(filepath, 	'year', 	self.year)	
-	filepath = findReplaceFlag(filepath, 	'scenario', 	self.scenario)	
-	filepath = findReplaceFlag(filepath, 	'key', 		self.key)			
-	filepath = findReplaceFlag(filepath, 	'name',		self.name)				
-	try:	filepath = findReplaceFlag(filepath, 	'basedir_model',self.basedir_model)					
-	except:	pass
-	try:	filepath = findReplaceFlag(filepath, 	'basedir_obs', self.basedir_obs)					
-	except:	pass	
-	print '2',option, filepath
+	filepath = self.replaceString(filepath)
 		
 	if filepath.find('$')>-1:
 		raise AssertionError("parseFilepath:\t"+str(option)+"\tUnable to replace all the $PATH KEYS. "+\
@@ -576,7 +558,31 @@ class AnalysisKeyParser:
 		return ''
 	
 	return outputFiles 	
-  	
+
+  def parseDetails(self, m_or_d='model'):
+	"""
+	This tool creates a coordinate dictionary describing the evaluation details. 
+	"""
+	if m_or_d.lower() not in ['model','data']:
+		raise AssertionError("parseDetails:\tExpecting model or data, but found: "+str(m_or_d))
+
+	Config = self.__cp__
+	section = self.section
+	details = {}
+	details['name'] 	= Config.get(section,'name')
+	details['units'] 	= Config.get(section,'units')
+	details['vars'] 	= parseList(Config,section,m_or_d+'_vars')
+	details['convert'] 	= parseFunction(Config,section,m_or_d+'_convert')
+		
+	#####
+	# Looking for kwargs to pass to convert:
+	for option in Config.options(section):
+		searchFor =  m_or_d+'_convert_'
+		findstr = option.find(searchFor)
+		if findstr==-1:	continue
+		kwargkey = option[len(searchFor):]
+		details[kwargkey] = self.replaceString(Config.get(section,option))
+	return details  	
   	
   
   def __print__(self):
@@ -620,7 +626,8 @@ class AnalysisKeyParser:
 	print "timeseries postprocessed files:	", self.postproc_ts
 	print "profile postprocessed files:	", self.postproc_pro
 	print "p2p postprocessed files:		", self.postproc_p2p
-		
+	print "------------------------------------------------------------------"
+			
 	return''
   def __repr__(self): return self.__print__()
   def __str__( self): return self.__print__()		

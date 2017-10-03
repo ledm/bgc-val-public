@@ -73,7 +73,6 @@ def analysis_parser(
 			metricList = ['metricless',]
 		if akp.dimensions in  [2, 3]:
 			metricList = ['mean','median', '10pc','20pc','30pc','40pc','50pc','60pc','70pc','80pc','90pc','min','max']
-	
 		#####
 		# Time series plots		
 		if akp.makeTS: 

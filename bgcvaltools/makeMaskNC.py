@@ -23,13 +23,13 @@
 # ledm@pml.ac.uk
 #
 """
-.. module:: makeEORCAmasks 
+.. module:: makeMaskNC 
    :platform: Unix
    :synopsis: Tool to make a mask netcdf for the regions.
 .. moduleauthor:: Lee de Mora <ledm@pml.ac.uk>
 
 """
-
+import os	
 #from netCDF4 import Dataset
 from bgcvaltools import bgcvalpython as bvp
 import numpy as np
@@ -38,11 +38,12 @@ from changeNC import changeNC, AutoVivification
 from regions.makeMask import makeMask,loadMaskMakers
 from bgcvaltools.dataset import dataset
 
+
 """ 	This code makes a mask netcdf for the regions written below.
 	this code is needed for profileAnalysis.py
 """
 
-def makeMaskNC(outFile, regions, grid,gridfn=''):
+def makeMaskNC(outFile, regions, grid,coords, gridfn=''):
 
 	#if grid in ['eORCA1',]:
 	#	orcaGridfn 	= '/data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc'	
@@ -51,15 +52,23 @@ def makeMaskNC(outFile, regions, grid,gridfn=''):
 	# load mask and coordinates.
 	ncmesh = dataset(gridfn,)#'r')
 	landmask = ncmesh.variables['tmask'][:]
-	lats 	 = ncmesh.variables['nav_lat'][:]
-	lons 	 = ncmesh.variables['nav_lon'][:]
-	depths 	 = ncmesh.variables['nav_lev'][:]
-	floattype = ncmesh.variables['e3t_0'][:].dtype
-	inttype = ncmesh.variables['umask'][:].dtype
+	maskdims = ncmesh.variables['tmask'].dimensions
+	lats 	 = ncmesh.variables[coords['lat']][:]
+	lons 	 = ncmesh.variables[coords['lon']][:]
+	depths 	 = ncmesh.variables[coords['z']][:]
+	floattype = ncmesh.variables[coords['lat']][:].dtype
+	inttype = np.int16
 	ncmesh.close()
-
-	landmask = np.ma.masked_where(landmask==0,landmask)
-
+	
+	#### 
+	# What about upside down grids?
+	if landmask.ndim ==4:	masked_value  	= landmask[0,0,0,0]
+	elif landmask.ndim ==3:	masked_value  	= landmask[0,0,0]
+	elif landmask.ndim ==2:	masked_value  	= landmask[0,0]
+	else:	raise AssertionError("land mask has strange dimensions:"+str( landmask.ndim))
+								
+	landmask = np.ma.masked_where(landmask==masked_value,landmask)
+	
 	#####
 	# Create Temporary Output Arrays.
 	arr 	= []
@@ -72,14 +81,24 @@ def makeMaskNC(outFile, regions, grid,gridfn=''):
 
 	######
 	# Make 1D arrays of coordinates
-	print 'Make 1D arrays of coordinates'
+	print 'Make 1D arrays of coordinates from ', landmask.shape, 'landmask'
+	print 'landmask', landmask.min(), landmask.mean(),landmask.max()
 	for index,v in bvp.maenumerate(landmask):
-		(z,y,x) 	= index 
-		t = 0
+		if v == masked_value:	continue	
+		if np.isnan(v): 	continue
+		if np.isinf(v): 	continue		
 		
-		la = lats[y,x]  			
-		lo = lons[y,x]  			
-	
+		if len(index) == 3: (z,y,x) 	= index 
+		if len(index) == 2: (y,x) 	= index 		
+		t = 0
+
+		if lats.ndim ==2:
+			la = lats[y,x]
+			lo = lons[y,x]
+		if lats.ndim ==1:
+			la = lats[y]
+			lo = lons[x]
+
 		arr.append(v)
 		arr_t.append(t)
 		arr_z.append(z)
@@ -93,54 +112,78 @@ def makeMaskNC(outFile, regions, grid,gridfn=''):
 	arr_lat	= np.array(arr_lat)
 	arr_lon = np.array(arr_lon)
 	arr 	= np.array(arr)
-
+	ones    = np.ones_like(arr)
+	
 	######
 	# Calculate 1D mask
 	oneDmasks = {}	
 	regions, maskingfunctions = loadMaskMakers(regions = regions)
 	for r in regions:
-		print 'Calculate 1D mask',r
+		print 'Calculate 1D mask',r, len(arr)
 		mask = makeMask(
-					maskingfunctions,
-					'mask name', 
-					r, 
-	  				arr_t,
-	  				arr_z,
-	  				arr_lat,
-	  				arr_lon,
-	  				arr)
-		oneDmasks[r] = np.ma.masked_where((mask==1)+ (arr==0), arr )
+				maskingfunctions,
+				'mask name', 
+				r, 
+  				arr_t,
+  				arr_z,
+  				arr_lat,
+  				arr_lon,
+  				arr)
+
+  		oneDmasks[r] = np.ma.masked_where( mask, ones )
+	
+	for r in oneDmasks.keys():
+		print r, oneDmasks[r].mean(), oneDmasks[r].min(),oneDmasks[r].max(), 'sum:',np.sum(oneDmasks[r]), '%cover',np.sum(oneDmasks[r])/float(len(oneDmasks[r]))
+		
 	######
 	# Convert 1D mask to 3D
 	threeDmasks={}
 	for r in regions:
-		print 'Convert 1D mask to 3D',r
-		mask = np.zeros_like(landmask)
+		print 'Convert 1D mask to 3D',r, len(oneDmasks[r]), sum(oneDmasks[r])
+		mask = np.zeros_like(np.array(landmask),dtype=inttype)
 		for i,m in enumerate(oneDmasks[r]):
-			mask[arr_z[i],arr_y[i],arr_x[i]] = m
+			#print r, i, m, arr_z[i],arr_y[i],arr_x[i]
+			if m == 0: continue
+			if np.ma.is_masked(m):continue
+			if   landmask.ndim ==3:	mask[arr_z[i],arr_y[i],arr_x[i]] = 1
+			elif landmask.ndim ==2:	mask[arr_y[i],arr_x[i]] 	 = 1		
+			else:	assert 0
 		threeDmasks[r] = mask
-
+		if mask.sum() == 0: 
+			raise AssertionError("Mask is 100%"+region)
+			
 	plotting = 1
 	if plotting:
 		from matplotlib import pyplot
 		for r in regions:
-		     	
 			pyplot.pcolormesh(threeDmasks[r].sum(0),cmap='jet')
 			pyplot.colorbar()
+			pyplot.title(r + ' '+ os.path.basename(gridfn))
+			filename = bvp.folder('images/makeMaskNC/')+os.path.basename(gridfn).replace('.nc', '') + '_'+r+'.png'
 			try:
-				pyplot.savefig('images/mask_'+r+'.png' )
-				print "Saved", r, 'map image'
+				pyplot.savefig(filename )
+				print "Saved", r, 'map image', filename
 			except: pass
 			pyplot.close()
-
+		     	
+		pyplot.pcolormesh(landmask.sum(0),cmap='jet')
+		pyplot.colorbar()
+		pyplot.title('landmask '+ os.path.basename(gridfn))
+		filename = bvp.folder('images/makeMaskNC/')+os.path.basename(gridfn).replace('.nc', '') + '_landmask.png'
+		try:
+			pyplot.savefig(filename )
+			print "Saved", r, 'map image', filename
+		except: pass
+		pyplot.close()		
+	
 	av = AutoVivification()
 	for r in regions:
 		av['newVar'][r]['name']		= r
 		av['newVar'][r]['long_name']	= r+ ' mask'
 		av['newVar'][r]['units']	= ''
-		av['newVar'][r]['newDims']	= ('z','y','x')
+		av['newVar'][r]['newDims']	= maskdims
 		av['newVar'][r]['dtype']	= inttype
-		av['newVar'][r]['newData']	= threeDmasks[r][:]	
+		av['newVar'][r]['newData']	= threeDmasks[r][:]#.mask	
 
 	removes = [u'e1f', u'e1t', u'e1u', u'e1v', u'e2f', u'e2t', u'e2u', u'e2v', u'ff', u'fmask', u'fmaskutil', u'gdepu', u'gdepv', u'glamf', u'glamt', u'glamu', u'glamv', u'gphif', u'gphit', u'gphiu', u'gphiv', u'isfdraft',  u'misf',   u'tmaskutil',u'umaskutil',  u'vmaskutil', u'e3t', u'e3u', u'e3v', u'e3w', u'e3t_0', u'e3w_0', u'gdept,', u'gdepw', u'gdept_0', u'gdepw_0']
 	for rem in removes:
@@ -149,6 +192,8 @@ def makeMaskNC(outFile, regions, grid,gridfn=''):
 	
 	c = changeNC(gridfn, outFile, av)
 
+	
+	
 def main():
 	regions	= ['Global', 
 		'ignoreInlandSeas',

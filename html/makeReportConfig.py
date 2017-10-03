@@ -159,57 +159,100 @@ def addComparisonSection(
 		indexhtmlfn,
 		imagesfold,
 		reportdir,
-		model='',
-		scenario='',
+		#model='',
+		#scenario='',
 		leadMetric = '',		
 		):
 
-	jobIDs = globalkeys.jobIDs
+	#keys 	= globalkeys.ActiveKeys
+	jobIDs 	= globalkeys.jobIDs
+	models 	= globalkeys.models
+	scenarios= globalkeys.scenarios
+	
+	strjobID 	= titleify(jobIDs)
+	strmodel 	= titleify(models)
+	strscenario 	= titleify(scenarios)
+		
 	#####
 	# href is the name used for the html 
-	SectionTitle= titleify([model, scenario]) 
+	if leadMetric == 'jobID':	SectionTitle= titleify([strmodel, strscenario]) 
+	if leadMetric == 'model':	SectionTitle= titleify([strscenario, strjobID]) 
+	if leadMetric == 'scenario':	SectionTitle= titleify([strmodel, strjobID]) 		
 	hrefs 		= []
 	Titles		= {}
 	SidebarTitles 	= {}
 	Descriptions	= {}
 	FileLists	= {}
 	filecount	=  0
+	
+			
 	for key in globalkeys.ActiveKeys:
 	
-		href = 	hrefify(['Comparison', key, model, scenario])
-		hrefs.append(href)
+		filechecks = []
+		ignoreList = []
+		if leadMetric == 'jobID':
+			href = 	hrefify(['Comparison', key, strmodel, strscenario])
+		 	desc = titleify(['Comparison of the time developement of the', models,
+					'models', key, 
+					'in the scenario',scenarios, 
+					'for the jobs: ',jobIDs])			
+
+
+			for model,scenario in product(models,scenarios):	
+				filechecks.append(globalkeys.images_comp +'/' +wildcardify([model, scenario, key])+'*.png')
+				ignoreList.append(model)
+				ignoreList.append(scenario)				
+						
+		if leadMetric == 'model':
+			href = 	hrefify(['Comparison', key, strscenario, strjobID])
+		 	desc = titleify(['Comparison of the time developement of the', models,
+					'models', key, 
+					'in the scenario',scenarios, 
+					'for the jobs: ',jobIDs])			
+			for jobID,scenario in product(jobIDs,scenarios):	
+				filechecks.append(globalkeys.images_comp +'/' +wildcardify([scenario, jobID, key])+'*.png')
+				ignoreList.append(jobID)
+				ignoreList.append(scenario)
+				
+					
+		if leadMetric == 'scenario':
+			href = 	hrefify(['Comparison', key, strmodel, strjobID])
+		 	desc = titleify(['Comparison of the time developement of the', models,
+					'models', key, 
+					'in the scenarios',scenarios, 
+					'for the job: ', jobIDs])			
+			for jobID,model in product(jobIDs,models):	
+				filechecks.append(globalkeys.images_comp +'/' +wildcardify([model, jobID, key])+'*.png')
+				ignoreList.append(jobID)
+				ignoreList.append(model)
 	
 		#####
+		# href is the name used for the html 		
+		hrefs.append(href)
+	
+		#####	
 		# Title is the main header, SidebarTitles is the side bar title.
 		Titles[href] 		= titleify([ key, ])
 		SidebarTitles[href] 	= titleify([ key, ])
 						
 		#####
 		# Descriptions is a small sub-header
-		desc = ''
-		Descriptions[href] = titleify(['Comparison of the time developement of the', model,
-					'models', key, 
-					'in the scenario',scenario, 
-					'for the jobs: ',' '.join(jobIDs)])
-
+		Descriptions[href] = desc
 
 		#####
 		# A list of files to put in this group.
 		FileLists[href] = {}
-	
 		#####
 		# Determine the list of files:
 		vfiles = []	
 		
-
-		filecheck = globalkeys.images_comp +'/' +wildcardify([model, scenario, key])+'*.png'
-		files = {f:1 for f in glob(filecheck)}
-		vfiles.extend(sorted(files.keys()))
-
+		for filecheck in filechecks:
+			files = {f:1 for f in glob(filecheck)}
+			vfiles.extend(sorted(files.keys()))
 			
 		#####
 		# Create plot headers for each file.
-		ignoreList = [model,scenario,]		
+
 		for fn in vfiles:
 			#####
 			# Copy image to image folder and return relative path.
@@ -334,6 +377,7 @@ def addProfilesSection(
 		indexhtmlfn,
 		imagesfold,
 		reportdir,
+		leadMetric='jobID',		
 		debug=False
 		):
 		
@@ -346,7 +390,13 @@ def addProfilesSection(
 	
 	#####
 	# href is the name used for the html 
-	SectionTitle	= titleify([jobID,key ,'profiles',]) 	
+	if leadMetric.lower() == 'jobid': leadm	= jobID
+	if leadMetric.lower() == 'model': leadm	= model
+	if leadMetric.lower() == 'scenario': leadm	= scenario
+			
+				
+	SectionTitle	= titleify([leadm,key ,'profiles',]) 		
+		
 	hrefs 		= []
 	Titles		= {}
 	SidebarTitles 	= {}
@@ -428,6 +478,7 @@ def addP2PSection(
 		indexhtmlfn,
 		imagesfold,
 		reportdir,
+		leadMetric='jobID',				
 		):
 	if not akp.makeP2P: return
 	
@@ -438,7 +489,13 @@ def addP2PSection(
 	year = akp.year	
 	#####
 	# href is the name used for the html 
-	SectionTitle	= titleify([jobID,key ,'p2p in',year]) 				
+	if leadMetric.lower() == 'jobid': leadm	= jobID
+	if leadMetric.lower() == 'model': leadm	= model
+	if leadMetric.lower() == 'scenario': leadm	= scenario
+			
+				
+		
+	SectionTitle	= titleify([leadm,key ,'p2p in',year]) 				
 		
 	#SectionTitle= ' '.join([ getLongName(key), model, jobID, scenario,year,]) #getLongName(key)
 	hrefs 		= []
@@ -563,6 +620,7 @@ def htmlMakerFromConfig(
 				indexhtmlfn,
 				descriptionText,
 				)
+				
 	leadMetric = guessLeadMetric(	globalkeys)
 					
 	if globalkeys.makeComp:
@@ -571,8 +629,8 @@ def htmlMakerFromConfig(
 			indexhtmlfn,
 			imagesfold,
 			reportdir,
-			model=model,
-			scenario=scenario,
+			#model=model,
+			#scenario=scenario,
 			leadMetric = leadMetric,			
 			)
 
@@ -599,6 +657,7 @@ def htmlMakerFromConfig(
 				indexhtmlfn,
 				imagesfold,
 				reportdir,
+				leadMetric = leadMetric,				
 				)
 								
 	  	    	for year in globalkeys.years:
@@ -608,6 +667,7 @@ def htmlMakerFromConfig(
 					indexhtmlfn,
 					imagesfold,
 					reportdir,
+					leadMetric = leadMetric,									
 					)
 
 

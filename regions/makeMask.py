@@ -42,13 +42,13 @@ package_directory = os.path.dirname(os.path.abspath(__file__))
 
 
 #####
-# Global function, returns every that is uxded.
+# Global function, returns everything that is unmasked.
 def Global(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
- 	xd = np.ma.array(xd).mask
+ 	m = np.ma.array(xd).mask
  	for a in [xt,xz,xy,xx]:
- 		try: xd+=a.mask
+ 		try: m += a.mask
  		except:pass	
-	return xd 
+	return np.ma.masked_where(m ,xd).mask
 
 #####
 # Useful zeros

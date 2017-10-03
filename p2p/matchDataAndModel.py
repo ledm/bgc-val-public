@@ -37,6 +37,7 @@ from shelve import open as shOpen
 from shutil import copy2
 from math import radians, cos, sin, asin, sqrt
 from netCDF4 import num2date,Dataset
+from bgcvaltools.dataset import dataset
 from datetime import datetime
 import numpy as np
 
@@ -139,16 +140,16 @@ class matchDataAndModel:
 	self.matchedShelve 	= bvp.folder(self.workingDir)+self.model+'-'+self.jobID+'_'+self.year+'_'+self.dataType+'_'+self.layer+'_matched.shelve'
 	self.matchesShelve 	= bvp.folder(self.workingDir)+self.model+'-'+self.jobID+'_'+self.year+'_'+self.dataType+'_'+self.layer+'_matches.shelve'
 	
-	self.workingDirTmp = 	bvp.folder(self.workingDir+'tmp')
-	self.DataFilePruned=	self.workingDirTmp+'Data_' +self.dataType+'_'+self.layer+'_'+self.model+'-'+self.jobID+'-'+self.year+'_pruned.nc'
-	self.ModelFilePruned=	self.workingDirTmp+'Model_'+self.dataType+'_'+self.layer+'_'+self.model+'-'+self.jobID+'-'+self.year+'_pruned.nc'	
+	self.workingDirTmp 	= bvp.folder(self.workingDir+'tmp')
+	self.DataFilePruned	= self.workingDirTmp+'Data_' +self.dataType+'_'+self.layer+'_'+self.model+'-'+self.jobID+'-'+self.year+'_pruned.nc'
+	self.ModelFilePruned	= self.workingDirTmp+'Model_'+self.dataType+'_'+self.layer+'_'+self.model+'-'+self.jobID+'-'+self.year+'_pruned.nc'	
 	
 	self.DataFile1D  	= self.workingDirTmp + basename(self.DataFilePruned).replace('pruned.nc','1D.nc') 
 	self.maskedData1D	= self.workingDir    + basename(self.DataFile1D)
 	self.Model1D     	= self.workingDir    + basename(self.ModelFilePruned).replace('pruned.nc','1D.nc')
 
-	self.MatchedModelFile = self.Model1D
-	self.MatchedDataFile  = self.maskedData1D
+	self.MatchedModelFile 	= self.Model1D
+	self.MatchedDataFile  	= self.maskedData1D
 	self.run()
 
 
@@ -159,24 +160,38 @@ class matchDataAndModel:
 	   Other data formats are run manually.
 	"""
 	if not bvp.shouldIMakeFile(self.DataFile,self.MatchedDataFile,debug=False) and not bvp.shouldIMakeFile(self.ModelFile,self.MatchedModelFile,debug=False):
-		print "matchDataAndModel:\trun:\talready created:\t",self.maskedData1D, '\n\t\t\tand\t',self.Model1D
+		print "matchDataAndModel:\trun:\talready created:\t",self.maskedData1D, '\n\t\t\tand\t',self.MatchedModelFile
 		return
-	
-
+	self._calculateModelYearIndex_()
 	self._pruneModelAndData_()	
 	self._convertDataTo1D_()	
 	self._matchModelToData_()
 	self._convertModelToOneD_()
 	self._applyMaskToData_()
 
-
+  def _calculateModelYearIndex_(self,):
+   	""" 
+   	This function determines which index to use to extract a single time slice from the model file.
+  	""" 
+  	  	
+  	modeltimes = bvp.getTimes(self.ModelFile, self.modelcoords)
+  	year = float(self.year)
+  	if int(year) == float(year):
+ 	 	targettime = year+0.5 # mid point of the year
+ 	else: 	targettime = year
+ 	modeltimeIndex = bvp.getclosesttime(targettime,modeltimes)
+ 	if modeltimeIndex == -1: 
+ 		self.modeltimeIndex = None
+ 	else: 	self.modeltimeIndex = modeltimeIndex
+  
   def _pruneModelAndData_(self,):
    	""" This routine reduces the full 3d netcdfs by pruning the unwanted fields.
   	""" 
   	
 	if bvp.shouldIMakeFile(self.ModelFile,self.ModelFilePruned,debug=False):
 		print "matchDataAndModel:\tpruneModelAndData:\tMaking ModelFilePruned:", self.ModelFilePruned
-		p = pruneNC(self.ModelFile,self.ModelFilePruned,self.ModelVars, debug = self.debug) 	
+		p = pruneNC(self.ModelFile,self.ModelFilePruned,self.ModelVars, timeindex =self.modeltimeIndex , debug = self.debug)
+			
 	else:	
 		print "matchDataAndModel:\tpruneModelAndData:\tModelFilePruned already exists:",self.ModelFilePruned
   	 
@@ -268,7 +283,7 @@ class matchDataAndModel:
 		####
 		# Create a lines, then produce a mask along that line.
 		lats = nc.variables[self.datacoords['lat']][:]
-		lons = nc.variables[self.datacoords['lon']][:]
+		lons =  bvp.makeLonSafeArr(nc.variables[self.datacoords['lon']][:])
 		
 		if (lats.ndim,lons.ndim) ==(1,1):
 			lon2d,lat2d = np.meshgrid(lons,lats)
@@ -278,7 +293,7 @@ class matchDataAndModel:
 
 		if self.layer == 'Transect':
 			numpoints = 500
-			lon = -28. # W
+			lon = bvp.makeLonSafe(-28.) # W
 			minlat = -89.
 			maxlat = 89.99
 			transectcoords = [(minlat +i*(maxlat-minlat)/numpoints,lon)  for i in np.arange(numpoints)]# lat,lon
@@ -286,7 +301,7 @@ class matchDataAndModel:
 
 		if self.layer == 'PTransect':
 			numpoints = 500
-			lon = 200. # E
+			lon = bvp.makeLonSafe(200.) # E
 			minlat = -89.
 			maxlat = 89.99
 			transectcoords = [(minlat +i*(maxlat-minlat)/numpoints,lon)  for i in np.arange(numpoints)]# lat,lon
@@ -307,7 +322,7 @@ class matchDataAndModel:
 			
 		if self.layer == 'ArcTransect':
 			numpoints = 300
-			lon = 0.
+			lon = bvp.makeLonSafe(0.)
 			minlat = 50.
 			maxlat = 90.
 			transectcoords = [(minlat +i*(maxlat-minlat)/numpoints,lon)  for i in np.arange(numpoints)]# lat,lon
@@ -319,12 +334,12 @@ class matchDataAndModel:
 			
 		if self.layer == 'CanRusTransect':
 			numpoints = 300
-			lon = 83.5
+			lon = bvp.makeLonSafe(83.5)
 			minlat = 65.
 			maxlat = 90.
 			transectcoords = [(minlat +i*(maxlat-minlat)/numpoints,lon)  for i in np.arange(numpoints)]# lat,lon
 
-			lon = -96.
+			lon = bvp.makeLonSafe(-96.)
 			minlat = 60.
 			maxlat = 90.
 			transectcoords.extend([(minlat +i*(maxlat-minlat)/numpoints,lon) for i in np.arange(numpoints)])# lat,lon
@@ -475,7 +490,7 @@ class matchDataAndModel:
 	if self.datacoords['z']  in ['', None,"''"]:  	pass		# No Depth in data file.
 	else:  	is_z 	= ncIS.variables[self.datacoords['z']][:]
   	is_la	= ncIS.variables[self.datacoords['lat']][:]
-	is_lo 	= ncIS.variables[self.datacoords['lon']][:]
+	is_lo 	= bvp.makeLonSafeArr(ncIS.variables[self.datacoords['lon']][:])
 
 	tdict   = self.datacoords['tdict']
 	if is_index_t.min() == is_index_t.max():
@@ -725,18 +740,21 @@ class matchDataAndModel:
   	ncER = Dataset(self.gridFile,'r')
   	
   	#ncER = ncdfView("data/mesh_mask_ORCA1_75.nc",Quiet=True)
-  	if 'nav_lat' in ncER.variables.keys():	self.latcc    = ncER.variables['nav_lat'][:].squeeze()
-	elif 'lat' in ncER.variables.keys():	self.latcc    = ncER.variables['lat'][:].squeeze()
-	else:					self.latcc    = ncER.variables[self.modelcoords['lat']][:].squeeze()
+  	#if 'nav_lat' in ncER.variables.keys():	self.latcc    = ncER.variables['nav_lat'][:].squeeze()
+	#elif 'lat' in ncER.variables.keys():	self.latcc    = ncER.variables['lat'][:].squeeze()
+	#else:					
+	self.latcc    = ncER.variables[self.modelcoords['lat']][:].squeeze()
 	
-  	if 'nav_lon' in ncER.variables.keys():	self.loncc    = ncER.variables['nav_lon'][:].squeeze()
-	elif 'lon' in ncER.variables.keys():	self.loncc    = ncER.variables['lon'][:].squeeze()
-	else:					self.loncc    = ncER.variables[self.modelcoords['lon']][:].squeeze()
+  	#if 'nav_lon' in ncER.variables.keys():	self.loncc    = bvp.makeLonSafeArr(ncER.variables['nav_lon'][:].squeeze())
+	#elif 'lon' in ncER.variables.keys():	self.loncc    = bvp.makeLonSafeArr(ncER.variables['lon'][:].squeeze())
+	#else:
+	self.loncc    = bvp.makeLonSafeArr(ncER.variables[self.modelcoords['lon']][:].squeeze())
 
-  	if 'deptht' in ncER.variables.keys():	self.depthcc  = ncER.variables['deptht'][:].squeeze()
-	elif 'gdept_0' in ncER.variables.keys():self.depthcc  = ncER.variables['gdept_0'][:].squeeze()
-	elif 'lev' in ncER.variables.keys():	self.depthcc  = ncER.variables['lev'][:].squeeze()	
-	else:					self.depthcc  = ncER.variables[self.modelcoords['z']][:]	
+  	#if 'deptht' in ncER.variables.keys():	self.depthcc  = ncER.variables['deptht'][:].squeeze()
+	#elif 'gdept_0' in ncER.variables.keys():self.depthcc  = ncER.variables['gdept_0'][:].squeeze()
+	#elif 'lev' in ncER.variables.keys():	self.depthcc  = ncER.variables['lev'][:].squeeze()	
+	#else:					
+	self.depthcc  = ncER.variables[self.modelcoords['z']][:]	
 	
 	if self.loncc.ndim ==1 and  self.loncc.shape!= self.latcc.shape:
 		self.loncc,self.latcc = np.meshgrid(self.loncc,self.latcc)

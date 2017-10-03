@@ -80,7 +80,8 @@ class timeseriesAnalysis:
 	####
 	# 	Do some tests on whether the files are present/absent	
 	if len(modelFiles) == 0:
-		print "analysis-Timeseries.py:\tWARNING:\tmodel files are not found:",modelFiles
+		print "analysis-Timeseries.py:\tWARNING:\tmodel files are not provided:",modelFiles
+		return
 		if strictFileCheck: assert 0
 
 	modelfilesexists = [os.path.exists(f) for f in modelFiles]
@@ -250,6 +251,7 @@ class timeseriesAnalysis:
 		print "timeseriesAnalysis:\tloadModel:\tloading new file:",fn,
 		nc = dataset(fn,'r')
 		ts = tst.getTimes(nc,self.modelcoords)
+		dates = tst.getDates(nc,self.modelcoords) 
 		meantime = np.mean(ts)
 		print "\ttime:",meantime
 		
@@ -263,6 +265,7 @@ class timeseriesAnalysis:
 		    	# Check wherether you can skip loading this metric,region,layer
 			skip = True
 			for m in self.metrics:
+		      	    for meantime in ts:				
 				if skip == False:continue
 				try: 
 					a = modeldataD[(r,l,m)][meantime]
@@ -278,7 +281,8 @@ class timeseriesAnalysis:
 		    	#####
 		    	# can't skip it, need to load it.
 			layerdata = DL.load[(r,l)]
-			#print "0 len(layerdata):",len(layerdata)
+			timesIndex = DL.load[(r,l,'t')]
+					
 			#####
 			# get Weights:
 			volumeWeightedLayers = ['All', 'Transect']
@@ -286,6 +290,7 @@ class timeseriesAnalysis:
 			if len(bvp.intersection(['mean','median','sum',], self.metrics)):
 				lats = DL.load[(r,l,'lat')]
 				lons = DL.load[(r,l,'lon')]
+
 				if l in volumeWeightedLayers:
 					depths = DL.load[(r,l,'z')]					
 					weights = np.array([self.weightsDict[(la,lo,z)] for la,lo in zip(lats,lons,depths)])
@@ -308,8 +313,10 @@ class timeseriesAnalysis:
 				#print weights.mean(),weights.min(),weights.max()
 				weights = np.ma.masked_where((weights==0.)+weights.mask+layerdata.mask,weights)#.compressed()
 				layerdata = np.ma.masked_where((weights==0.)+weights.mask+layerdata.mask,layerdata)#.compressed()				
+				timesIndex  = np.ma.masked_where((weights==0.)+weights.mask+layerdata.mask,timesIndex)			
 				weights = weights.compressed()				
 				layerdata = layerdata.compressed()
+				timesIndex = timesIndex.compressed()
 				if len(	layerdata)!= len(weights):
 					print "1.b len(	layerdata)!= len(weights)", len(layerdata),'!=', len(weights)
 					assert 0				
@@ -336,23 +343,41 @@ class timeseriesAnalysis:
 #					modeldataD[(r,l,m)][meantime] = np.percentile(layerdata,pc)
 #					
 #		  		print "timeseriesAnalysis:\tloadModel\tLoaded metric:", int(meantime),'\t',[(r,l,m)], '\t',modeldataD[(r,l,m)][meantime]
-
-			if 'mean' 	in self.metrics:	modeldataD[(r,l,'mean')][meantime] = np.ma.average(layerdata,weights=weights)
-			if 'sum' 	in self.metrics:   	modeldataD[(r,l,'sum') ][meantime] = np.ma.sum(layerdata)			
-			if 'min'	in self.metrics:   	modeldataD[(r,l,'min') ][meantime] = np.ma.min(layerdata)
-			if 'max'	in self.metrics:   	modeldataD[(r,l,'max') ][meantime] = np.ma.max(layerdata)
-			if 'metricless' in self.metrics:	modeldataD[(r,l,'metricless') ][meantime] = np.ma.sum(layerdata)
+			if len(ts) == 1:
+				meantime = ts.mean()
+				if 'mean' 	in self.metrics:	modeldataD[(r,l,'mean')][meantime] = np.ma.average(layerdata,weights=weights)
+				if 'sum' 	in self.metrics:   	modeldataD[(r,l,'sum') ][meantime] = np.ma.sum(layerdata)			
+				if 'min'	in self.metrics:   	modeldataD[(r,l,'min') ][meantime] = np.ma.min(layerdata)
+				if 'max'	in self.metrics:   	modeldataD[(r,l,'max') ][meantime] = np.ma.max(layerdata)
+				if 'metricless' in self.metrics:	modeldataD[(r,l,'metricless') ][meantime] = np.ma.sum(layerdata)
 			
+				if len(percentiles)==0: continue
+				out_pc = bvp.weighted_percentiles(layerdata, percentiles, weights = weights)
 			
-			if len(percentiles)==0: continue
-			out_pc = bvp.weighted_percentiles(layerdata, percentiles, weights = weights)
-			
-			for pc,dat in zip(percentiles, out_pc):
-				modeldataD[(r,l,bvp.mnStr(pc)+'pc')][meantime] = dat
-				if pc==50.:	modeldataD[(r,l,'median')][meantime] = dat
-					  		
-	  		print "timeseriesAnalysis:\tloadModel\tLoaded metric:", int(meantime),'\t',[(r,l,m)], '\t',modeldataD[(r,l,m)][meantime]
+				for pc,dat in zip(percentiles, out_pc):
+					modeldataD[(r,l,bvp.mnStr(pc)+'pc')][meantime] = dat
+					if pc==50.:	modeldataD[(r,l,'median')][meantime] = dat
+		  		print "timeseriesAnalysis:\tloadModel\tLoaded metric:", int(meantime),'\t',[(r,l,m)], '\t',modeldataD[(r,l,m)][meantime]			
+			else:
+			    for t,meantime in enumerate(ts):
+				ts_layerdata = np.ma.masked_where(timesIndex != t, layerdata).compressed()
+				ts_weights   = np.ma.masked_where(timesIndex != t, weights  ).compressed()			
 				
+				if 'mean' 	in self.metrics:	modeldataD[(r,l,'mean')][meantime] = np.ma.average(ts_layerdata,weights=ts_weights)
+				if 'sum' 	in self.metrics:   	modeldataD[(r,l,'sum') ][meantime] = np.ma.sum(ts_layerdata)			
+				if 'min'	in self.metrics:   	modeldataD[(r,l,'min') ][meantime] = np.ma.min(ts_layerdata)
+				if 'max'	in self.metrics:   	modeldataD[(r,l,'max') ][meantime] = np.ma.max(ts_layerdata)
+				if 'metricless' in self.metrics:	modeldataD[(r,l,'metricless') ][meantime] = np.ma.sum(ts_layerdata)
+			
+				if len(percentiles)==0: continue
+				out_pc = bvp.weighted_percentiles(ts_layerdata, percentiles, weights = ts_weights)
+			
+				for pc,dat in zip(percentiles, out_pc):
+					modeldataD[(r,l,bvp.mnStr(pc)+'pc')][meantime] = dat
+					if pc==50.:	modeldataD[(r,l,'median')][meantime] = dat
+						  		
+		  		try:print "timeseriesAnalysis:\tloadModel\tLoaded metric:", round(meantime,2),'\t',[(r,l,'mean')], '\t',modeldataD[(r,l,'mean')][meantime]
+		  		except: pass
 										
 		readFiles.append(fn)		
 		openedFiles+=1			
@@ -396,6 +421,10 @@ class timeseriesAnalysis:
 	#print "timeseriesAnalysis:\t loadModelWeightsDict\tWARNING:\t this is a hack added at the last minute for the nemo-medusa ukesm run and will not work elsewhere."
 	lats = nc.variables[self.modelcoords['lat']][:]
 	lons = nc.variables[self.modelcoords['lon']][:]
+	safelons = bvp.makeLonSafeArr(lons)
+	#print area.shape, nc.variables['area'].dimensions
+	print lats.shape, nc.variables[self.modelcoords['lat']].dimensions
+	print lons.shape, nc.variables[self.modelcoords['lon']].dimensions
 	nc.close()
 
 	self.weightsDict={}	
@@ -403,12 +432,16 @@ class timeseriesAnalysis:
 		for (i,j), a in np.ndenumerate(area):
 			#if np.ma.is_masked(a):continue
 			self.weightsDict[(lats[i,j],lons[i,j])] = a
+			self.weightsDict[(lats[i,j],safelons[i,j])] = a			
 			
-	if lats.ndim ==1:
+			
+	elif lats.ndim ==1:
 		for (i,j), a in np.ndenumerate(area):
 			#if np.ma.is_masked(a):continue
 			self.weightsDict[(lats[i],lons[j])] = a
-					
+			self.weightsDict[(lats[i],safelons[j])] = a			
+	else:
+		assert 0
 	if self.debug: print "timeseriesAnalysis:\t loadModelWeightsDict.",self.weightsDict.keys()[0]		
 
 
@@ -423,6 +456,7 @@ class timeseriesAnalysis:
 	nc = dataset(self.dataFile,'r')
 	lats = nc.variables[self.datacoords['lat']][:]	
 	lons = nc.variables[self.datacoords['lon']][:]	
+	safelons = bvp.makeLonSafeArr(lons)	
 	nc.close()
 	print "timeseriesAnalysis:\tAddDataArea:\t",area.shape,lats.shape,lons.shape
 	self.dataAreaDict = {}
@@ -430,10 +464,12 @@ class timeseriesAnalysis:
 		for (i,j), a in np.ndenumerate(area):
 			#if np.ma.is_masked(a):continue
 			self.dataAreaDict[(lats[i,j],lons[i,j])] = a
+			self.dataAreaDict[(lats[i,j],safelons[i,j])] = a			
 	if lats.ndim ==1:
 		for (i,j), a in np.ndenumerate(area):
 			#if np.ma.is_masked(a):continue
 			self.dataAreaDict[(lats[i],lons[j])] = a
+			self.dataAreaDict[(lats[i],safelons[j])] = a			
 	self.__madeDataArea__ = True
 	
   def loadDataAreas(self,lats,lons):
