@@ -333,8 +333,8 @@ class DataLoader:
   	arr_z 	= []  	
 
 
-	latnames = ['lat','latitude','latbnd','nav_lat','y',u'lat','j',]
-	lonnames = ['lon','longitude','lonbnd','nav_lon','x',u'lon','i',]
+	latnames = ['lat','latitude','latbnd','nav_lat','y',u'lat','j','rlat',]
+	lonnames = ['lon','longitude','lonbnd','nav_lon','x',u'lon','i','rlon',]
 	
 
 	####

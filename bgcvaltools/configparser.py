@@ -479,6 +479,9 @@ class AnalysisKeyParser:
 	self.datacoords 	= parseCoordinates(self.__cp__, self.section, 'data' )
 	self.modeldetails 	= self.parseDetails( 'model')
 	self.datadetails  	= self.parseDetails( 'data' )
+
+	try:	self.datarange 	= parseList(self.__cp__, self.section, 'datarange')	
+	except:	self.datarange 	= -999
 	
 	self.modelFiles_ts 	= self.parseFilepath('modelFiles',	expecting1=False,optional=True )  #optional=False)
 	self.modelFile_p2p 	= self.parseFilepath('modelFile_p2p',	expecting1=True, optional=True ) # optional=True)	

@@ -132,6 +132,7 @@ def testsuite_p2p(
 	print "testsuite_p2p:  "
 	print "models:        ",model
 	print "year:          ",year
+	print "scenario:      ",scenario	
 	print "jobID:         ",jobID
 	#print "av keys:	      ",sorted(av.keys())
 	print "#############################"	

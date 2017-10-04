@@ -51,7 +51,33 @@ try:
 except:	
 	defcmap = viridis
 	defcmapstr = 'viridis'	
-	
+
+cmipcolours = 	['goldenrod',
+		 'navy',
+		 'royalblue',
+		 'grey',
+		 'burlywood',
+		 'sienna',
+		 'olive',
+		 'red',
+		 'g',
+		 'purple',
+		 'dodgerblue',
+		 'red',
+		 'plum',
+		 'k',
+		 'lightskyblue',
+		 'violet',
+		 'salmon',
+		 'lightseagreen',
+		 'gold',
+		 'blue',
+		 'lime',
+		 'firebrick',
+		 'chocolate',
+		 'seagreen',
+		 'orange']
+
 
 def trafficlights(ax,xlims, bands,labels=[],drawlegend=True):
 	if len(bands) != 6: print "wrong number of bands to traffic light."
@@ -77,6 +103,23 @@ def drawgreyband(ax,xaxis, bands,labels=[]):
 	return ax
 
 
+def drawLegendAlongside(ax,numberoflines):
+	#####
+	# Add legend outisde axes
+	legendSize = numberoflines+1
+	ncols = int(legendSize/25)+1
+	box = ax.get_position()
+	ax.set_position([box.x0,
+			  box.y0 ,
+			  box.width*(1.-0.1*ncols), 
+			  box.height ])
+										
+	legd = ax.legend(loc='center left', ncol=ncols,prop={'size':10},bbox_to_anchor=(1., 0.5))
+	legd.draw_frame(False) 
+	legd.get_frame().set_alpha(0.)	
+	return ax
+		 
+		 
 
 
 def percentilesPlot(
@@ -544,7 +587,7 @@ def movingaverage_DT(data,times, window_len=5.,window_units='years'):
 	output = np.ma.zeros(data.shape)
 	for i,o in enumerate(output):
 		t = times[i]
-		av = np.ma.masked_where((times < t-window ) + (times > t+window ), data).mean()
+		av = np.ma.masked_where(((times < (t-window) ) + (times > (t+window) )), data).mean()
 		output[i] = av
 	return output
 	
@@ -555,18 +598,21 @@ def movingaverage_DT(data,times, window_len=5.,window_units='years'):
     
 def multitimeseries(
 		timesD, 		# model times (in floats)
-		arrD,		# model time series
+		arrD,			# model time series
 		data = -999,		# in situ data distribution
 		title 	='',
 		filename='',
 		units = '',
-		colours = ['red','orange','green','purple','blue','pink','yellow','lime',],
+		colours = cmipcolours, #['red','orange','green','purple','blue','pink','yellow','lime',],
 		plotStyle = 'Together',	
 		lineStyle = '',	
 	):
 
         if 0 in [len(timesD) , len(timesD.keys())]:return
 
+	if len(colours) < len(arrD.keys()):
+		print colours, arrD.keys()
+		raise ValueError("Not enough colours in "+str(colours)+'\n\t\tplease add '+str(len(arrD.keys())-len(colours))+' new colours')
         #####
         # is empty?
         emptydat=True
@@ -632,20 +678,18 @@ def multitimeseries(
 			arr_smooth = interpolate.spline(times,arr,tnew)
 			pyplot.plot(tnew,arr_smooth,c=colours[jobID],ls='-',label=jobID+' spline',)
 
-		if lineStyle.lower() in ['movingaverage','both','all']:
-			if len(times)>100.: window = 30
-			elif len(times)>30.: window = 15
-			elif len(times)>10.: window = 4			
-			else: window = 1
-			
-			#arr_new = movingaverage(arr, window)
-                        arr_new = movingaverage2(arr, window_len=window,window='flat',extrapolate='periodically')
-			pyplot.plot(times,arr_new,c=colours[jobID],ls='-',label=jobID,)#label=jobID+' smooth',)
+		#if lineStyle.lower() in ['movingaverage','both','all']:
+		#	if len(times)>100.: window = 30
+		#	elif len(times)>30.: window = 15
+		#	elif len(times)>10.: window = 4			
+		#	else: window = 1
+                #        arr_new = movingaverage2(arr, window_len=window,window='flat',extrapolate='periodically')
+		#	pyplot.plot(times,arr_new,c=colours[jobID],ls='-',label=jobID,)#label=jobID+' smooth',)
 
-		if lineStyle.lower() in ['movingaverage5',]:
-			window = 5
-                        arr_new = movingaverage2(arr,times, window_len=window,window='flat',extrapolate='periodically')
-			pyplot.plot(times,arr_new,c=colours[jobID],ls='-',label=jobID,)#label=jobID+' smooth',)
+		#if lineStyle.lower() in ['movingaverage5',]:
+		#	window = 5
+                #        arr_new = movingaverage2(arr,times, window_len=window,window='flat',extrapolate='periodically')
+		#	pyplot.plot(times,arr_new,c=colours[jobID],ls='-',label=jobID,)#label=jobID+' smooth',)
 
 
 
@@ -659,17 +703,17 @@ def multitimeseries(
 
 
 
-		if lineStyle.lower() in ['movingaverage12',]:
-			window = 12
-			if len(arr)>12:
- 	                	arr_new = movingaverage2(arr, window_len=window,window='flat',extrapolate='periodically')
-				pyplot.plot(times,arr_new,c=colours[jobID],ls='-',lw=2.,label=jobID,)#label=jobID+' smooth',)
+		#if lineStyle.lower() in ['movingaverage12',]:
+		#	window = 12
+		#	if len(arr)>12:
+ 	        #        	arr_new = movingaverage2(arr, window_len=window,window='flat',extrapolate='periodically')
+		#		pyplot.plot(times,arr_new,c=colours[jobID],ls='-',lw=2.,label=jobID,)#label=jobID+' smooth',)
 				
-		if lineStyle.lower() in ['movingaverage60',]:
-			window = 60
-			if len(arr)>60:
- 	                	arr_new = movingaverage2(arr, window_len=window,window='flat',extrapolate='periodically')
-				pyplot.plot(times,arr_new,c=colours[jobID],ls='-',lw=2.,label=jobID,)#label=jobID+' smooth',)
+		#if lineStyle.lower() in ['movingaverage60',]:
+		#	window = 60
+		#	if len(arr)>60:
+ 	         #       	arr_new = movingaverage2(arr, window_len=window,window='flat',extrapolate='periodically')
+		#		pyplot.plot(times,arr_new,c=colours[jobID],ls='-',lw=2.,label=jobID,)#label=jobID+' smooth',)
 													
 		#if lineStyle.lower() in ['lowess','all','both',]:
 		#	filtered = lowess(arr, times, is_sorted=True, frac=0.025, it=0)			
@@ -684,8 +728,19 @@ def multitimeseries(
 
 	
 	if data != -999:
-		pyplot.axhline(y=data,c='k',ls='-',lw=1,label = 'Data')
-	
+		try:
+			data = [float(d) for d in data]
+			if len(data) == 4:
+			
+				ax = drawgreyband(ax,xlims, [data[0],data[3]])
+				ax = drawgreyband(ax,xlims, [data[1],data[2]])							
+			if len(data) == 2:
+				ax = drawgreyband(ax,xlims, data,)				
+			if len(data) == 1:
+				pyplot.axhline(y=data[0],c='k',ls='-',lw=1,label = 'Data')	
+		except TypeError:
+			pyplot.axhline(y=data,c='k',ls='-',lw=1,label = 'Data')
+		
 
 
 
@@ -693,12 +748,16 @@ def multitimeseries(
 		pyplot.title(title)
                 pyplot.xlabel('Year')
 		pyplot.ylabel(units)		
-		pyplot.xlim(xlims)					
-		try:	
-			legend = pyplot.legend(loc='best',  numpoints = 1, ncol=len(timesD.keys())/2, prop={'size':12}) 
-			legend.draw_frame(False) 
-			legend.get_frame().set_alpha(0.)
-		except:pass
+		pyplot.xlim(xlims)
+		if len(timesD.keys()) < 5:
+								
+			try:	
+				legend = pyplot.legend(loc='best',  numpoints = 1, ncol=len(timesD.keys())/2, prop={'size':12}) 
+				legend.draw_frame(False) 
+				legend.get_frame().set_alpha(0.)
+			except:pass
+		else:
+			ax= drawLegendAlongside(ax, len(timesD.keys()))
 		
 	elif plotStyle == 'Separate':
 		for ax in axs:

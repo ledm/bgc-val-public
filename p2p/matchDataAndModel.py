@@ -183,6 +183,7 @@ class matchDataAndModel:
  	if modeltimeIndex == -1: 
  		self.modeltimeIndex = None
  	else: 	self.modeltimeIndex = modeltimeIndex
+ 	if self.debug:print "calculateModelYearIndex: ",modeltimeIndex, self.modeltimeIndex
   
   def _pruneModelAndData_(self,):
    	""" This routine reduces the full 3d netcdfs by pruning the unwanted fields.
@@ -190,7 +191,7 @@ class matchDataAndModel:
   	
 	if bvp.shouldIMakeFile(self.ModelFile,self.ModelFilePruned,debug=False):
 		print "matchDataAndModel:\tpruneModelAndData:\tMaking ModelFilePruned:", self.ModelFilePruned
-		p = pruneNC(self.ModelFile,self.ModelFilePruned,self.ModelVars, timeindex =self.modeltimeIndex , debug = self.debug)
+		p = pruneNC(self.ModelFile,self.ModelFilePruned,self.ModelVars, timeindex =self.modeltimeIndex ,  timemean=False, debug = self.debug)
 			
 	else:	
 		print "matchDataAndModel:\tpruneModelAndData:\tModelFilePruned already exists:",self.ModelFilePruned

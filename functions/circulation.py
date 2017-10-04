@@ -109,7 +109,12 @@ def loadDrakeDetails(gridfn):
 	global drakedetails
 	print "cmip5DrakePassage:\topening grid file", gridfn	
 	nc = dataset(gridfn,'r')
-	Drake_A = nc.variables['Drake_A'][:]		
+	if 'Drake_A' in nc.variables.keys(): 
+		drakeKey = 'Drake_A'
+	elif 'Drake' in nc.variables.keys(): 
+		drakeKey = 'Drake'
+			
+	Drake_A = nc.variables[drakeKey][:]		
 	tmask 	= nc.variables['tmask'][:]
 	drakedetails[(gridfn,'Drake_A')] = Drake_A
 	drakedetails[(gridfn,'tmask')] 	= tmask
@@ -179,7 +184,12 @@ def loadAMOCdetails(gridfn):
 	global amocdetails
 	print "loadAMOCdetails:\topening grid file", gridfn	
 	nc = dataset(gridfn,'r')
-	AMOC_26N_A = nc.variables['AMOC_26N_A'][:]		
+	if 'AMOC_26N_A' in nc.variables.keys(): 
+		AMOCkey = 'AMOC_26N_A'
+	elif 'AMOC' in nc.variables.keys(): 
+		AMOCkey = 'AMOC'
+			
+	AMOC_26N_A = nc.variables[AMOCkey][:]		
 	tmaskv 	= nc.variables['tmask'][:]
 	amocdetails[(gridfn,'AMOC_26N_A')] = AMOC_26N_A
 	amocdetails[(gridfn,'tmask')] 	= tmaskv
@@ -189,6 +199,9 @@ def cmip5AMOC(nc,keys,**kwargs):
 	if 'gridfile' not in kwargs.keys():
 		raise AssertionError("cmip5AMOC:\t Needs an `gridFile` kwarg to run calculation.")	
 	gridFile_v = 	kwargs['gridfile']
+
+
+	print nc.variables.keys()	
 	try:	
 		xsectArea 	= amocdetails[(gridFile_v,'AMOC_26N_A')]
 		tmaskv		= amocdetails[(gridFile_v,'tmask')]

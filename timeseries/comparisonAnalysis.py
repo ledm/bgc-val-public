@@ -44,7 +44,7 @@ from timeseries import timeseriesPlots as tsp
 from bgcvaltools.configparser import GlobalSectionParser
 
 
-colourList = ['green','blue','red','orange','purple','black',]
+#colourList = ['green','blue','red','orange','purple','black',]
 
 
 def guessLeadMetric(
@@ -112,10 +112,10 @@ def comparisonAnalysis(configfile):
 
 	regions = regions.keys()
 	layers = layers.keys()
-	metrics	= ['mean' , 'metricless',]
+	metrics	= ['mean' , 'metricless','median',]
+	linestyles = ['DataOnly','movingav1year','movingav5years',]
 	
-	
-	
+	colourList = tsp.cmipcolours
 	#####
 	# Make the plots, comparing differnet jobIDs
 	if leadmetric=='jobID' and len(jobIDs)>1:
@@ -125,7 +125,7 @@ def comparisonAnalysis(configfile):
 			arrD   = {}
 	
 			units = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].units
-		
+			datarange = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].datarange
 			for jobID in jobIDs:
 			
 				try:	mdata = data[(key,model,scenario, jobID)][(region,layer,metric)]
@@ -136,20 +136,21 @@ def comparisonAnalysis(configfile):
 		
 			if not len(arrD.keys()):continue	
 		
-			title = ' '.join([getLongName(i) for i in [model, scenario, region, layer, metric, key]])	
-			filename =  bvp.folder(globalkeys.images_comp)+'_'.join([model, scenario, region, layer, metric, key])+'.png'
+			for linestyle in linestyles:
+				title = ' '.join([getLongName(i) for i in [model, scenario, region, layer, metric, key]])	
+				filename =  bvp.folder(globalkeys.images_comp)+'_'.join([model, scenario, region, layer, metric, key,linestyle])+'.png'
 		
-			tsp.multitimeseries(
-				timesD, 		# model times (in floats)
-				arrD,			# model time series
-				data 		= -999,		# in situ data distribution
-				title 		= title,
-				filename	= filename,
-				units 		= units,
-				plotStyle 	= 'Together',
-				lineStyle	= 'DataOnly',
-				colours		= colours,
-			)
+				tsp.multitimeseries(
+					timesD, 		# model times (in floats)
+					arrD,			# model time series
+					data 		= datarange,		# in situ data distribution
+					title 		= title,
+					filename	= filename,
+					units 		= units,
+					plotStyle 	= 'Together',
+					lineStyle	= linestyle,
+					colours		= colours,
+				)
 			
 	#####
 	# Make the plots, comparing differnet models
@@ -160,7 +161,7 @@ def comparisonAnalysis(configfile):
 			arrD   = {}
 	
 			units = globalkeys.AnalysisKeyParser[(models[0],jobID,globalkeys.years[0],scenario,key)].units
-		
+			datarange = globalkeys.AnalysisKeyParser[(models[0],jobID,globalkeys.years[0],scenario,key)].datarange		
 			for model in models:
 			
 				try:	mdata = data[(key,model,scenario, jobID)][(region,layer,metric)]
@@ -171,20 +172,21 @@ def comparisonAnalysis(configfile):
 		
 			if not len(arrD.keys()):continue	
 		
-			title = ' '.join([getLongName(i) for i in [scenario,jobID, region, layer, metric, key]])	
-			filename =  bvp.folder(globalkeys.images_comp)+'_'.join([ scenario, jobID, region, layer, metric, key])+'.png'
+			for linestyle in linestyles:		
+				title = ' '.join([getLongName(i) for i in [scenario,jobID, region, layer, metric, key]])	
+				filename =  bvp.folder(globalkeys.images_comp)+'_'.join([ scenario, jobID, region, layer, metric, key,linestyle])+'.png'
 		
-			tsp.multitimeseries(
-				timesD, 		# model times (in floats)
-				arrD,			# model time series
-				data 		= -999,		# in situ data distribution
-				title 		= title,
-				filename	= filename,
-				units 		= units,
-				plotStyle 	= 'Together',
-				lineStyle	= 'DataOnly',
-				colours		= colours,
-			)			
+				tsp.multitimeseries(
+					timesD, 		# model times (in floats)
+					arrD,			# model time series
+					data 		= datarange,		# in situ data distribution
+					title 		= title,
+					filename	= filename,
+					units 		= units,
+					plotStyle 	= 'Together',
+					lineStyle	= linestyle,
+					colours		= colours,
+				)			
 
 	#####
 	# Make the plots, comparing differnet scenarios
@@ -195,7 +197,7 @@ def comparisonAnalysis(configfile):
 			arrD   = {}
 	
 			units = globalkeys.AnalysisKeyParser[(model,jobID,globalkeys.years[0],scenarios[0],key)].units
-		
+			datarange = globalkeys.AnalysisKeyParser[(model,jobID,globalkeys.years[0],scenarios[0],key)].datarange				
 			for scenario in scenarios:
 			
 				try:	mdata = data[(key,model,scenario, jobID)][(region,layer,metric)]
@@ -205,20 +207,20 @@ def comparisonAnalysis(configfile):
 				arrD[scenario]	= [mdata[t] for t in timesD[scenario]]
 		
 			if not len(arrD.keys()):continue	
+			for linestyle in linestyles:			
+				title = ' '.join([getLongName(i) for i in [model, jobID, region, layer, metric, key]])	
+				filename =  bvp.folder(globalkeys.images_comp)+'_'.join([model, jobID, region, layer, metric, key,linestyle])+'.png'
 		
-			title = ' '.join([getLongName(i) for i in [model, jobID, region, layer, metric, key]])	
-			filename =  bvp.folder(globalkeys.images_comp)+'_'.join([model, jobID, region, layer, metric, key])+'.png'
-		
-			tsp.multitimeseries(
-				timesD, 		# model times (in floats)
-				arrD,			# model time series
-				data 		= -999,		# in situ data distribution
-				title 		= title,
-				filename	= filename,
-				units 		= units,
-				plotStyle 	= 'Together',
-				lineStyle	= 'DataOnly',
-				colours		= colours,
-			)
+				tsp.multitimeseries(
+					timesD, 		# model times (in floats)
+					arrD,			# model time series
+					data 		= datarange,		# in situ data distribution
+					title 		= title,
+					filename	= filename,
+					units 		= units,
+					plotStyle 	= 'Together',
+					lineStyle	= linestyle,
+					colours		= colours,
+				)
 			
 			
