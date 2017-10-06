@@ -29,7 +29,7 @@
 
 import numpy as np
 from bgcvaltools.dataset import dataset
-
+from bgcvaltools.bgcvalpython import maenumerate
 # coordinates of Drake Passage in eORCA1
 
 LON=219
@@ -200,8 +200,6 @@ def cmip5AMOC(nc,keys,**kwargs):
 		raise AssertionError("cmip5AMOC:\t Needs an `gridFile` kwarg to run calculation.")	
 	gridFile_v = 	kwargs['gridfile']
 
-
-	print nc.variables.keys()	
 	try:	
 		xsectArea 	= amocdetails[(gridFile_v,'AMOC_26N_A')]
 		tmaskv		= amocdetails[(gridFile_v,'tmask')]
@@ -210,41 +208,53 @@ def cmip5AMOC(nc,keys,**kwargs):
 		xsectArea 	= amocdetails[(gridFile_v,'AMOC_26N_A')]
 		tmaskv		= amocdetails[(gridFile_v,'tmask')]
 		
-
-	#print "opening grid file", gridFile
-	#nc = dataset(gridFile,'r')
-	#try:	xsectArea = nc.variables['AMOC'][:]	# zero everywhere, except along cross section.
-	#except:	xsectArea = nc.variables['AMOC_26N_A'][:]	# zero everywhere, except along cross section.			
-	#tmaskv = nc.variables['tmask'][:,]
-	#nc.close()			
 	xsectArea = np.ma.masked_where((xsectArea==0.) + (tmaskv==1),xsectArea)
 
-	velo = nc.variables[keys[0]]#[:]
-
+	velo = nc.variables[keys[0]][:]/1.E06#[:]
+	print xsectArea.shape,  xsectArea.sum()
 	out = []
-	if velo.ndim==4:
-		out = []
-		zlevs = velo.shape[1]
-		for t in np.arange(velo.shape[0]):
-			atlmoc = np.array(np.zeros_like(xsectArea))
-		        for z in np.arange(zlevs): 							
-		    		atlmoc[z,:] = atlmoc[z,:] - xsectArea[z]*velo[t,z]/1.E06						
 	
+	if velo.ndim==4:
+		zlevs = velo.shape[1]
+		tlen  = velo.shape[0]
+		altshape = velo[0,:,:,0].shape
+		for t in np.arange(tlen):
+        	    	atlmoc = np.zeros(altshape)
+        	    	vel = velo[t] * xsectArea
+        	    	vel = np.ma.masked_where((vel==0.)+(tmaskv == 1),vel)
+        	    	
+        	    	atlmoc -= vel.sum(2)
+
 			for z in np.arange(zlevs-2,-1,-1):
 				atlmoc[z,:] = atlmoc[z+1,:] + atlmoc[z,:]		
 			out.append(atlmoc.max())
-			#print model, t,atlmoc.max()
+			print "cmip5AMOC:", t,atlmoc.max()
 	else:
-		assert 0
+		assert 0	    			
 
+	
+#	if velo.ndim==4:
+#		zlevs = velo.shape[1]
+#		for t in np.arange(velo.shape[0]):
+ #       	    	atlmoc = np.zeros_like(velo[0,:,:,0])
+#	    		for (z,la,lo), a in maenumerate(xsectArea):
+#	    			if a == 0.: continue
+#	    			if tmaskv[z,la,lo] == 1: continue
+#	    			#print t,z,la,lo,a
+#				atlmoc[z,la] += - a * velo[t,z,la,lo]
+#
+#			for z in np.arange(zlevs-2,-1,-1):
+#				atlmoc[z,:] = atlmoc[z+1,:] + atlmoc[z,:]		
+#			out.append(atlmoc.max())
+#			print "cmip5AMOC:", t,atlmoc.max()
+#	else:
+#		assert 0
 	out = np.ma.array(out)
 	print "amoc",keys, out, out.shape,tmaskv.shape,velo.shape,out.mean()
+	print xsectArea.shape
+
 	return out	# should return 1 d time array.
 				
-				
-				
-
-                
 def TwentySixNorth(nc,keys,**kwargs):
 	"""
 	This function loads the AMOC/ADRC array that is used for eORCA
@@ -266,11 +276,12 @@ def TwentySixNorth(nc,keys,**kwargs):
 	except:	altmaskfile = 'data/basinlandmask_eORCA1.nc'
 	if not loadedAltMask: loadAtlanticMask(altmaskfile,maskname='tmaskatl',)
 	
-
-	
         zv = np.ma.array(nc.variables[keys[0]][...,latslice26Nnm,:]) # m/s
         atlmoc = np.array(np.zeros_like(zv[0,:,:,0]))
         e2vshape = e3v_AMOC26N.shape
+        xsectArea = (e1v_AMOC26N * e3v_AMOC26N)
+        print e1v_AMOC26N.shape, e3v_AMOC26N.shape, xsectArea.shape, xsectArea.sum()
+       	TotalXsection = 0
         for la in range(e2vshape[1]):           #ji, y
           for lo in range(e2vshape[2]):         #jj , x,
             if int(alttmask_AMOC26N[la,lo]) == 0: continue
@@ -278,7 +289,11 @@ def TwentySixNorth(nc,keys,**kwargs):
                 if int(tmask_AMOC26N[z,la,lo]) == 0:     continue
                 if np.ma.is_masked(zv[0,z,la,lo]): continue
                 atlmoc[z,la] = atlmoc[z,la] - e1v_AMOC26N[la,lo]*e3v_AMOC26N[z,la,lo]*zv[0,z,la,lo]/1.E06
-
+                
+                TotalXsection += e1v_AMOC26N[la,lo]*e3v_AMOC26N[z,la,lo]
+		#print "cmip5AMOC:", la,lo,z,atlmoc.max()
+	print "TotalXsection:",TotalXsection
+	#assert 0	
         ####
         # Cumulative sum from the bottom up.
         for z in range(73,1,-1):

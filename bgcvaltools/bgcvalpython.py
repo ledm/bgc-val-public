@@ -201,7 +201,12 @@ def getDates(nc, coords):
 	"""
 	if type(nc) == type('filename'):
 		nc = dataset(nc,'r')
-	dtimes = num2date(nc.variables[coords['t']][:], nc.variables[coords['t']].units,calendar=coords['cal'])[:]
+	cal  = coords['cal']
+	units = nc.variables[coords['t']].units
+	if cal.lower() in ['auto','guess']:
+		
+		assert 0
+	dtimes = num2date(nc.variables[coords['t']][:], units,calendar=cal)[:]
 	return dtimes
 	
 	
