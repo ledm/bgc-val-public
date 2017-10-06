@@ -191,21 +191,34 @@ def getTimes(nc, coords):
 	"""
 	if type(nc) == type('filename'):
 		nc = dataset(nc,'r')
-	dtimes = num2date(nc.variables[coords['t']][:], nc.variables[coords['t']].units,calendar=coords['cal'])[:]
+		
+	try: 	cal = nc.variables[coords['t']].calendar
+	except:	
+		cal  = coords['cal']		
+		print "getDates was unable to load Calendar, using config calendar:",cal
+			
+	dtimes = num2date(nc.variables[coords['t']][:], nc.variables[coords['t']].units,calendar=cal)[:]
 	ts = np.array([float(dt.year) + dt.dayofyr/365. for dt in dtimes])
 	return ts
 
+
+	
 def getDates(nc, coords):
 	"""
 	Loads the times from the netcdf.
 	"""
 	if type(nc) == type('filename'):
 		nc = dataset(nc,'r')
-	cal  = coords['cal']
+
 	units = nc.variables[coords['t']].units
-	if cal.lower() in ['auto','guess']:
+	#if cal.lower() in ['auto','guess']:
 		
-		assert 0
+	try: 	cal = nc.variables[coords['t']].calendar
+	except:	
+		cal  = coords['cal']		
+		print "getDates was unable to load Calendar, using config calendar:",cal
+	
+		
 	dtimes = num2date(nc.variables[coords['t']][:], units,calendar=cal)[:]
 	return dtimes
 	

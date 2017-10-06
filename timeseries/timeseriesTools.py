@@ -23,7 +23,7 @@
 # ledm@pml.ac.uk
 
 import numpy as np
-from netCDF4 import num2date
+#from netCDF4 import num2date
 import os 
 #from pyproj import Proj
 
@@ -45,24 +45,24 @@ from functions.stdfunctions import extractData
 
 
 
-def getTimes(nc, coords):
-	"""
-	Loads the times from the netcdf.
-	"""
-	if type(nc) == type('filename'):
-		nc = dataset(nc,'r')
-	dtimes = num2date(nc.variables[coords['t']][:], nc.variables[coords['t']].units,calendar=coords['cal'])[:]
-	ts = np.array([float(dt.year) + dt.dayofyr/365. for dt in dtimes])
-	return ts
+#def getTimes(nc, coords):
+#	"""
+#	Loads the times from the netcdf.
+#	"""
+#	if type(nc) == type('filename'):
+#		nc = dataset(nc,'r')
+#	dtimes = num2date(nc.variables[coords['t']][:], nc.variables[coords['t']].units,calendar=coords['cal'])[:]
+#	ts = np.array([float(dt.year) + dt.dayofyr/365. for dt in dtimes])
+#	return ts
 
-def getDates(nc, coords):
-	"""
-	Loads the times from the netcdf.
-	"""
-	if type(nc) == type('filename'):
-		nc = dataset(nc,'r')
-	dtimes = num2date(nc.variables[coords['t']][:], nc.variables[coords['t']].units,calendar=coords['cal'])[:]
-	return dtimes
+#def getDates(nc, coords):
+#	"""
+#	Loads the times from the netcdf.
+#	"""
+#	if type(nc) == type('filename'):
+#		nc = dataset(nc,'r')
+#	dtimes = num2date(nc.variables[coords['t']][:], nc.variables[coords['t']].units,calendar=coords['cal'])[:]
+#	return dtimes
 	
 
 def loadData(nc,details):

@@ -31,7 +31,7 @@
 
 import numpy as np
 from shelve import open as shOpen
-from netCDF4 import num2date
+#from netCDF4 import num2date
 import os
 import shutil
 
@@ -235,8 +235,8 @@ class profileAnalysis:
 		
 		print "profileAnalysis:\tloadModel:\tloading new file:",self.dataType,fn,
 		nc = dataset(fn,'r')
-		ts = tst.getTimes(nc,self.modelcoords)
-		dates = tst.getDates(nc,self.modelcoords) 		
+		ts = bvp.getTimes(nc,self.modelcoords)
+		dates = bvp.getDates(nc,self.modelcoords) 		
 		meantimes = np.mean(ts)
 		print "\ttime:",meantimes
 		

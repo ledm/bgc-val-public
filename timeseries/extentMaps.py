@@ -31,7 +31,6 @@
 
 import numpy as np
 from shelve import open as shOpen
-from netCDF4 import num2date
 import os
 import shutil
 from matplotlib import pyplot, gridspec
@@ -575,7 +574,7 @@ class extentMaps:
 		for mf, mfile in enumerate(self.modelFiles):
 			nc = dataset(mfile,'r')
 			
-			ts = tst.getTimes(nc,self.modelcoords)
+			ts = bvp.getTimes(nc,self.modelcoords)
 			modelDL = tst.DataLoader(mfile,nc,self.modelcoords,self.modeldetails, regions = self.regions, layers = self.layers,)
 			
 			if len(ts) ==1:
@@ -583,7 +582,7 @@ class extentMaps:
 				print "\tmodel have one time step:",meantime
 		
 		    		modelTimes = modelDL.load[(r,l,'t')]
-		    		print modelTimes.min(), modelTimes.max(), tst.getTimes(nc,self.modelcoords)
+		    		print modelTimes.min(), modelTimes.max(), bvp.getTimes(nc,self.modelcoords)
 		    		
 		    		
 				modeldata[meantime] = modelDL.load[(r,l)]

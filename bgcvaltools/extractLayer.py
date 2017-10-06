@@ -36,7 +36,7 @@ from glob import glob
 from shelve import open as shOpen
 from shutil import copy2
 from math import radians, cos, sin, asin, sqrt
-from netCDF4 import num2date,Dataset
+from netCDF4 import Dataset
 from datetime import datetime
 import numpy as np
 

@@ -30,7 +30,7 @@
 """
 	
 	
-from netCDF4 import Dataset, num2date
+from netCDF4 import Dataset
 from datetime import datetime
 from sys import argv
 from os.path import exists,split, getmtime, basename

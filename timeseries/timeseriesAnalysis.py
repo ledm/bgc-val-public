@@ -31,7 +31,7 @@
 
 import numpy as np
 from shelve import open as shOpen
-from netCDF4 import num2date
+#from netCDF4 import num2date
 import os
 import shutil
 
@@ -42,7 +42,6 @@ from bgcvaltools.dataset import dataset
 from regions.makeMask import loadMaskMakers
 import timeseriesTools as tst 
 import timeseriesPlots as tsp 
-#getTimes, loadData
 
 
 
@@ -246,12 +245,12 @@ class timeseriesAnalysis:
 	###############
 	# Load files, and calculate fields.
 	openedFiles = 0					
-	for fn in self.modelFiles:
+	for fn in sorted(self.modelFiles):
 		if fn in readFiles:continue
 		print "timeseriesAnalysis:\tloadModel:\tloading new file:",fn,
 		nc = dataset(fn,'r')
-		ts = tst.getTimes(nc,self.modelcoords)
-		dates = tst.getDates(nc,self.modelcoords) 
+		ts = bvp.getTimes(nc,self.modelcoords)
+		dates = bvp.getDates(nc,self.modelcoords) 
 		meantime = np.mean(ts)
 		print "\ttime:",meantime
 		
@@ -595,7 +594,7 @@ class timeseriesAnalysis:
 	fn = self.modelFiles[-1]
 	mDL = tst.DataLoader(fn,'',self.modelcoords,self.modeldetails, regions = self.regions, layers = newlayers,)
         nc = dataset(fn,'r')
-        ts = tst.getTimes(nc,self.modelcoords)
+        ts = bvp.getTimes(nc,self.modelcoords)
         meantime = np.mean(ts)
  
 	for r in self.regions:

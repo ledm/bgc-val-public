@@ -36,7 +36,7 @@ from glob import glob
 from shelve import open as shOpen
 from shutil import copy2
 from math import radians, cos, sin, asin, sqrt
-from netCDF4 import num2date,Dataset
+#from netCDF4 import Dataset
 from bgcvaltools.dataset import dataset
 from datetime import datetime
 import numpy as np
@@ -215,7 +215,7 @@ class matchDataAndModel:
 
 	print "matchDataAndModel:\tconvertDataTo1D:\topening DataFilePruned:\t",self.DataFilePruned		
 
-	nc = Dataset(self.DataFilePruned,'r')
+	nc = dataset(self.DataFilePruned,'r')
 		
 	if self.layer == '':
 		print 'matchDataAndModel:\tconvertDataTo1D:\tNo depth level cut or requirement',self.DataFilePruned,'-->',self.DataFile1D
@@ -396,7 +396,7 @@ class matchDataAndModel:
 
 	print "matchDataAndModel:\tconvertDataTo1D:\topening DataFilePruned:\t",self.DataFilePruned		
 
-	nc = Dataset(self.DataFilePruned,'r')
+	nc = dataset(self.DataFilePruned,'r')
 		
 	if self.layer == '':
 		print 'matchDataAndModel:\tconvertDataTo1D:\tNo depth level cut or requirement',self.DataFilePruned,'-->',self.DataFile1D
@@ -428,7 +428,7 @@ class matchDataAndModel:
   def _matchModelToData_(self,):
   	print "matchModelToData:\tOpened MAREDAT netcdf:", self.DataFile1D
   	
-  	ncIS = Dataset(self.DataFile1D,'r')
+  	ncIS = dataset(self.DataFile1D,'r')
   	#ncIS = ncdfView(self.DataFile1D,Quiet=True)  	
 	is_i	= ncIS.variables['index'][:]
 	
@@ -711,7 +711,7 @@ class matchDataAndModel:
 		return arr
 		
 
-  	ncIS = Dataset(self.DataFile1D,'r')		
+  	ncIS = dataset(self.DataFile1D,'r')		
   	#ncIS = ncdfView(self.DataFile1D,Quiet=True)		
 	av = AutoVivification()
 	for v in ncIS.variables.keys():
@@ -738,7 +738,7 @@ class matchDataAndModel:
       	# This won't work unless its the 1 degree grid.
       	#f self.ORCA == "ORCA1":
  	print "matchModelToData:\tOpened Model netcdf mesh.", self.grid, '(',self.gridFile,')'
-  	ncER = Dataset(self.gridFile,'r')
+  	ncER = dataset(self.gridFile,'r')
   	
   	#ncER = ncdfView("data/mesh_mask_ORCA1_75.nc",Quiet=True)
   	#if 'nav_lat' in ncER.variables.keys():	self.latcc    = ncER.variables['nav_lat'][:].squeeze()
