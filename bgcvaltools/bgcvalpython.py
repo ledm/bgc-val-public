@@ -41,6 +41,7 @@ from mpl_toolkits.basemap import Basemap
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.colors import LogNorm
 from netCDF4 import num2date
+from datetime import datetime
 from bgcvaltools.dataset import dataset
 try:
 	import cartopy.crs as ccrs
@@ -183,23 +184,7 @@ def listFiles(a, want=100, listType = 'even' ,first = 30,last = 30):
 	# remove duplicates and sort
 	newlist =sorted({n:True for n in newlist}.keys())
 	return newlist
-	
 
-def getTimes(nc, coords):
-	"""
-	Loads the times from the netcdf.
-	"""
-	if type(nc) == type('filename'):
-		nc = dataset(nc,'r')
-		
-	try: 	cal = nc.variables[coords['t']].calendar
-	except:	
-		cal  = coords['cal']		
-		print "getDates was unable to load Calendar, using config calendar:",cal
-			
-	dtimes = num2date(nc.variables[coords['t']][:], nc.variables[coords['t']].units,calendar=cal)[:]
-	ts = np.array([float(dt.year) + dt.dayofyr/365. for dt in dtimes])
-	return ts
 
 
 	
@@ -222,6 +207,30 @@ def getDates(nc, coords):
 	dtimes = num2date(nc.variables[coords['t']][:], units,calendar=cal)[:]
 	return dtimes
 	
+def DOYarr(dates,debug=False):
+	"""
+	Converts datetime objects into an array of floats in units of years.
+	"""
+	try:
+		ts = np.array([float(dt.year) + dt.dayofyr/365. for dt in dates])
+		if debug: print "DOYarr time array (dt.dayofyr method):",ts
+		return ts
+	except: pass
+	
+	ts = []
+	for d in dates:
+		tdelta = d - datetime(d.year,1,1,0,0,0)
+		ts.append(float(d.year) + float(tdelta.days)/365. + float(tdelta.seconds)/(365.*60.*60.))
+	if debug: print "DOYarr time array (timedelta method):",ts
+	return np.array(ts)
+		
+def getTimes(nc, coords):
+	"""
+	Loads the times as a string of floats from the netcdf.
+	"""
+	dtimes = getDates(nc, coords)	
+	ts = DOYarr(dtimes)
+	return ts
 	
 	
 
