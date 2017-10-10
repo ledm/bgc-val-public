@@ -188,10 +188,16 @@ def loadAMOCdetails(gridfn):
 		AMOCkey = 'AMOC_26N_A'
 	elif 'AMOC' in nc.variables.keys(): 
 		AMOCkey = 'AMOC'
-			
 	AMOC_26N_A = nc.variables[AMOCkey][:]		
+	
+	#if 'ADRC_16N_A' in nc.variables.keys(): 
+	#	ADRC_key = 'ADRC_16N_A'
+	#ADRC_16N_A = nc.variables[ADRC_key][:]			
+	
 	tmaskv 	= nc.variables['tmask'][:]
 	amocdetails[(gridfn,'AMOC_26N_A')] = AMOC_26N_A
+	#amocdetails[(gridfn,'ADRC_16N_A')] = ADRC_16N_A	
+		
 	amocdetails[(gridfn,'tmask')] 	= tmaskv
 	nc.close()
 		
@@ -228,32 +234,96 @@ def cmip5AMOC(nc,keys,**kwargs):
 			for z in np.arange(zlevs-2,-1,-1):
 				atlmoc[z,:] = atlmoc[z+1,:] + atlmoc[z,:]		
 			out.append(atlmoc.max())
-			print "cmip5AMOC:", t,atlmoc.max()
+			#print "cmip5AMOC:", t,atlmoc.max()
 	else:
 		assert 0	    			
-
-	
-#	if velo.ndim==4:
-#		zlevs = velo.shape[1]
-#		for t in np.arange(velo.shape[0]):
- #       	    	atlmoc = np.zeros_like(velo[0,:,:,0])
-#	    		for (z,la,lo), a in maenumerate(xsectArea):
-#	    			if a == 0.: continue
-#	    			if tmaskv[z,la,lo] == 1: continue
-#	    			#print t,z,la,lo,a
-#				atlmoc[z,la] += - a * velo[t,z,la,lo]
-#
-#			for z in np.arange(zlevs-2,-1,-1):
-#				atlmoc[z,:] = atlmoc[z+1,:] + atlmoc[z,:]		
-#			out.append(atlmoc.max())
-#			print "cmip5AMOC:", t,atlmoc.max()
-#	else:
-#		assert 0
 	out = np.ma.array(out)
-	print "amoc",keys, out, out.shape,tmaskv.shape,velo.shape,out.mean()
-	print xsectArea.shape
-
+	print "cmip5AMOC: ",keys, out, out.shape,tmaskv.shape,velo.shape,out.mean()
 	return out	# should return 1 d time array.
+
+def cmip5ADRC(nc,keys,**kwargs):
+	if 'gridfile' not in kwargs.keys():
+		raise AssertionError("cmip5ADRC:\t Needs an `gridFile` kwarg to run calculation.")	
+	gridFile_v = 	kwargs['gridfile']
+
+	try:	
+		xsectArea 	= amocdetails[(gridFile_v,'AMOC_26N_A')]
+		tmaskv		= amocdetails[(gridFile_v,'tmask')]
+	except:
+		loadAMOCdetails(gridFile_v)
+		xsectArea 	= amocdetails[(gridFile_v,'AMOC_26N_A')]
+		tmaskv		= amocdetails[(gridFile_v,'tmask')]
+		
+	xsectArea = np.ma.masked_where((xsectArea==0.) + (tmaskv==1),xsectArea)
+
+	velo = nc.variables[keys[0]][:]/1.E06#[:]
+	print xsectArea.shape,  xsectArea.sum()
+	out = []
+	
+	if velo.ndim==4:
+		zlevs = velo.shape[1]
+		tlen  = velo.shape[0]
+		altshape = velo[0,:,:,0].shape
+		for t in np.arange(tlen):
+        	    	atlmoc = np.zeros(altshape)
+        	    	vel = velo[t] * xsectArea
+        	    	vel = np.ma.masked_where((vel==0.)+(tmaskv == 1),vel)
+        	    	
+        	    	atlmoc -= vel.sum(2)
+
+			for z in np.arange(zlevs-2,-1,-1):
+				atlmoc[z,:] = atlmoc[z+1,:] + atlmoc[z,:]		
+			out.append(atlmoc.min())
+			#print "cmip5AMOC:", t,atlmoc.max()
+	else:
+		assert 0	    			
+	out = np.ma.array(out)
+	print "cmip5ADRC",keys, out, out.shape,tmaskv.shape,velo.shape,out.mean()
+	return out	# should return 1 d time array.
+	
+def cmip5ADRC16(nc,keys,**kwargs):
+	if 'gridfile' not in kwargs.keys():
+		raise AssertionError("cmip5ADRC:\t Needs an `gridFile` kwarg to run calculation.")	
+	gridFile_v = 	kwargs['gridfile']
+
+	try:	
+		xsectArea 	= amocdetails[(gridFile_v,'ADRC_16N_A')]
+		tmaskv		= amocdetails[(gridFile_v,'tmask')]
+	except:
+		loadADRCdetails(gridFile_v)
+		xsectArea 	= amocdetails[(gridFile_v,'ADRC_16N_A')]
+		tmaskv		= amocdetails[(gridFile_v,'tmask')]
+		
+	xsectArea = np.ma.masked_where((xsectArea==0.) + (tmaskv==1),xsectArea)
+
+	velo = nc.variables[keys[0]][:]/1.E06#[:]
+	print xsectArea.shape,  xsectArea.sum()
+	out = []
+	
+	if velo.ndim==4:
+		zlevs = velo.shape[1]
+		tlen  = velo.shape[0]
+		altshape = velo[0,:,:,0].shape
+		for t in np.arange(tlen):
+        	    	atlmoc = np.zeros(altshape)
+        	    	vel = velo[t] * xsectArea
+        	    	vel = np.ma.masked_where((vel==0.)+(tmaskv == 1),vel)
+        	    	
+        	    	atlmoc -= vel.sum(2)
+
+			for z in np.arange(zlevs-2,-1,-1):
+				atlmoc[z,:] = atlmoc[z+1,:] + atlmoc[z,:]		
+			out.append(atlmoc.min())
+			#print "cmip5AMOC:", t,atlmoc.max()
+	else:
+		assert 0	    			
+	out = np.ma.array(out)
+	print "cmip5ADRC16",keys, out, out.shape,tmaskv.shape,velo.shape,out.mean()
+	return out	# should return 1 d time array.
+	
+	
+	
+		
 				
 def TwentySixNorth(nc,keys,**kwargs):
 	"""

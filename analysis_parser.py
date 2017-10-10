@@ -52,14 +52,119 @@ from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
 
 from html.makeReportConfig import htmlMakerFromConfig
 
+parrallel = True
+if parrallel:
+	try:	from multiprocessing import Pool
+	except: parrallel = False
 
 
+def evaluateFromConfig( akp,
+			model	= '',
+			jobID	= '',
+			year	= '',
+			scenario= '',
+			key	= ''):
 
+	if akp.dimensions in  [1,]:			
+		metricList = ['metricless',]
+	if akp.dimensions in  [2, 3]:
+		metricList = ['mean','median', '10pc','20pc','30pc','40pc','50pc','60pc','70pc','80pc','90pc','min','max']
+	#####
+	# Time series plots		
+	if akp.makeTS: 
+	        tsa = timeseriesAnalysis(
+	                modelFiles	= akp.modelFiles_ts,
+	                dataFile 	= akp.dataFile,
+	                jobID           = akp.jobID,
+	                dataType        = akp.name,
+	                workingDir      = akp.postproc_ts,
+	                imageDir        = akp.images_ts,
+	                metrics         = metricList,
+	                modelcoords     = akp.modelcoords,
+	                modeldetails    = akp.modeldetails,
+	                datacoords      = akp.datacoords,
+	                datadetails     = akp.datadetails,
+	                datasource      = akp.datasource,
+	                model           = akp.model,
+			scenario        = akp.scenario,						                
+	                layers          = akp.layers,
+	                regions         = akp.regions,
+	                grid            = akp.modelgrid,
+	                gridFile        = akp.gridFile,
+	                clean           = akp.clean,
+	        )
 
+	#####
+	# Profile plots (only works for 3 Dimensional data.)
+	if akp.makeProfiles and akp.dimensions == 3:
+		profa = profileAnalysis(
+			modelFiles 	= akp.modelFiles_ts,
+			dataFile	= akp.dataFile,
+			jobID           = akp.jobID,
+			dataType        = akp.name,
+			workingDir      = akp.postproc_pro,
+			imageDir        = akp.images_pro,
+			modelcoords     = akp.modelcoords,
+			modeldetails    = akp.modeldetails,
+			datacoords      = akp.datacoords,
+			datadetails     = akp.datadetails,
+			datasource      = akp.datasource,
+			model           = akp.model,
+			scenario        = akp.scenario,				
+			regions         = akp.regions,
+			grid            = akp.modelgrid,
+			gridFile        = akp.gridFile,
+			layers	 	= list(np.arange(102)),		# 102 because that is the number of layers in WOA Oxygen
+			metrics	 	= ['mean',],								
+			clean 		= akp.clean,
+		)
+		
+	#####
+	# Point to point plots	
+	if akp.makeP2P and  akp.dimensions not in [1,]:
+	    	testsuite_p2p(
+	                modelFile	= akp.modelFile_p2p,
+	                dataFile 	= akp.dataFile,    		
+			model 		= akp.model,
+			scenario        = akp.scenario,								
+			jobID 		= akp.jobID,
+	    		dataType        = akp.name,						
+			year  		= akp.year,
+			modelcoords     = akp.modelcoords,
+	                modeldetails    = akp.modeldetails,
+	                datacoords      = akp.datacoords,
+	                datadetails     = akp.datadetails,
+	                datasource      = akp.datasource,
+			plottingSlices	= akp.regions,		# set this so that testsuite_p2p reads the slice list from the av.
+			layers		= akp.layers,
+			workingDir 	= akp.postproc_p2p, 
+			imageFolder	= akp.images_p2p,
+	                grid            = akp.modelgrid,			
+			gridFile	= akp.gridFile,	# enforces custom gridfile.
+			noPlots		= False,	# turns off plot making to save space and compute time.
+			annual		= True,
+			noTargets	= True,
+	                clean           = akp.clean,				
+	 	)
+		 	
+jobsDict = {}
+def parrallelEval(index):
+	"""
+	Parralllelise the evaluation of a specific job.
+	"""
+	[(model,jobID,year,scenario,key),akp] = jobsDict[index]
+	print "parrallelEval:",model,jobID,year,scenario,key
+	evaluateFromConfig( akp,
+		model	= model,
+		jobID	= jobID,
+		year	= year,
+		scenario= scenario,
+		key	= key)	
+				
 def analysis_parser(
 			configfile = 'runconfig.ini',
 			):
-
+	
 	#####
 	# Load global level keys from the config file.
 	gk =  GlobalSectionParser(configfile)
@@ -68,88 +173,26 @@ def analysis_parser(
 
 	#####
 	# Run the evaluation for each True boolean key in the config file section [ActiveKeys].	
-	for (model,jobID,year,scenario,key),akp in gk.AnalysisKeyParser.items():
-		if akp.dimensions in  [1,]:			
-			metricList = ['metricless',]
-		if akp.dimensions in  [2, 3]:
-			metricList = ['mean','median', '10pc','20pc','30pc','40pc','50pc','60pc','70pc','80pc','90pc','min','max']
-		#####
-		# Time series plots		
-		if akp.makeTS: 
-		        tsa = timeseriesAnalysis(
-		                modelFiles	= akp.modelFiles_ts,
-		                dataFile 	= akp.dataFile,
-		                jobID           = akp.jobID,
-		                dataType        = akp.name,
-		                workingDir      = akp.postproc_ts,
-		                imageDir        = akp.images_ts,
-		                metrics         = metricList,
-		                modelcoords     = akp.modelcoords,
-		                modeldetails    = akp.modeldetails,
-		                datacoords      = akp.datacoords,
-		                datadetails     = akp.datadetails,
-		                datasource      = akp.datasource,
-		                model           = akp.model,
-				scenario        = akp.scenario,						                
-		                layers          = akp.layers,
-		                regions         = akp.regions,
-		                grid            = akp.modelgrid,
-		                gridFile        = akp.gridFile,
-		                clean           = akp.clean,
-		        )
-
-		#####
-		# Profile plots (only works for 3 Dimensional data.)
-		if akp.makeProfiles and akp.dimensions == 3:
-			profa = profileAnalysis(
-				modelFiles 	= akp.modelFiles_ts,
-				dataFile	= akp.dataFile,
-				jobID           = akp.jobID,
-				dataType        = akp.name,
-				workingDir      = akp.postproc_pro,
-				imageDir        = akp.images_pro,
-				modelcoords     = akp.modelcoords,
-				modeldetails    = akp.modeldetails,
-				datacoords      = akp.datacoords,
-				datadetails     = akp.datadetails,
-				datasource      = akp.datasource,
-				model           = akp.model,
-				scenario        = akp.scenario,				
-				regions         = akp.regions,
-				grid            = akp.modelgrid,
-				gridFile        = akp.gridFile,
-				layers	 	= list(np.arange(102)),		# 102 because that is the number of layers in WOA Oxygen
-				metrics	 	= ['mean',],								
-				clean 		= akp.clean,
-			)
-			
-		#####
-		# Point to point plots	
-		if akp.makeP2P and  akp.dimensions not in [1,]:
-		    	testsuite_p2p(
-		                modelFile	= akp.modelFile_p2p,
-		                dataFile 	= akp.dataFile,    		
-				model 		= akp.model,
-				scenario        = akp.scenario,								
-				jobID 		= akp.jobID,
-		    		dataType        = akp.name,						
-				year  		= akp.year,
-				modelcoords     = akp.modelcoords,
-		                modeldetails    = akp.modeldetails,
-		                datacoords      = akp.datacoords,
-		                datadetails     = akp.datadetails,
-		                datasource      = akp.datasource,
-				plottingSlices	= akp.regions,		# set this so that testsuite_p2p reads the slice list from the av.
-				layers		= akp.layers,
-				workingDir 	= akp.postproc_p2p, 
-				imageFolder	= akp.images_p2p,
-		                grid            = akp.modelgrid,			
-				gridFile	= akp.gridFile,	# enforces custom gridfile.
-				noPlots		= False,	# turns off plot making to save space and compute time.
-				annual		= True,
-				noTargets	= True,
-		                clean           = akp.clean,				
-		 	)
+	if parrallel:
+		global jobsDict
+		
+		i = 0
+		for (model,jobID,year,scenario,key),akp in gk.AnalysisKeyParser.items():
+			jobsDict[i] = [(model,jobID,year,scenario,key),akp]
+			i+=1
+		
+		nproc = 8
+		pool = Pool(processes=nproc)              	# start nproc worker processes
+		pool.map(parrallelEval, sorted(jobsDict.keys()))# Map processes onto jobDict 
+		pool.close()					# end
+	else:
+		for (model,jobID,year,scenario,key),akp in gk.AnalysisKeyParser.items():
+			evaluateFromConfig( akp,
+				model	= model,
+				jobID	= jobID,
+				year	= year,
+				scenario= scenario,
+				key	= key)
 		
 	#####
 	# Comparison Plots.
