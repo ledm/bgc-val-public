@@ -128,6 +128,100 @@ def calcTotalIceExtentS(nc,keys, **kwargs): # South
 	return np.ma.masked_where((tmask==0)+(nc.variables[keys[0]][:].squeeze()<minIce)+(lat>0.),area).sum()/1E12
 	
 	
+
+
+icedetails = {}
+def loadArea(gridfn):
+	global icedetails
+	nc = dataset(gridfn,'r')		
+	lat    = nc.variables['lat'][:]	
+	try:
+		area   = nc.variables['area' ][:]
+	except:
+		area = nc.variables['e2t'][:] * nc.variables['e1t'][:]
+	if lat.ndim ==1:
+		lon = nc.variables['lon'][:]
+		if area.shape[0]==lat.shape[0]:	lats,lond = np.meshgrid(lon,lat)
+		if area.shape[1]==lat.shape[0]:	lats,lond = np.meshgrid(lat,lon)
+	else:
+		lats = lat
+	nc.close()
+	icedetails[(gridfn,'area')] = area
+	icedetails[(gridfn,'lat')] = lats	
+		
+
+def cmipTotalIceExtent(nc,keys, **kwargs):	#Global
+	if 'gridfile' not in kwargs.keys():
+		raise AssertionError("cmipTotalIceExtent:\t Needs an `gridfile` kwarg to run calculation.")	
+
+	gridfn = kwargs['gridfile']
+	try:
+		area = icedetails[(gridfn,'area')]
+		lat  = icedetails[(gridfn,'lat')]
+	except:
+		loadArea(gridfn)		
+		area = icedetails[(gridfn,'area')]
+		lat  = icedetails[(gridfn,'lat')]		
+					
+	try:	minIce = float(kwargs['minIce'])
+	except:	minIce = 0.15
 	
+	try:	hemisphere = kwargs['hemisphere']
+	except:	hemisphere = 'both'
+	
+	sic = np.ma.array(nc.variables[keys[0]][:].squeeze())
+	sic = np.ma.masked_where((sic < minIce) + sic.mask, sic)
+
+	northern = ['north','northern','northernhemisphere','northhemishere']
+	southern = ['south','southern','southernhemisphere','southhemishere']
+	
+	if sic.ndim ==3:
+		out = []
+		for i in np.arange(sic.shape[0]):
+			si = sic[i]*area
+			if hemisphere.lower() in northern:	si = np.ma.masked_where(lat<0.,si)
+			if hemisphere.lower() in southern:	si = np.ma.masked_where(lat>0.,si)
+				
+			out.append(si.sum()*1.E-12)
+			#print 'ice coverage',i, out[i]
+			#from matplotlib import pyplot
+			#pyplot.figure()
+			#ax1 = pyplot.subplot(221)
+			#pyplot.pcolormesh(sic[i])
+			#pyplot.colorbar()
+			#ax2 = pyplot.subplot(222)
+			#pyplot.pcolormesh(sic[i]*area)
+			#pyplot.colorbar()
+			#ax3 = pyplot.subplot(223)
+			#pyplot.pcolormesh(area)
+			#pyplot.colorbar()
+			#ax4 = pyplot.subplot(224)
+			#pyplot.pcolormesh(si)
+			#pyplot.colorbar()
+			#pyplot.show()
+			#assert 0
+		return np.ma.array(out)
+	elif sic.ndim ==2: 
+		if hemisphere.lower() in northern:	sic = np.ma.masked_where(lat<0.,sic)
+		if hemisphere.lower() in southern:	sic = np.ma.masked_where(lat>0.,sic)	
+		return (sic*area).sum()*1.E-12
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 

@@ -33,14 +33,10 @@ import numpy as np
 from bgcvaltools.dataset import dataset
 from bgcvaltools.bgcvalpython import Area
 
-tmask 	= 0
-pvol 	= 0
-loadedArea = False
+omzdetails = {}
 
 def loadDataMask(gridfn):
-	global loadedArea
-	global tmask
-	global pvol
+	global omzdetails
 	nc = dataset(gridfn,'r')		
 	try:
 		pvol   = nc.variables['pvol' ][:]
@@ -49,26 +45,63 @@ def loadDataMask(gridfn):
 		tmask = nc.variables['tmask'][:]
 		area = nc.variables['e2t'][:] * nc.variables['e1t'][:]
 		pvol = nc.variables['e3t'][:] *area
-		pvol = np.ma.masked_where(tmask==0,pvol)
+	pvol = np.ma.masked_where(tmask==1,pvol)
 	nc.close()
-	loadedArea = True
+	omzdetails[(gridfn,'pvol')] = pvol
+	omzdetails[(gridfn,'tmask')] = tmask	
+	
+	
+
 	
 
 def modelTotalOMZvol(nc,keys, **kwargs):
-	if 'areafile' not in kwargs.keys():
-		raise AssertionError("OMZ:\t Needs an `areafile` kwarg to calculate Total OMZ")	
-
+	if 'gridfile' not in kwargs.keys():
+		raise AssertionError("OMZ:\t Needs an `gridfile` kwarg to calculate Total OMZ")	
+	gridfn = kwargs['gridfile']
+	
 	try: 	omzthreshold = float(kwargs['omzthreshold'])
 	except:	raise AssertionError("OMZ:\t Needs an `omzthreshold` kwarg to calculate OMZ")
 
-	if not loadedArea: loadDataMask(kwargs['areafile'])
+	try:
+		pvol = omzdetails[(gridfn,'pvol')]
+	except:
+		loadDataMask(gridfn)		
+		pvol = omzdetails[(gridfn,'pvol')]
+				
 	if np.ma.sum(pvol) == 0:
 		raise AssertionError("omz.py:\t Model volume not loaded correctly")
 
 		
-	arr = np.ma.array(nc.variables[keys[0]][:].squeeze())
-	return np.ma.masked_where((arr>omzthreshold) + pvol.mask + arr.mask,pvol).sum()
-
+	ox = np.ma.array(nc.variables[keys[0]][:].squeeze())
+	if ox.ndim==3:
+		return np.ma.masked_where((ox>omzthreshold) + pvol.mask + ox.mask,pvol).sum()	
+		
+	if ox.ndim==4:
+		tlen  = ox.shape[0]
+		ox = np.ma.masked_where(ox>omzthreshold, ox)
+		omz = []
+		for t in range(tlen):
+			omz.append(np.ma.masked_where(pvol.mask + ox.mask[t],pvol).sum() )
+			#print "OMZ:",t, omz[t], ':',[ox[t].min(),ox[t].mean(),ox[t].max()], ('omzthreshold:',omzthreshold)			
+			#from matplotlib import pyplot
+			#pyplot.figure()
+			#ax1 = pyplot.subplot(221)
+			#pyplot.pcolormesh(ox[t].min(0))
+			#pyplot.colorbar()
+			#ax2 = pyplot.subplot(222)
+			#pyplot.pcolormesh(pvol.sum(0))
+			#pyplot.colorbar()
+			#ax3 = pyplot.subplot(223)
+			#pyplot.pcolormesh(ox.mask[t].sum(0))
+			#pyplot.colorbar()
+			#ax4 = pyplot.subplot(224)
+			#pyplot.pcolormesh(pvol.mask.sum(0))
+			#pyplot.colorbar()
+			#pyplot.show()
+			#assert 0
+			#print "OMZ:",t, omz[t], ':',[ox[t].min(),ox[t].mean(),ox[t].max()], ('omzthreshold:',omzthreshold)
+		return np.ma.array(omz)
+	raise AssertionError("OMZ:\t Unexpected Dimensions:"+str(ox.shape))
 
 def woaTotalOMZvol(nc, keys, **kwargs):
 	if 'omzthreshold' not in kwargs.keys():
