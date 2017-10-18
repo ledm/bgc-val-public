@@ -52,7 +52,7 @@ from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
 
 from html.makeReportConfig import htmlMakerFromConfig
 
-parrallel = True
+parrallel = 0 #True
 if parrallel:
 	try:	from multiprocessing import Pool
 	except: parrallel = False
@@ -181,7 +181,7 @@ def analysis_parser(
 			jobsDict[i] = [(model,jobID,year,scenario,key),akp]
 			i+=1
 		
-		nproc = 8
+		nproc = 4
 		pool = Pool(processes=nproc)              	# start nproc worker processes
 		pool.map(parrallelEval, sorted(jobsDict.keys()))# Map processes onto jobDict 
 		pool.close()					# end

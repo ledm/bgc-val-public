@@ -34,6 +34,8 @@ from matplotlib import pyplot, gridspec
 from matplotlib.colors import LogNorm
 import matplotlib.patches as mpatches
 from mpl_toolkits.basemap import Basemap
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 import cartopy
 import numpy as np
 from numpy import hanning,hamming,bartlett,blackman 
@@ -186,8 +188,8 @@ def percentilesPlot(
 		labels = ['20-30 pc','30-40 pc','40-60 pc','60-70 pc','70-80 pc',]
 		axd = trafficlights(axd,xlims, [pc1,pc2,pc3,pc4,pc5,pc6],labels=labels,drawlegend=False)
 
-		axd.axhline(y=np.ma.average(dataslice,weights=dataweights),  c='k',ls='--',lw=1.5,)
-		axd.axhline(y=datapcs[50.],c='k',ls='-', lw=1.5,)
+		axd.axhline(y=np.ma.average(dataslice,weights=dataweights),  c='k',ls='--',lw=1.5,)#label='mean')
+		axd.axhline(y=datapcs[50.],c='k',ls='-', lw=1.5,)#label='median')
 				
 		if greyband == 'MinMax':
 			pcmin 	= np.array([dataslice.min() for i in xlims])
@@ -223,8 +225,6 @@ def percentilesPlot(
 		ylims[0] = ylims[0]-diff/20.
 		ylims[1] = ylims[1]+diff/20.
 		
-		
-		
 	
 	# Add a legend
 	box = axd.get_position()
@@ -235,19 +235,36 @@ def percentilesPlot(
 		
 
 	labels = ['10-20','20-30','30-40','40-60','60-70','70-80','80-90',]
-	pyplot.fill_between([],[],[],alpha = 0.,	color='w',label='%ile')				
-	pyplot.fill_between([],[],[],alpha = 0.05,	color='k',label=labels[6])			
-	pyplot.fill_between([],[],[],alpha = 0.2,	color='r',label=labels[5])
-	pyplot.fill_between([],[],[],alpha = 0.2,	color='DarkOrange',label=labels[4])			
-	pyplot.fill_between([],[],[],alpha = 0.2,	color='g',label=labels[3])
-	pyplot.fill_between([],[],[],alpha = 0.2,	color='DarkOrange',label=labels[2])			
-	pyplot.fill_between([],[],[],alpha = 0.2,	color='r',label=labels[1])									
-	pyplot.fill_between([],[],[],alpha = 0.05,	color='k',label=labels[0])
+	a1 = pyplot.fill_between([],[],[],alpha = 0.,	color='w',		label='%ile')				
+	b1 = pyplot.fill_between([],[],[],alpha = 0.05,	color='k',		label=labels[6])			
+	c1 = pyplot.fill_between([],[],[],alpha = 0.2,	color='r',		label=labels[5])
+	d1 = pyplot.fill_between([],[],[],alpha = 0.2,	color='DarkOrange',	label=labels[4])			
+	e1 = pyplot.fill_between([],[],[],alpha = 0.2,	color='g',		label=labels[3])
+	f1 = pyplot.fill_between([],[],[],alpha = 0.2,	color='DarkOrange',	label=labels[2])			
+	g1 = pyplot.fill_between([],[],[],alpha = 0.2,	color='r',		label=labels[1])									
+	h1 = pyplot.fill_between([],[],[],alpha = 0.05,	color='k',		label=labels[0])
+	i1 = pyplot.fill_between([],[],[],alpha = 0.,	color='w',label=' ')				
+	#j1 = pyplot.plot([],[], 'k--', lw=1.5, label='mean')
+	#k1 = pyplot.plot([],[], 'k-',  lw=1.5, label='median')
+	j1 = pyplot.Line2D([],[], color='k', ls='--', lw=1.5, label='mean 2')
+	k1 = pyplot.Line2D([],[], color='k', ls='-',  lw=1.5, label='median 2')	
+	
+	legendOrder = [a1,b1,c1,d1,e1,f1,g1,h1,i1,j1,k1,]
+	legendTxt   = ['%ile', labels[6],labels[5],labels[4],labels[3],labels[2],labels[1],labels[0], ' ','mean', 'median']
+	#handles, labels = axd.get_legend_handles_labels()
+	# reverse the order
+	#ax.legend(legendOrder, legendTxt)
+	#print handles, labels
+	#assert 0
 												
-	legd = axd.legend(loc='center left', ncol=1,prop={'size':9},bbox_to_anchor=(0.9, 0.5))
+	legd = axd.legend(handles = legendOrder,labels = legendTxt, loc='center left', ncol=1,prop={'size':9},bbox_to_anchor=(0.9, 0.5))
 	legd.draw_frame(False) 
 	legd.get_frame().set_alpha(0.)	
 
+	#lege = axd.legend( loc='center left', ncol=1,prop={'size':9},bbox_to_anchor=(0.9, 0.5)) #[j1,k1,],['mean', 'median',]
+	#lege.draw_frame(False) 
+	#lege.get_frame().set_alpha(0.)	
+	
 	axd.text(0.5,0.985,'Data',
 		va='top',ha='center',
 		transform=axd.transAxes)
@@ -263,12 +280,12 @@ def percentilesPlot(
 		transform=axm.transAxes)
 
 
-	pyplot.plot(timesDict['mean'],  modeldataDict['mean']  ,'k--',lw=1,label='mean')
-	pyplot.plot(timesDict['median'],modeldataDict['median'],'k-', lw=1,label='median')	
+	pyplot.plot(timesDict['mean'],  modeldataDict['mean']  ,'k--',lw=1,)#label='mean')
+	pyplot.plot(timesDict['median'],modeldataDict['median'],'k-', lw=1,)#label='median')	
 			
-	legend = pyplot.legend(loc='lower center',  numpoints = 1, ncol=2, prop={'size':12}) 
-	legend.draw_frame(False) 
-	legend.get_frame().set_alpha(0.)
+	#legend = pyplot.legend(loc='lower center',  numpoints = 1, ncol=2, prop={'size':12}) 
+	#legend.draw_frame(False) 
+	#legend.get_frame().set_alpha(0.)
 		
 	
 	labels = ['20-30 pc','30-40 pc','40-60 pc','60-70 pc','70-80 pc',]	
@@ -1074,53 +1091,86 @@ def hovmoellerPlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords=
 		if defcmapstr =='viridis':
 			cmapax2 = discrete_viridis(bins)
 		else:	cmapax2 = pyplot.cm.get_cmap(defcmap, bins) 
-		title = 'Model: '+title
+		title = title
 	#####
 	# Start drawing
 	# Grid spec allows you to make un-even shaped subplots.
 	# here we want the in situ data to be much narrower.
 	fig = pyplot.figure()	
 	fig.set_size_inches(10,6)
-	gs = gridspec.GridSpec(1, 2, width_ratios=[1, 12]) 
-
-	#####
-	# Data  subplot
-	
-	ax1 = pyplot.subplot(gs[0])
-	if len(dd.squeeze().compressed())!=0:
-		try:	hovmoellerAxis(fig,ax1,'Data',dxaxis,dyaxis,dd,vmin=rbmi,vmax=rbma , cmap = cmapax1)
-		except:	
-			hovmoellerAxis(fig,ax1,'Data',dxaxis,dyaxis,np.tile(dd,[2,1]).transpose(),vmin=rbmi,vmax=rbma,cmap = cmapax1)
+	if diff:
+		#####
+		# model - data plot
+		ax2 = pyplot.subplot(111)
+		hovmoellerAxis(fig,ax2,title,times,yaxis,md,vmin=ax2min,vmax=ax2max,cmap = cmapax2)
+		pyplot.xlim([times.min(),times.max()])
+		pyplot.ylim([zmi,zma])	
+		ax2.set_yscale('symlog')	
+		pyplot.xlabel('Year')			
+		pyplot.ylabel('Depth, m')
 		
-		if diff: 
-		    #c1 = fig.colorbar(ax1,pad=0.05,shrink=0.75)
-		    pyplot.colorbar(pad=0.25,shrink=1.)
-		    
-	pyplot.ylim([zmi,zma])
-	ax1.get_xaxis().set_ticks([])
-	ax1.set_yscale('symlog')	
-	pyplot.ylabel('Depth, m')
+		divider = make_axes_locatable(ax2)
+		cax = divider.append_axes("right", size="5%", pad=0.15)	
+		cb = pyplot.colorbar(cax=cax)
+		cb.set_label(zaxislabel)
+		
 
 
-	#####
-	# model subplot
-	ax2 = pyplot.subplot(gs[1])
-	hovmoellerAxis(fig,ax2,title,times,yaxis,md,vmin=ax2min,vmax=ax2max,cmap = cmapax2)
-	pyplot.xlim([times.min(),times.max()])
-	pyplot.ylim([zmi,zma])	
-	cb = pyplot.colorbar()
-	cb.set_label(zaxislabel)	
+	else:
+		#gs = gridspec.GridSpec(1, 2, width_ratios=[12, 1]) 
+		gs = gridspec.GridSpec(1, 2, width_ratios=[10,1], wspace=0.01, hspace=0.)
 
-	ax2.set_yscale('symlog')	
-	ax2.yaxis.set_ticklabels([])
-	pyplot.xlabel('Year')
+		#####
+		# model subplot
+		ax1 = pyplot.subplot(gs[0])
+		hovmoellerAxis(fig,ax1,title,times,yaxis,md,vmin=ax2min,vmax=ax2max,cmap = cmapax2)
+		pyplot.xlim([times.min(),times.max()])
+		pyplot.ylim([zmi,zma])	
 
-	pyplot.tight_layout()			
+
+
+		ax1.set_yscale('symlog')	
+		#ax1.yaxis.set_ticklabels([])
+		pyplot.xlabel('Year')
+		pyplot.ylabel('Depth, m') 	 	
+		pyplot.ylim([zmi,zma])
+		
+
+
+	
+		#####
+		# Data  subplot
+		ax2 = pyplot.subplot(gs[1])
+		if len(dd.squeeze().compressed())!=0:
+			try:	hovmoellerAxis(fig,ax2,'',dxaxis,dyaxis,dd,vmin=rbmi,vmax=rbma , cmap = cmapax1)
+			except:	
+				hovmoellerAxis(fig,ax2,'',dxaxis,dyaxis,np.tile(dd,[2,1]).transpose(),vmin=rbmi,vmax=rbma,cmap = cmapax1)
+		pyplot.ylim([zmi,zma])	
+		ax2.set_yscale('symlog')	
+		ax2.get_xaxis().set_ticks([])
+		ax2.get_yaxis().set_ticks([])
+		
+		divider = make_axes_locatable(ax2)
+		cax = divider.append_axes("right", size="50%", pad=0.25)								
+		cb = pyplot.colorbar(cax=cax)
+		cb.set_label(zaxislabel)	
+	
+		
+		ax2.text(0.5,1.030,'Data',
+			va='top',ha='center',
+			transform=ax2.transAxes)
+
+		ax1.text(1.,1.030,'Model  ',
+			va='top',ha='right',
+			transform=ax1.transAxes)
+		
+			
+	
+
+	#pyplot.tight_layout()			
 	print "hovmoellerPlot.py: \tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)		
 	pyplot.close()	
-	
-	
 	
 
 

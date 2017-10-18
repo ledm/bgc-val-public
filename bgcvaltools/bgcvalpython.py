@@ -36,6 +36,11 @@ import math
 from glob import glob
 from itertools import product,izip
 import numpy as np
+
+import matplotlib
+# Force matplotlib to not use any Xwindows backend.
+matplotlib.use('Agg')
+
 from matplotlib import pyplot
 from mpl_toolkits.basemap import Basemap
 from matplotlib.ticker import FormatStrFormatter

@@ -33,6 +33,10 @@ from sys import argv
 
 from analysis_parser import analysis_parser
 
+import matplotlib
+# Force matplotlib to not use any Xwindows backend.
+matplotlib.use('Agg')
+
 if __name__=="__main__":
 	try: 	configfn = argv[1]
 	except: 
