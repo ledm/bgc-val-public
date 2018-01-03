@@ -24,7 +24,10 @@ This package utilises:
 * Versioning in git (using gitlab)
 * Web visible html summary reports.
 
-Please cite this package as: 
+Please cite this package as:
+ ```
+ This information will be provided once the paper is published.
+ ```
 
 # Requirements
 
@@ -39,17 +42,19 @@ Please note that cartopy can be difficult to install, as it has a few requiremen
 such as geos, geos-python, geos-devel, proj4, cython etc… (http://scitools.org.uk/cartopy/)
 Fortunately, it is already available on several UK computational systems, such as JASMIN or ARCHER.
 
+If they are not available on your linux system, most of these python packages can be installed with the command:
+
+```bash
+pip install --user packagename
+```
+
 In addition, the netcdf manipulation toolkit is also required:
 * netcdf_manip  - This package is available on the gitlab server. https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/netcdf_manip
 
 Access to this packages can be requested via the web form: http://www.pml.ac.uk/Modelling_at_PML/Access_Code
 
- 
-Most of these packages can be installed with the command:
 
-```bash
-pip install --user packagename
-```
+
 
 
 
@@ -155,7 +160,6 @@ Chlorophyll         : True
 ```
 
 
-
 ### An exmaple of a active Keys section in runconfig.ini
 
 The following is an example of the options  needed to produce a typical 2D analysis.
@@ -222,8 +226,6 @@ Note that:
   For instance, the "January" "region" removes all data which are not in the first month of the year.
   In addition, it is straightforward to add a custom region if the defaults are not suitable for your analysis.
   More details area availalbe in the [Regions](#Regions) section, below.
-
-
 
 
 ### Global Section
