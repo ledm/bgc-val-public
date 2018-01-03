@@ -34,6 +34,7 @@ from calendar import month_name
 
 #Specific local code:
 from bgcvaltools import bgcvalpython as bvp
+from bgcvaltools.dataset import dataset
 from p2p import matchDataAndModel,makePlots,makeTargets, makePatternStatsPlots
 from p2p.slicesDict import populateSlicesList, slicesDict
 #from 
@@ -153,7 +154,36 @@ def testsuite_p2p(
 		imageFolder 	= bvp.folder('images/'+jobID)
 		print "No image directory provided, creating default:",imageFolder
 
-
+	# Location of image Output files
+	if type(modelFile) == type(['a','list']):
+		modelFiles = modelFile[:]
+		found = 0
+		if len(modelFile) ==1: 
+			modelFile = modelFile[0]
+			found+=1
+		else:
+		    yr = float(year)
+		    if float(year) == int(year): yr = yr + 0.55
+		    
+		    for fn in modelFiles:
+		    
+			nc = dataset(fn,'r')
+			ts = bvp.getTimes(nc,modelcoords)
+			# assert False	#i don't think that this is correct #please think about it some more.
+			if ts.max()+1 < yr:
+				print "p2p:\t File outside time range",yr,':',[int(ts.min()),'->',int(ts.max())]
+				nc.close()
+				continue
+			if ts.min()-1 > yr:
+				print "p2p:\t File outside time range",yr,':',[int(ts.min()),'->',ts.max()]		
+				nc.close()
+				continue
+			print "Found p2p:",fn
+			modelFile = fn
+			found+=1
+		if found == 0 : 
+			print "Did not find p2p file for year", yr
+			assert 0					
 	#####
 	# Start analysis here:
 	shelvesAV = []#AutoVivification()

@@ -1165,8 +1165,6 @@ def hovmoellerPlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords=
 			transform=ax1.transAxes)
 		
 			
-	
-
 	#pyplot.tight_layout()			
 	print "hovmoellerPlot.py: \tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)		

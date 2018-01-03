@@ -328,7 +328,8 @@ class GlobalSectionParser:
 	self.makeReport 	= parseBoolean(self.__cp__, defaultSection, 'makeReport',	default=True)	
 	self.makeComp 		= parseBoolean(self.__cp__, defaultSection, 'makeComp',		default=True)
 	self.clean 		= parseBoolean(self.__cp__, defaultSection, 'clean',		default=False)
-
+	self.makeCSV 		= parseBoolean(self.__cp__, defaultSection, 'makeCSV',		default=True)	
+	
 	self.basedir_model	= self.parseFilepath( 'basedir_model', 	expecting1=True, optional=True,)
 	self.basedir_obs	= self.parseFilepath( 'basedir_obs', 	expecting1=True, optional=True,)	
 			
@@ -464,8 +465,9 @@ class AnalysisKeyParser:
 	self.makeProfiles 	= parseOptionOrDefault(self.__cp__, self.section, 'makeProfiles',	parsetype='bool')	
 	self.makeP2P 		= parseOptionOrDefault(self.__cp__, self.section, 'makeP2P',		parsetype='bool')	
 	self.makeTS	 	= parseOptionOrDefault(self.__cp__, self.section, 'makeTS',		parsetype='bool')
-	
-	
+	self.makeCSV	 	= parseOptionOrDefault(self.__cp__, self.section, 'makeCSV',		parsetype='bool')
+
+		
 	self.datasource		= parseOptionOrDefault(self.__cp__, self.section, 'datasource')
 	self.modelgrid		= parseOptionOrDefault(self.__cp__, self.section, 'modelgrid')	
 
@@ -482,9 +484,12 @@ class AnalysisKeyParser:
 
 	try:	self.datarange 	= parseList(self.__cp__, self.section, 'datarange')	
 	except:	self.datarange 	= -999
+	try:	self.timerange 	= parseOptionOrDefault(self.__cp__, self.section, 'timerange',parsetype='list')	
+	except:	self.timerange 	= [-1e20,1e20]
+	
 	
 	self.modelFiles_ts 	= self.parseFilepath('modelFiles',	expecting1=False,optional=True )  #optional=False)
-	self.modelFile_p2p 	= self.parseFilepath('modelFile_p2p',	expecting1=True, optional=True ) # optional=True)	
+	self.modelFile_p2p 	= self.parseFilepath('modelFile_p2p',	expecting1=False, optional=True ) # optional=True)	
 	
 	self.dataFile   	= self.parseFilepath('dataFile',  	expecting1=True, optional=True ) #optional=False)
 	self.gridFile 		= self.parseFilepath('gridFile',  	expecting1=True, optional=False)
@@ -496,7 +501,8 @@ class AnalysisKeyParser:
 	self.postproc_ts  	= self.parseFilepath( 'postproc_ts', 	expecting1=True, optional=True, outputDir=True )
 	self.postproc_pro 	= self.parseFilepath( 'postproc_pro', 	expecting1=True, optional=True, outputDir=True)	
 	self.postproc_p2p 	= self.parseFilepath( 'postproc_p2p', 	expecting1=True, optional=True, outputDir=True)
-
+	self.postproc_csv	= self.parseFilepath( 'postproc_csv', 	expecting1=True, optional=True, outputDir=True)
+	
 			
 	if debug: self.__print__()
 
@@ -606,7 +612,7 @@ class AnalysisKeyParser:
 	print "makeProfiles:	", self.makeProfiles
 	print "makeP2P:		", self.makeP2P
 	print "makeTS:		", self.makeTS
-					
+	print "makeCSV:		", self.makeCSV
 								
 	print "model Files (ts):", self.modelFiles_ts
 	print "model Files (p2p):", self.modelFile_p2p
@@ -629,6 +635,7 @@ class AnalysisKeyParser:
 	print "timeseries postprocessed files:	", self.postproc_ts
 	print "profile postprocessed files:	", self.postproc_pro
 	print "p2p postprocessed files:		", self.postproc_p2p
+	print "csv postprocessed files:		", self.postproc_csv	
 	print "------------------------------------------------------------------"
 			
 	return''

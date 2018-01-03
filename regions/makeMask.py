@@ -261,6 +261,7 @@ def IndianOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False):
 #####
 # Depths masks
 def Depth_0_10m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( np.ma.abs(xz) > 10.,xd).mask 
+def Depth_0_100m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( np.ma.abs(xz) > 100.,xd).mask 
 def Depth_10_20m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) < 10.)+(np.ma.abs(xz) > 20.),xd).mask 
 def Depth_20_50m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) > 20.)+(np.ma.abs(xz) > 50.),xd).mask 
 def Depth_50_100m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) < 50.)+(np.ma.abs(xz) > 100.),xd).mask
@@ -385,6 +386,7 @@ std_maskers['IndianOcean'] 		= IndianOcean
 
 # Depths
 std_maskers['Depth_0_10m'] 	= Depth_0_10m
+std_maskers['Depth_0_100m'] 	= Depth_0_100m
 std_maskers['Depth_10_20m'] 	= Depth_10_20m
 std_maskers['Depth_20_50m'] 	= Depth_20_50m
 std_maskers['Depth_50_100m'] 	= Depth_50_100m

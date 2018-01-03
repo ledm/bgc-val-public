@@ -1,4 +1,4 @@
-#!/usr/bin/ipython 
+#!/usr/bin/ipython
 
 #
 # Copyright 2015, Plymouth Marine Laboratory
@@ -38,11 +38,11 @@ import matplotlib
 matplotlib.use('Agg')
 
 if __name__=="__main__":
-	try: 	configfn = argv[1]
-	except: 
+        try: 	configfn = argv[1]
+	except:
 		configfn = 'runconfig.ini'
 		print "run.py:\tNo config file provided, using default: ", configfn
 
-	analysis_parser( 
+	analysis_parser(
 		configfile= configfn,
 		)

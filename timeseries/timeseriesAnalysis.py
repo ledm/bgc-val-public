@@ -45,7 +45,6 @@ import timeseriesPlots as tsp
 
 
 
-
 class timeseriesAnalysis:
   def __init__(self,
   		modelFiles	= '', 
@@ -59,6 +58,7 @@ class timeseriesAnalysis:
 		model 		= '',
 		jobID		= '',
 		scenario	= '',
+		timerange	= '',
 		layers	 	= '',
 		regions	 	= '',			
 		metrics	 	= '',
@@ -127,7 +127,8 @@ class timeseriesAnalysis:
 	self.debug		= debug
 	self.clean		= clean
 	self.noNewFiles		= noNewFiles
-	
+
+	self.timerange		= np.array([float(t) for t in sorted(timerange)]) 	
 
   	self.shelvefn 		= bvp.folder(self.workingDir)+'_'.join([self.jobID,self.dataType,])+'.shelve'
 	self.shelvefn_insitu	= bvp.folder(self.workingDir)+'_'.join([self.jobID,self.dataType,])+'_insitu.shelve'
@@ -250,6 +251,14 @@ class timeseriesAnalysis:
 		print "timeseriesAnalysis:\tloadModel:\tloading new file:",fn,
 		nc = dataset(fn,'r')
 		ts = bvp.getTimes(nc,self.modelcoords)
+		if ts.max() < self.timerange[0]:
+			print "Time Series:\t File outside time range",(self.timerange),':',ts.max()
+			nc.close()
+			continue
+		if ts.min() > self.timerange[1]:
+			print "Time Series:\t File outside time range",(self.timerange),':',ts.min()		
+			nc.close()
+			continue			
 		dates = bvp.getDates(nc,self.modelcoords) 
 		meantime = np.mean(ts)
 		print "\ttime:",meantime
@@ -680,13 +689,20 @@ class timeseriesAnalysis:
 	 	    modeldataDict	= {}
 		    timesDict	= {}
 		    for m in self.metrics:
-			timesDict[m] 	 = sorted(self.modeldataD[(r,l,m)].keys())
+		    	times = sorted(self.modeldataD[(r,l,m)].keys())
+		    	timesDict[m] = []
+		    	modeldataDict[m] = []		    	
+		    	for t in times:
+		    		if t < self.timerange.min():continue
+		    		if t > self.timerange.max():continue		
+				timesDict[m].append(t)
+	    			v = self.modeldataD[(r,l,m)][t]
+	    			if np.ma.is_masked(v): modeldataDict[m].append(0.)
+	    			else:	modeldataDict[m].append(v)				
 		    	#modeldataDict[m] = [self.modeldataD[(r,l,m)][t] for t in timesDict[m]]
-		    	modeldataDict[m] = []
-		    	for t in sorted(timesDict[m]):
-		    			v = self.modeldataD[(r,l,m)][t]
-		    			if np.ma.is_masked(v): modeldataDict[m].append(0.)
-		    			else:	modeldataDict[m].append(v)
+		    	#for t in sorted(timesDict[m]):
+		    			
+
 		    	
 		    title = ' '.join([getLongName(t) for t in [r,str(l),self.datasource, self.dataType]])
 		    for greyband in  ['10-90pc',]: #'MinMax', 
@@ -708,8 +724,14 @@ class timeseriesAnalysis:
 			if not bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):	continue
 				    		
 			modeldataDict = self.modeldataD[(r,l,m)]
-			times = sorted(modeldataDict.keys())
-			modeldata = [modeldataDict[t] for t in times]
+			times = []
+			modeldata = []
+			for t in sorted(modeldataDict.keys()):
+		    		if t < self.timerange.min():continue
+		    		if t > self.timerange.max():continue						
+				times.append(t)
+				modeldata.append(modeldataDict[t])
+			#modeldata = [modeldataDict[t] for t in times]
 			title = ' '.join([getLongName(t) for t in [r,str(l),m,self.dataType]])
 
                         if len(dataweights)!=0 and dataweights.sum()!=0.:
@@ -730,8 +752,13 @@ class timeseriesAnalysis:
 			if not bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],filename,debug=False):	continue
 			    		
 			modeldataDict = self.modeldataD[(r,l,m)]
-			times = sorted(modeldataDict.keys())
-			modeldata = [modeldataDict[t] for t in times]
+			times = []
+			modeldata = []
+			for t in sorted(modeldataDict.keys()):
+		    		if t < self.timerange.min():continue
+		    		if t > self.timerange.max():continue						
+				times.append(t)
+				modeldata.append(modeldataDict[t])
 			title = ' '.join([getLongName(t) for t in [r,str(l),m,self.dataType]])
 
 			if len(dataweights)!=0 and dataweights.sum()!=0.:

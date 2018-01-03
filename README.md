@@ -14,6 +14,7 @@ The goal was to make the evaluation framework as generic as possible:
 * Coordinate independent. 
 * Dataset independent.
 * Field independent.
+* Simple to use.
 
 
 This package utilises:
@@ -33,7 +34,13 @@ To use this package, the following python packages are required:
 * numpy 
 * scipy
 * cartopy 
-* https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/netcdf_manip
+
+Please note that cartopy can be difficult to install, as it has a few requirements: 
+such as geos, geos-python, geos-devel, proj4, cython etc… (http://scitools.org.uk/cartopy/)
+Fortunately, it is already available on several UK computational systems, such as JASMIN or ARCHER.
+
+In addition, the netcdf manipulation toolkit is also required:
+* netcdf_manip  - This package is available on the gitlab server. https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/netcdf_manip
 
 Access to this packages can be requested via the web form: http://www.pml.ac.uk/Modelling_at_PML/Access_Code
 
@@ -43,15 +50,13 @@ Most of these packages can be installed with the command:
 ```bash
 pip install --user packagename
 ```
-        
-Please note that cartopy can be difficult to install, with many requirements: such as geos, geos-python, geos-devel, proj4, cython etc… (http://scitools.org.uk/cartopy/)
 
 
 
 # Installation
 
 Once the required packages have been installed, make a local clone of the trunk of this package with the command:
-```bash       
+```bash
 git clone git@gitlab.ecosystem-modelling.pml.ac.uk:ledm/bgc-val-public.git
 ```
 
@@ -71,14 +76,15 @@ Once the package has been installed, make a copy of the bgc-val-public/run direc
 
 The run directory will contain:
 * run.py: The main script that runs the analysis.
-* runconfig.ini: The main configuration script that contains all information, flags, paths and settings needed to produce the analysis.
+* many *.ini files: These are sample configuration script that contains all information, flags, paths and settings needed to produce an analysis.
 * localfunctions directory: This directory is where you should put any custom analysis functions that you may want to use to load or manipuate your data.
 
 The command to  run the evaluation is:
 ```bash
-./run.py
+./run.py config.ini
 ```
 
+Where the config.ini is your configuration filew, which has been edited to reflect the environment, data paths, and goal of your analyses. 
 Using default settings, this will produce a workingdir directory, an images directory, and a reports directory. 
 
 These three directories will hold:
@@ -86,7 +92,9 @@ These three directories will hold:
 * images: The .png image files that are produced.
 * reports: the html report which can be viewed using a web browser.
 
-`run.py` is a simple wrapper which calls the script, [analysis_parser.py](#Analysis_Parser), and passes it the path to the [runconfig.ini](#Run_Config_Initialisation_File) file.
+`run.py` is a simple wrapper which calls the script, [analysis_parser.py](#Analysis_Parser), and passes it the path to the [config ureation .ini file](#Run_Config_Initialisation_File) file.
+
+
 
 ## Analysis Parser
 
@@ -126,6 +134,7 @@ and a [Global Section])#Global_Section).
 
 
 The `runconfig.ini` file is parsed by the [bgcvaltools/analysis_parser.py](./bgcvaltools/analysis_parser.py) tool.
+
 
 
 ### Active Keys

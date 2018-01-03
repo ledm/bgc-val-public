@@ -44,7 +44,7 @@ from bgcvaltools import bgcvalpython as bvp
 from timeseries import timeseriesAnalysis
 from timeseries import profileAnalysis
 from timeseries import timeseriesTools as tst
-from timeseries import comparisonAnalysis
+from timeseries import comparisonAnalysis, makeCSV
 from p2p.testsuite_p2p import testsuite_p2p
 
 from bgcvaltools.dataset import dataset
@@ -52,7 +52,7 @@ from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
 
 from html.makeReportConfig import htmlMakerFromConfig
 
-parrallel = 0 #True
+parrallel = False
 if parrallel:
 	try:	from multiprocessing import Pool
 	except: parrallel = False
@@ -87,6 +87,7 @@ def evaluateFromConfig( akp,
 	                datasource      = akp.datasource,
 	                model           = akp.model,
 			scenario        = akp.scenario,						                
+			timerange       = akp.timerange,
 	                layers          = akp.layers,
 	                regions         = akp.regions,
 	                grid            = akp.modelgrid,
@@ -94,6 +95,8 @@ def evaluateFromConfig( akp,
 	                clean           = akp.clean,
 	        )
 
+
+    	
 	#####
 	# Profile plots (only works for 3 Dimensional data.)
 	if akp.makeProfiles and akp.dimensions == 3:
@@ -110,7 +113,8 @@ def evaluateFromConfig( akp,
 			datadetails     = akp.datadetails,
 			datasource      = akp.datasource,
 			model           = akp.model,
-			scenario        = akp.scenario,				
+			scenario        = akp.scenario,	
+			timerange       = akp.timerange,						
 			regions         = akp.regions,
 			grid            = akp.modelgrid,
 			gridFile        = akp.gridFile,
@@ -181,7 +185,7 @@ def analysis_parser(
 			jobsDict[i] = [(model,jobID,year,scenario,key),akp]
 			i+=1
 		
-		nproc = 4
+		nproc = 6
 		pool = Pool(processes=nproc)              	# start nproc worker processes
 		pool.map(parrallelEval, sorted(jobsDict.keys()))# Map processes onto jobDict 
 		pool.close()					# end
@@ -196,12 +200,14 @@ def analysis_parser(
 		
 	#####
 	# Comparison Plots.
-
-	#####
 	if gk.makeComp:	
 	    	comparisonAnalysis(configfile)
-		 	
-		
+
+	#####
+	# Make CSV's	    	
+	if gk.makeCSV:
+	    	makeCSV(configfile)			 	
+
 	#####
 	# Make HTML Report
 	if gk.makeReport:

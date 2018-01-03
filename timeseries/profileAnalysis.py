@@ -56,6 +56,7 @@ class profileAnalysis:
 		datasource	= '',
 		model 		= '',
 		scenario	= '',
+		timerange	= '',		
 		jobID		= '',
 		layers	 	= '',
 		regions	 	= '',			
@@ -96,6 +97,8 @@ class profileAnalysis:
 	self.debug		= debug
 	self.clean		= clean
 
+	self.timerange		= np.array([float(t) for t in sorted(timerange)]) 	
+	
 	####
 	# 	Do some tests on whether the files are present/absent	
 	if len(modelFiles) == 0:
@@ -239,6 +242,14 @@ class profileAnalysis:
 		dates = bvp.getDates(nc,self.modelcoords) 		
 		meantimes = np.mean(ts)
 		print "\ttime:",meantimes
+		if ts.max() < self.timerange[0]:
+			print "profileAnalysis:\t File outside time range",(self.timerange),':',ts.max()
+			nc.close()
+			continue
+		if ts.min() > self.timerange[1]:
+			print "profileAnalysis:\t File outside time range",(self.timerange),':',ts.min()		
+			nc.close()
+			continue
 		
 		#DL = tst.DataLoader(fn,nc,self.modelcoords,self.modeldetails, regions = self.regions, layers = self.layers,)
 		nc = dataset(fn,'r')
@@ -592,9 +603,17 @@ class profileAnalysis:
 	  	for l in self.mlayers:
 	  		if type(l) == type('str'):continue	# no strings, only numbered layers.
 	  		if l > max(modelZcoords.keys()): continue
-			modeldata[l] = self.modeldataD[(r,l,m)]
+			modeldata[l] = {}
+			for t in sorted(self.modeldataD[(r,l,m)]):
+		    		if t < self.timerange.min():continue
+		    		if t > self.timerange.max():continue	
+				modeldata[l][t] = self.modeldataD[(r,l,m)][t]
+
+			
                 if self.debug: print "profileAnalysis:\tmakePlots:\tHovmoeller plots:",r,m,'\tloaded model data'
 	
+			
+		
 		#####
 		# check that multiple layers were requested.
 		#if len(data.keys())<1: continue
