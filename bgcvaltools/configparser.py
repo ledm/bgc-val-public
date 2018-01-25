@@ -34,6 +34,7 @@ import ConfigParser
 import os
 from glob import glob
 from itertools import product
+import getpass
 
 from functions.stdfunctions import std_functions  
 from bgcvaltools.tdicts import tdicts
@@ -91,12 +92,14 @@ def linkActiveKeys(Config,):
 
 def findReplaceFlags(Config, section, string):
 	# Look for the important flags, then swap them in.
-	flags = ['year', 'jobid','name','model','basedir_model','basedir_obs']
+	flags = ['year', 'jobid','name','model','basedir_model','basedir_obs','basedir_images','basedir_work',]
 	for flag in flags:
 		lookingFor = '$'+flag.upper()
 		if string.find(lookingFor) ==-1:continue
 		fl = parseOptionOrDefault(Config, section, flag.lower())
-		string = string.replace(lookingFor, str(fl))		
+		string = string.replace(lookingFor, str(fl))
+
+	string = findReplaceFlag(string, 'username', getpass.getuser())
 	return string	
 
 def findReplaceFlag(string, flag, value):
@@ -332,7 +335,9 @@ class GlobalSectionParser:
 	
 	self.basedir_model	= self.parseFilepath( 'basedir_model', 	expecting1=True, optional=True,)
 	self.basedir_obs	= self.parseFilepath( 'basedir_obs', 	expecting1=True, optional=True,)	
-			
+	self.basedir_images	= self.parseFilepath( 'basedir_images', expecting1=True, optional=True,)	
+	self.basedir_work	= self.parseFilepath( 'basedir_work', 	expecting1=True, optional=True,)	
+					
 	self.reportdir 		= self.parseFilepath( 'reportdir', 	expecting1=True, optional=True, outputDir=True)
 	self.images_comp	= self.parseFilepath( 'images_comp', 	expecting1=True, optional=True, outputDir=True)	
 	
@@ -385,13 +390,19 @@ class GlobalSectionParser:
 	filepath = findReplaceFlag(filepath, 	'model',  	self.models[0])		
 	filepath = findReplaceFlag(filepath, 	'jobID', 	self.jobIDs[0])		
 	filepath = findReplaceFlag(filepath, 	'year', 	self.years[0])		
-	filepath = findReplaceFlag(filepath, 	'scenario', 	self.scenarios[0])			
-		
-	try:	filepath = findReplaceFlag(filepath, 	'basedir_model',	 self.basedir_model)
+	filepath = findReplaceFlag(filepath, 	'scenario', 	self.scenarios[0])
+				
+	filepath = findReplaceFlag(filepath, 	'username',	getpass.getuser())					
+			
+	try:	filepath = findReplaceFlag(filepath, 	'basedir_model',	self.basedir_model)
 	except: pass
 	try:	filepath = findReplaceFlag(filepath, 	'basedir_obs',	 	self.basedir_obs)
 	except: pass	
-	
+	try:	filepath = findReplaceFlag(filepath, 	'basedir_images',	self.basedir_images)
+	except: pass
+	try:	filepath = findReplaceFlag(filepath, 	'basedir_work',		self.basedir_work)
+	except: pass	
+		
 	if filepath.find('$')>-1:
 		raise AssertionError("GlobalSectionParser:\tparseFilepath:\t"+str(option)+"\tUnable to replace all the $PATH KEYS. "+\
 		"\n\t\tAvailable options are: $MODELS, $JOBIDS, $YEARS, $SCENARIOS, (in that order)."+\
@@ -476,7 +487,9 @@ class AnalysisKeyParser:
 
 	self.basedir_model	= self.parseFilepath('basedir_model', 	expecting1=True, optional=True,)			
 	self.basedir_obs	= self.parseFilepath('basedir_obs', 	expecting1=True, optional=True,)				
-
+	self.basedir_images	= self.parseFilepath('basedir_images', 	expecting1=True, optional=True,)				
+	self.basedir_work	= self.parseFilepath('basedir_work', 	expecting1=True, optional=True,)				
+		
 	self.modelcoords	= parseCoordinates(self.__cp__, self.section, 'model')
 	self.datacoords 	= parseCoordinates(self.__cp__, self.section, 'data' )
 	self.modeldetails 	= self.parseDetails( 'model')
@@ -516,9 +529,14 @@ class AnalysisKeyParser:
 	string = findReplaceFlag(string, 	'scenario', 	self.scenario)	
 	string = findReplaceFlag(string, 	'key', 		self.key)			
 	string = findReplaceFlag(string, 	'name',		self.name)				
+	string = findReplaceFlag(string, 	'username',	getpass.getuser())					
 	try:	string = findReplaceFlag(string, 	'basedir_model',self.basedir_model)					
 	except:	pass
 	try:	string = findReplaceFlag(string, 	'basedir_obs', self.basedir_obs)				
+	except:	pass	
+	try:	string = findReplaceFlag(string, 	'basedir_images', self.basedir_images)				
+	except:	pass	
+	try:	string = findReplaceFlag(string, 	'basedir_work', self.basedir_work)				
 	except:	pass	
 	print '\tout:', string
 	return string
