@@ -62,7 +62,19 @@ def globalVolumeMean(nc,keys, **kwargs):
 			
         temp = np.ma.array(nc.variables[keys[0]][:].squeeze())
         temp = np.ma.masked_where((tmask==0) + (temp.mask),temp)
-        vol = np.ma.masked_where(temp.mask, pvol)
-        return (temp*vol).sum()/(vol.sum())
-                        	
+
+	if temp.shape == pvol.shape:
+	        vol = np.ma.masked_where(temp.mask, pvol)
+        	return (temp*vol).sum()/(vol.sum())
+
+        if temp.shape[1:] == pvol.shape:
+		# the temperature has a time dimension.
+		outvol = []
+		vol = np.ma.masked_where(temp[0].mask, pvol)
+		volsum = vol.sum()
+		for t in range(temp.shape[0]):
+			outvol.append((temp[t]*vol).sum()/volsum)
+                return outvol 
+	
+	assert ("It looks like your data have a strange shape:"+str(temp.shape)+" and the mask shape is "+str(pvol.shape))                        	
 
