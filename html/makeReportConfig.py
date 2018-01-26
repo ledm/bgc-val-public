@@ -725,7 +725,7 @@ def addP2PSection(
 def htmlMakerFromConfig(
 		configfn,
 		doZip = False,
-		browswer = 'google-chrome',
+		browswer = 'firefox',
 	):
 
 	globalkeys = GlobalSectionParser(configfn)

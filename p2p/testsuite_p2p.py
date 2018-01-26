@@ -155,13 +155,21 @@ def testsuite_p2p(
 		print "No image directory provided, creating default:",imageFolder
 
 	# Location of image Output files
-	if type(modelFile) == type(['a','list']):
+	if type(modelFile) == type('A_String'):
+	        print "testsuite_p2p.py:\tINFO:\tfound p2p file (it's a string):",modelFile
+	elif type(modelFile) == type(['a','list']):
 		modelFiles = modelFile[:]
 		found = 0
-		if len(modelFile) ==1: 
+		if len(modelFile) ==1:
+			#####
+			# ModelFile is a list of one 
 			modelFile = modelFile[0]
 			found+=1
+			print "testsuite_p2p.py:\tINFO:\tfound p2p file: (it's a list)",modelFile
 		else:
+                    #####
+                    # ModelFile is a list of many files.
+
 		    yr = float(year)
 		    if float(year) == int(year): yr = yr + 0.55
 		    
@@ -175,15 +183,20 @@ def testsuite_p2p(
 				nc.close()
 				continue
 			if ts.min()-1 > yr:
-				print "p2p:\t File outside time range",yr,':',[int(ts.min()),'->',ts.max()]		
+				print "p2p:\t File outside time range",yr,':',[int(ts.min()),'->',int(ts.max())]		
 				nc.close()
 				continue
-			print "Found p2p:",fn
+                        print "p2p:\t File  inside time range",yr,':',[int(ts.min()),'->',int(ts.max())], "Found it!"
+			print "Found p2p file:",fn
 			modelFile = fn
 			found+=1
 		if found == 0 : 
 			print "Did not find p2p file for year", yr
 			assert 0					
+	else:
+        	assert("testsuite_p2p.py:\tError:\tp2p file is not a string or a list:",modelFile)
+		
+
 	#####
 	# Start analysis here:
 	shelvesAV = []#AutoVivification()

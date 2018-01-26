@@ -349,6 +349,7 @@ class GlobalSectionParser:
 	for (m,j,y,s,k) in product(self.models,self.jobIDs, self.years, self.scenarios,self.ActiveKeys):
 		self.AnalysisKeyParser[(m,j,y,s,k)] = AnalysisKeyParser(fn,model = m,	jobID = j, year  = y, scenario=s, key = k,)
 
+	if debug:self.__print__()
 				
   def __print__(self):
 	print "------------------------------------------------------------------"
@@ -362,7 +363,12 @@ class GlobalSectionParser:
 	print "makeReport:			", self.makeReport
 	print "makeComp:			", self.makeComp	
 	print "reportdir:			", self.reportdir							
-	print "images_comp:			", self.images_comp								
+	print "images_comp:			", self.images_comp							
+	print "basedir_model:			", self.basedir_model 
+        print "basedir_obs:                     ", self.basedir_obs
+        print "basedir_images:                  ", self.basedir_images
+        print "basedir_work:                    ", self.basedir_work
+
 	print "model grid:                      ", self.modelgrid
 	print "gridFile:                        ", self.gridFile	
 	return''
@@ -501,7 +507,7 @@ class AnalysisKeyParser:
 	except:	self.timerange 	= [-1e20,1e20]
 	
 	
-	self.modelFiles_ts 	= self.parseFilepath('modelFiles',	expecting1=False,optional=True )  #optional=False)
+	self.modelFiles_ts 	= self.parseFilepath('modelFiles',	expecting1=False, optional=True )  #optional=False)
 	self.modelFile_p2p 	= self.parseFilepath('modelFile_p2p',	expecting1=False, optional=True ) # optional=True)	
 	
 	self.dataFile   	= self.parseFilepath('dataFile',  	expecting1=True, optional=True ) #optional=False)
@@ -671,5 +677,8 @@ class AnalysisKeyParser:
 
 
 
+if __name__=="__main__":
+	from sys import argv
+	gk =  GlobalSectionParser(argv[1],debug=True)
 
 

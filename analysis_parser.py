@@ -124,7 +124,9 @@ def evaluateFromConfig( akp,
 		)
 		
 	#####
-	# Point to point plots	
+	# Point to point plots
+	print 'p2p:',akp.modelFile_p2p
+	print 'ts :',akp.modelFiles_ts	
 	if akp.makeP2P and  akp.dimensions not in [1,]:
 	    	testsuite_p2p(
 	                modelFile	= akp.modelFile_p2p,
