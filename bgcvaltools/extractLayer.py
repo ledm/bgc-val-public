@@ -182,7 +182,7 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 		customLayerType	 = 'lat'
 		customLayerValue = -28.				
 	if layer == 'PTransect':
-		customLayerType	 = 'lat'
+		customLayerType	 = 'lon'
 		customLayerValue = 200.		
 		
 	if layer == 'Equator':
@@ -229,18 +229,18 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 		lon = 83.5
 		minlat = 65.
 		maxlat = 90.
-		transectcoords.extend(drawLine(minlat,maxlat,lon,lon,))
+		transectcoords = drawLine(minlat,maxlat,lon,lon,)
+
 		lon = -96.
 		minlat = 60.
 		maxlat = 90.
-		transectcoords.extend([(minlat +i*(maxlat-minlat)/numpoints,lon) for i in np.arange(numpoints)])# lat,lon
 		transectcoords.extend(drawLine(minlat,maxlat,lon,lon,))
 	
 	if layer == 'AntTransect':
 		lon = 0.
 		minlat = -89.9
 		maxlat = -40.
-		transectcoords.extend(drawLine(minlat,maxlat,lon,lon,))			
+		transectcoords = drawLine(minlat,maxlat,lon,lon,)
 		
 	lats = nc.variables[coords['lat']][:]
 	lons = nc.variables[coords['lon']][:]
@@ -253,6 +253,7 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 	try : 	transectcoords
 	except:	raise NameError('extractLayer:\tERROR:\tUnable to define the transect coordinates.\t layer:'+str(layer))
 
+	print 'layer',layer
 	for (lat,lon) in sorted(transectcoords):
 		la,lo = bvp.getOrcaIndexCC(lat, lon, lat2d, lon2d, debug=True,)
 		mask2d[la,lo] = 0	
