@@ -166,7 +166,7 @@ The `runconfig.ini` file is parsed by the [bgcvaltools/analysis_parser.py](./bgc
 
 
 
-### Active Keys
+## Active Keys
 
 The `[ActiveKeys]` section contains the boolean switches that activate the analysis sections described elsewhere in the `runconfig.ini` file.
 The order of the active keys here determines the order that the analysis runs and also the order each field appears in the final html report.
@@ -184,7 +184,7 @@ Chlorophyll         : True
 ```
 
 
-### An exmaple of a active Keys section in runconfig.ini
+## An exmaple of a active Keys section in runconfig.ini
 
 The following is an example of the options  needed to produce a typical 2D analysis.
 In this case, this is a comparison of the surface chlorophyll in MEDUSA against the CCI satellite chlorophyll product.
@@ -252,7 +252,7 @@ Note that:
   More details area availalbe in the [Regions](#Regions) section, below.
 
 
-### Global Section
+## Global Section
 
 The `[Global]` section of the `runconfig.ini` file contains the global flags and the default settings for each field.
 For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses, so it can safely
@@ -332,7 +332,7 @@ dataFile         :
 
 
 
-# Functions
+## Functions
 
 The `data_convert` and `model_convert` options in the analysis section of the `runconfig.ini` file are used 
 to give apply a python function to the data as it is loaded. 
@@ -360,7 +360,7 @@ The dataset class defined in bgcvaltools/dataset.py and based on netCDF4.Dataset
 
 
 
-# Layers
+## Layers
 
 Layers can be selected from a specific list of named layers or transects such as `Surface`, `Equator`, etc..
 
@@ -372,13 +372,7 @@ Any arbitrary depth layer or transects along a constant lattitude or congitude c
 
 
 
-
-
-
-
-
-
-# Regions
+## Regions
 
 The `regions/` directory contains tools that are used to mask out unwanted regions in the data.
 For instance, these tools can be used to:
@@ -435,7 +429,7 @@ Please note that:
 	
 	
 	
-# Longnames
+## Longnames
 
 This is a folder which contains dictionaries in .ini format.
 
@@ -462,6 +456,107 @@ string = 'CHL'
 ln = getLongName(string)
 ```
 Note that if a longname is not provided, the string is returned unchanged. 
+
+
+
+# The analysis packages
+
+In this section of the `README.md` we look at the programming decisions that were made 
+in the design process of the BGC-val suite.
+
+
+## Time Series (TS)
+
+This looks at a series of consequtive model files and produces various time series analysis.
+The files needed to run this are hosted in the `timeseries` directory.
+The idea behind the time series tool is to try to understand the model data one time step at 
+a time, then produce visualisations that clearly show the time development of the model.
+
+The main time series script is `timeseriesAnalysis.py` in the `timeseries` directory.
+The script checks to see whether the model and observatioal data are present. 
+Then it loads the observational data (if present) and then the model data.
+Both the model and observatioal data are loaded with the DataLoader tool in the 
+`timeseriesTools.py` file in the `timeseries` directory.
+This process creates a python dictionairy where the processed data is indexed according to :
+`(region, layer, metric)`.
+The processed model data is stored as another dictionary. 
+The second layer dictionairy uses the model's calendar year (converted into a float) as
+the index, and the value is the processed model data associated with that time and `(region, layer, metric)`.
+This nested dictionary object is called modeldataD in the `timeseriesAnalysis.py`.
+Each modeldataD is stored in a shelve file.
+
+This double nested dictionary may seem confusing, but it safer than parrallel 
+arrays used elsewhere. For instance, an example of loading this file from shelve would be:
+`modeldataD['Global','Surface','Mean'][1955.5]`
+would produce the Global surface mean of the year 1955. 
+
+The modeldataD are stored as shelves and are openned by several of the plotting tools, but can also be opened manually in the command line.
+
+The times series produces plots using the `timeseriesPlots.py` file in the `timeseries` directory..
+This file contains several python functions which use matplotlib to create visualisations 
+of the time series and profile data.
+The simple times series, the traffic lights plots, the multitimeseries,
+map plots, hovmoeller plots, and profile plots are all produced by functions in this file.
+ 
+The time series directory also includes the `timeseriesTools.py` script.
+This toolkit contains several functions used by the other files in the time series folder. 
+
+The time series directory also includes the `extentMaps.py` and `extentProfiles.py` scripts,
+which allow users to make maps showing the extent of the data that sits above or below a certain threshold.
+
+The time series directory also includes the `analysis_level0.py` tool which is used to produce an
+html summary table of the final years of a simulation. 
+
+
+## Profile Plots
+
+This produces plots showing the time development of the depth-profile of the model.
+The files needed to run this are hosted in the the `timeseries` directory.
+
+The profile tools use many of the same processes and tools as the time series analyses,
+however instead of running them over one layer, it runs them over many layers in succession.
+
+
+## Comparison plots
+
+This tool produces plots showing the time development comparing several models/scenarios/jobs 
+of the model. The files needed to run this are hosted in the  `comparisonAnalysis.py` scrinpt in the
+`timeseries` directory.
+
+
+
+
+
+
+## Point to point
+This produces a point to point comparison analysis of the model versus data for a single year, including statistical analysis, spatial mapping etc.
+The files needed to run this are hosted in the the `p2p` directory.
+
+
+
+MORE DETAILS NEEDED
+
+
+
+
+
+## Report Maker
+
+This takes all the plots produced and summarises them in an html document.
+The files needed to run this are hosted in the the `html` directory.
+
+The `html` folder contains several templates, some python tools and lots of html assets (css, fonts, js, sass, images).
+
+The html report was based on a template provided by html5up.net under the CCA 3.0 license.
+
+The primary python tool used to produve html reports from a configuration file is the
+`makeReportConfig.py` file. 
+This includes a function that loads the configuration file, then figures out what was requested,
+a pushes this all into a self contained html site.
+The html folder can be copied into a web facing server, or opened directly using firefox.
+
+The location of the report on disk is determined by the global flag.
+
 
 
 # References:
