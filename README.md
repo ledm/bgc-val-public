@@ -5,7 +5,8 @@
 Originally designed as a toolkit for investigating the time development of the marine biogeochemistry component of the UK Earth system model,
 BGC-val has since expanded to become a generic tool for comparing model data against historic data. 
 
-The toolkit is 100% python, and is freely available, and distributed with the BSD 3 clause license, via our in-house gitlab server. Registration is required, via this link.
+The toolkit is python 2.7 based, and is freely available, and distributed with the BSD 3 clause license, via our in-house gitlab server. 
+Registration is required, via this link: http://www.pml.ac.uk/Modelling_at_PML/Access_Code
 
 
 The goal was to make the evaluation framework as generic as possible:
@@ -71,6 +72,14 @@ In the local copy, use the following pip command to make a local installation of
 
 ```bash
 pip install -e . --user
+```
+
+If the pip software management system is unavailable, 
+then these packages can be added to the $PYTHONPATH in your shell run configuration filoe (ie, bashrc, zshrc or cshrc).
+This command  is shell specific but in bashrc it will look like:
+```bash
+export PYTHONPATH=${PYTHONPATH}:/path/to/bgc-val-public
+export PYTHONPATH=${PYTHONPATH}:/path/to/netcdf_manip
 ```
 
 
