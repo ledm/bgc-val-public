@@ -75,7 +75,8 @@ pip install -e . --user
 ```
 
 If the pip software management system is unavailable, 
-then these packages can be added to the $PYTHONPATH in your shell run configuration filoe (ie, bashrc, zshrc or cshrc).
+then these packages can be added to the $PYTHONPATH in your shell
+run configuration filoe (ie, bashrc, zshrc or cshrc).
 This command  is shell specific but in bashrc it will look like:
 ```bash
 export PYTHONPATH=${PYTHONPATH}:/path/to/bgc-val-public
@@ -86,34 +87,48 @@ export PYTHONPATH=${PYTHONPATH}:/path/to/netcdf_manip
 
 # Running
 
-Once the package has been installed, make a copy of the bgc-val-public/run directory in your working directory.
+Once the package has been installed, please look at the file of ini files and locate one that is 
+most compatible with your goals and computing system. 
+Our example below uses the cmip5_jasmin.ini configuration file,
+which directs the evaluation several CMIP5 models on the JASMIN data processing facility.
 
-The run directory will contain:
-* run.py: The main script that runs the analysis.
-* many *.ini files: These are sample configuration script that contains all information, flags, paths and settings needed to produce an analysis.
-* localfunctions directory: This directory is where you should put any custom analysis functions that you may want to use to load or manipuate your data.
+Before running the suite, please make a copy of your choosen ini file.
+Make sure that you go through your copied configuration file, and check that the
+paths to data, evaluations requested reflect your coputational environment,
+data paths, and goal of your analyses. 
 
-The command to  run the evaluation is:
+The default cmip5_jasmin.ini file has all the included analyses switched on in the [Active Keys section](#Active_Keys),
+you may want to turn most of these off, at least while setting up the evaluation suite.
+
+Many of the paths in the [Global Section](#Global_Section) will also need to be changes to reflect your local environment.
+
+
+The command to run this evaluation is:
 ```bash
-./run.py config.ini
+./run.py ini/cmip5_jasmin.ini
 ```
+where the run.py script is the main script that runs the analysis, and the ini file is
+a configuration script that contains all information, flags, paths and settings
+needed to produce an analysis.
 
-Where the config.ini is your configuration filew, which has been edited to reflect the environment, data paths, and goal of your analyses. 
-Using default settings, this will produce a workingdir directory, an images directory, and a reports directory. 
+
 
 These three directories will hold:
 * workingdir: Post processed files for each of the analyses.
 * images: The .png image files that are produced.
 * reports: the html report which can be viewed using a web browser.
 
-`run.py` is a simple wrapper which calls the script, [analysis_parser.py](#Analysis_Parser), and passes it the path to the [config ureation .ini file](#Run_Config_Initialisation_File) file.
+`run.py` is a simple wrapper which calls the script, [analysis_parser.py](#Analysis_Parser), 
+and passes it the path to the [config ureation .ini file](#Run_Config_Initialisation_File) file.
 
 
 
 ## Analysis Parser
 
-`analysis_parser.py` is a script which parsers the runconfig.ini file, and then sends the relevant flags, paths, filenames
+`analysis_parser.py` is a script which parsers the configuration file, 
+and then sends the relevant flags, paths, filenames
 and settings to each of the main analyses packages. 
+The configuration file is described below and in the paper. 
 The analysis packages called are:
 * Time Series (TS): This looks at a series of consequtive model files and produces various time series analysis.
 * Profile Plots: This produces plots showing the time development of the depth-profile of the model.
@@ -144,7 +159,7 @@ When loading the config file into python's module `ConfigParser`, beware that:
 
 
 The parser expects an [Active Keys](#Active_Keys) section, a section for each key in `[ActiveKeys]`
-and a [Global Section])#Global_Section).
+and a [Global Section](#Global_Section).
 
 
 The `runconfig.ini` file is parsed by the [bgcvaltools/analysis_parser.py](./bgcvaltools/analysis_parser.py) tool.
