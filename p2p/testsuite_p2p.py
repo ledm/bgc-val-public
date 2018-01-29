@@ -191,8 +191,8 @@ def testsuite_p2p(
 			modelFile = fn
 			found+=1
 		if found == 0 : 
-			print "Did not find p2p file for year", yr
-			assert 0					
+			print "testsuite_p2p.py:\tError:\tp2p did not find p2p file for year", yr, (scenario)
+			return
 	else:
         	assert("testsuite_p2p.py:\tError:\tp2p file is not a string or a list:",modelFile)
 		

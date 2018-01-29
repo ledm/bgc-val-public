@@ -58,10 +58,10 @@ def globalVolumeMean(nc,keys, **kwargs):
 	try: 	areafile = kwargs['areafile']
 	except:	raise AssertionError("globalVolumeMean:\t Needs an `areafile` kwarg to calculate Global Volume Mean")
 
-	try: 	addvalue = kwargs['addvalue']	# In case you want to add a constant value to the data (usually Kelvin to Celcius)
+	try: 	addvalue = float(kwargs['addvalue'])	# In case you want to add a constant value to the data (usually Kelvin to Celcius)
 	except:	addvalue = 0.
 
-	try: 	multiplyBy = kwargs['multiplyBy']	# In case you want to multiply the data by a factor
+	try: 	multiplyBy = float(kwargs['multiplyBy'])	# In case you want to multiply the data by a factor
 	except:	multiplyBy = 1.		
 
 		
@@ -70,7 +70,7 @@ def globalVolumeMean(nc,keys, **kwargs):
         temp = np.ma.array(nc.variables[keys[0]][:].squeeze())
         temp = np.ma.masked_where((tmask==0) + (temp.mask),temp)
 
-	temp = temp *multiplyBy + addvalue
+	temp = temp * multiplyBy + addvalue
 	
 	if temp.shape == pvol.shape:
 	        vol = np.ma.masked_where(temp.mask, pvol)
