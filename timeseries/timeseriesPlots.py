@@ -371,84 +371,6 @@ def getSmallestAboveZero(arr):
 
 
 
-def trafficlightsPlot(
-		times, 			# model times (in floats)
-		arr,			# model time series
-		dataslice,		# in situ data distribution
-		metric  = '',
-		title 	='',
-		filename='',
-		units = '',
-		greyband = False		
-	):
-	#####
-	# This is exclusively used for sums now.
-	if len(times) ==0 or len(arr) == 0:
-		print "trafficlightsPlot:\tWARNING:\tdata or time arrays are empty.",len(times),len(arr),title
-		return
-	if np.ma.is_masked(arr):
-		print "trafficlightsPlot:\tWARNING:\tdata arrays is masked",len(times),len(arr),title
-		return
-				
-	xlims= [times[0],times[-1]]
-	
-	fig = pyplot.figure()
-        fig.set_size_inches(5,5)
-	
-	ax = fig.add_subplot(111)
-	
-        arr_new = movingaverage_DT(arr,times, window_len=5.,window_units='years')	# 5 year average.
-	pyplot.plot(times,arr,    c='b',ls='-',lw=0.2, )	
-	pyplot.plot(times,arr_new,c='b',ls='-',lw=2. , label='Model')		
-		
-#        if len(arr)>30:
-#                smoothing = movingaverage2(arr,window_len=30,window='flat',extrapolate='axially')
-#                pyplot.plot(times,arr,      c='b',ls='-',lw=0.3,)
-#                pyplot.plot(times,smoothing,c='b',ls='-',lw=2,label='Model')
-#        else:
-#                pyplot.plot(times,arr,c='b',ls='-',lw=1,label='Model',)
-
-	pyplot.xlim(xlims)	
-	pyplot.title(title)	
-	pyplot.ylabel(units)
-
-	if len(dataslice) and metric != 'sum':
-		#pyplot.axhline(y=np.ma.mean(dataslice),c='k',ls='-',lw=2,alpha=0.5)
-		pyplot.axhline(y=np.ma.median(dataslice),c='k',ls='-',lw=1,)#alpha=0.5)	
-		pcmin 	= np.array([dataslice.min() for i in xlims]) 
-		pc1 = np.array([np.percentile(dataslice,20.) for i in xlims]) 
-		pc2 = np.array([np.percentile(dataslice,30.) for i in xlims])
-		pc3 = np.array([np.percentile(dataslice,45.) for i in xlims])
-		pc4 = np.array([np.percentile(dataslice,60.) for i in xlims])
-		pc5 = np.array([np.percentile(dataslice,70.) for i in xlims])
-		pc6 = np.array([np.percentile(dataslice,80.) for i in xlims])
-		pcmax 	= np.array([dataslice.max() for i in xlims])
-						
-		labels = ['20-30 pc','30-40 pc','40-60 pc','60-70 pc','70-80 pc',]
-		pcs = [pc1,pc2,pc3,pc4,pc5,pc6]
-		ax = trafficlights(ax,xlims, pcs ,labels=labels)
-		if greyband:
-			ax  	= drawgreyband(ax,xlims, [pcmin,pc1],)
-			ax  	= drawgreyband(ax,xlims, [pc6,pcmax],)
-	
-				
-	if len(dataslice) and metric == 'sum':
-		pyplot.axhline(y=np.ma.sum(dataslice),c='b',ls='-',lw=1,label ='Data')#+str(np.ma.sum(dataslice)))#alpha=0.5)		
-
-	if len(dataslice) and metric == 'mean':
-		if np.ma.mean(dataslice) not in [-999,-999.,np.ma.masked,0.,np.ma.array([0.,0.],mask=True)[0],]:
-			pyplot.axhline(y=np.ma.mean(dataslice),c='b',ls='-',lw=1,label ='Data')#+str(np.ma.sum(dataslice)))#alpha=0.5)		
-	                assert "Plotting data with no data!"
-	
-
-	legend = pyplot.legend(loc='lower center',  numpoints = 1, ncol=2, prop={'size':12}) 
-	legend.draw_frame(False) 
-	legend.get_frame().set_alpha(0.)
-		
-	print "timeseriesPlots:\ttrafficlightsPlot:\tSaving:" , filename
-	pyplot.savefig(filename )
-	pyplot.close()	
-
 
 def simpletimeseries(
 		times, 		# model times (in floats)
@@ -859,12 +781,12 @@ def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=
 	    if len(cbarlabel)>0: c1.set_label(cbarlabel)
 
 	pyplot.title(title)
-
+	print "makemapplot: title:",title	
 	ax.set_axis_off()
 	pyplot.axis('off')
 	ax.axis('off')
 		
-	return fig, ax
+	return fig, ax, im
 	
 def mapPlotSingle(lons1, lats1, data1,filename,titles=['',],lon0=0.,drawCbar=True,cbarlabel='',doLog=False,dpi=100,cmap = defcmap):#**kwargs):
 	"""
@@ -883,7 +805,7 @@ def mapPlotSingle(lons1, lats1, data1,filename,titles=['',],lon0=0.,drawCbar=Tru
 	if rbmi * rbma >0. and rbma/rbmi > 100.: doLog=True
 	ax1 = pyplot.subplot(111,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
 		
-	fig,ax1 = makemapplot(fig,ax1,lons1,lats1,data1,titles[0], zrange=[rbmi,rbma],lon0=0.,drawCbar=True,cbarlabel='',doLog=doLog,cmap = cmap)
+	fig,ax1,im = makemapplot(fig,ax1,lons1,lats1,data1,titles[0], zrange=[rbmi,rbma],lon0=0.,drawCbar=True,cbarlabel='',doLog=doLog,cmap = cmap)
 	ax1.set_extent([-180.,180.,-90.,90.])
 	print "mapPlotSingle.py:\tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)		
@@ -929,36 +851,58 @@ def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lo
 	#	2. Draw a shared colour bar.	
 	
 	sharedCbar = True
-	if sharedCbar: drawCbar = False
-	
-	ax1 = pyplot.subplot(211,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
-	ax2 = pyplot.subplot(212,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))	
-	try:
+	if sharedCbar: 
+		drawCbar = False
+		gs = gridspec.GridSpec(2, 2,  width_ratios=[15, 1],)
+		ax1 = pyplot.subplot(gs[0],projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
+	else:
+		ax1 = pyplot.subplot(211,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
+		ax2 = pyplot.subplot(212,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))	
+	#try:
 		#####
 		# Draw second plot first, as ax1 can be made by itself if this fails.
-		fig,ax2 = makemapplot(fig,ax2,lons2,lats2,data2,titles[1], zrange=[rbmi,rbma],lon0=0.,drawCbar=drawCbar,cbarlabel='',doLog=doLog,cmap = cmap1)
-		if False in [fig, ax2]: assert False
-		ax2.set_extent([-180.,180.,-90.,90.])		
-	except: 
-		try:mapPlotSingle(lons1, lats1, data1,filename,titles=titles,lon0=lon0,drawCbar=True,cbarlabel=cbarlabel,doLog=doLog,dpi=dpi,cmap = cmap1)
-		except:pass
-		return
-
-	fig,ax1 = makemapplot(fig,ax1,lons1,lats1,data1,titles[0], zrange=[rbmi,rbma],lon0=0.,drawCbar=drawCbar,cbarlabel='',doLog=doLog,cmap = cmap1)
-	ax1.set_extent([-180.,180.,-90.,90.])	
+	#	fig,ax2,im2 = makemapplot(fig,ax2,lons2,lats2,data2,titles[1], zrange=[rbmi,rbma],lon0=0.,drawCbar=drawCbar,cbarlabel='',doLog=doLog,cmap = cmap1)
+	#	if False in [fig, ax2]: assert False
+	#	ax2.set_extent([-180.,180.,-90.,90.])		
+	#except: 
+	#	try:mapPlotSingle(lons1, lats1, data1,filename,titles=titles,lon0=lon0,drawCbar=True,cbarlabel=cbarlabel,doLog=doLog,dpi=dpi,cmap = cmap1)
+	#	except:pass
+	#	return
 	
-	if sharedCbar: 
-		divider = make_axes_locatable(ax2)
-		cax = divider.append_axes("right", size="50%", pad=0.15)								
-		cb = pyplot.colorbar(cax=cax)
-		cb.set_label(zaxislabel)		
+	fig,ax1,im1 = makemapplot(fig,ax1,lons1,lats1,data1,titles[0], zrange=[rbmi,rbma],lon0=0.,drawCbar=drawCbar,cbarlabel='',doLog=doLog,cmap = cmap1)
+#	ax1.set_extent([-180.,180.,-90.,90.])	
+
+        if sharedCbar: 
+		ax2 = pyplot.subplot(gs[2], projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
+        fig,ax2,im2 = makemapplot(fig,ax2,lons2,lats2,data2,titles[1], zrange=[rbmi,rbma],lon0=0.,drawCbar=drawCbar,cbarlabel='',doLog=doLog,cmap = cmap1)
+#        ax2.set_extent([-180.,180.,-90.,90.])
+
+	if sharedCbar:
+	        axcb = pyplot.subplot(gs[:,1])
+		cb = pyplot.colorbar(im1,cax=axcb)
+		cb.set_label(cbarlabel)		
 		
 	print "mapPlotPair: \tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)		
 	pyplot.close()	
 
 
+#def calculateExtent(lat1,lat2,lon1,lon2):
+#        latmin = -90. 
+#	latmax =  90.
+#        lonmin = -180.
+#	lonmax =  180.
+#	
+#	latmin = min([lat1.min(), lat2.min()])
+#        latmax = max([lat1.max(), lat2.max()])
+#	
+#	latboard = (latmax - latmin)/10.
+	
 
+
+	
+	
+	
 def hovmoellerAxis(fig,ax,title,xaxis,yaxis,data,vmin='',vmax='',cmap = defcmap ,debug = False):
 	yaxis = np.array(yaxis)
 	if yaxis.min()*yaxis.max() <=0.:

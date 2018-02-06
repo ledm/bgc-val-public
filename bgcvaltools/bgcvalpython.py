@@ -208,7 +208,6 @@ def getDates(nc, coords):
 		cal  = coords['cal']		
 		print "getDates was unable to load Calendar, using config calendar:",cal
 	
-		
 	dtimes = num2date(nc.variables[coords['t']][:], units,calendar=cal)[:]
 	return dtimes
 	

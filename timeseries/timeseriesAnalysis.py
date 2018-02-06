@@ -604,7 +604,8 @@ class timeseriesAnalysis:
 	mDL = tst.DataLoader(fn,'',self.modelcoords,self.modeldetails, regions = self.regions, layers = newlayers,)
         nc = dataset(fn,'r')
         ts = bvp.getTimes(nc,self.modelcoords)
- 
+
+	cbarlabel = getLongName(self.modeldetails['name'])+', '+getLongName(self.modeldetails['units']) 
 	for r in self.regions:
 	    for l in self.layers:	
 		if type(l) in [type(0),type(0.)]:continue
@@ -653,7 +654,10 @@ class timeseriesAnalysis:
 	  			datalon,datalat,datadata,
 	  			mapfilename,
 	  			titles	= titles,
-	  			lon0=0.,drawCbar=True,cbarlabel='',dpi=100,)
+	  			lon0=0.,
+				drawCbar=True,
+				cbarlabel=cbarlabel,
+				dpi=100,)
 
 	
 	
