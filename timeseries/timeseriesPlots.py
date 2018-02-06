@@ -819,7 +819,7 @@ def regrid(data,lat,lon):
 	
 	
 	
-def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=True,cbarlabel='',doLog=False,):
+def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=True,cbarlabel='',doLog=False,cmap = defcmap):
 	"""
 	 Wrapper for the map plots.
 	Makes a plot according to the options specified in the function call.	
@@ -841,16 +841,16 @@ def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=
 	
 	if data.ndim ==1:
 		if doLog:
-			im = ax.scatter(lons, lats,c=data, lw=0,marker='s', transform=cartopy.crs.PlateCarree(),norm=LogNorm(),vmin=zrange[0],vmax=zrange[1])
+			im = ax.scatter(lons, lats,c=data, lw=0,marker='s', cmap = cmap, transform=cartopy.crs.PlateCarree(),norm=LogNorm(),vmin=zrange[0],vmax=zrange[1])
 		else:	
-			im = ax.scatter(lons, lats,c=data, lw=0,marker='s',transform=cartopy.crs.PlateCarree(),vmin=zrange[0],vmax=zrange[1])
+			im = ax.scatter(lons, lats,c=data, lw=0,marker='s', cmap = cmap, transform=cartopy.crs.PlateCarree(),vmin=zrange[0],vmax=zrange[1])
 	else:
 		crojp2, data, newLon,newLat = regrid(data,lats,lons)
 
 		if doLog:
-			im = ax.pcolormesh(newLon, newLat,data, transform=cartopy.crs.PlateCarree(),norm=LogNorm(vmin=zrange[0],vmax=zrange[1]),)
+			im = ax.pcolormesh(newLon, newLat,data, cmap = cmap, transform=cartopy.crs.PlateCarree(),norm=LogNorm(vmin=zrange[0],vmax=zrange[1]),)
 		else:	
-			im = ax.pcolormesh(newLon, newLat,data, transform=cartopy.crs.PlateCarree(),vmin=zrange[0],vmax=zrange[1])
+			im = ax.pcolormesh(newLon, newLat,data, cmap = cmap, transform=cartopy.crs.PlateCarree(),vmin=zrange[0],vmax=zrange[1])
 	
 	ax.add_feature(cartopy.feature.LAND,  facecolor='0.85')	
 
@@ -866,7 +866,7 @@ def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=
 		
 	return fig, ax
 	
-def mapPlotSingle(lons1, lats1, data1,filename,titles=['',],lon0=0.,drawCbar=True,cbarlabel='',doLog=False,dpi=100,):#**kwargs):
+def mapPlotSingle(lons1, lats1, data1,filename,titles=['',],lon0=0.,drawCbar=True,cbarlabel='',doLog=False,dpi=100,cmap = defcmap):#**kwargs):
 	"""
 	Makes a single pane map plot (ie, when there is no observartional data)
 	"""
@@ -883,14 +883,14 @@ def mapPlotSingle(lons1, lats1, data1,filename,titles=['',],lon0=0.,drawCbar=Tru
 	if rbmi * rbma >0. and rbma/rbmi > 100.: doLog=True
 	ax1 = pyplot.subplot(111,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
 		
-	fig,ax1 = makemapplot(fig,ax1,lons1,lats1,data1,titles[0], zrange=[rbmi,rbma],lon0=0.,drawCbar=True,cbarlabel='',doLog=doLog,)
+	fig,ax1 = makemapplot(fig,ax1,lons1,lats1,data1,titles[0], zrange=[rbmi,rbma],lon0=0.,drawCbar=True,cbarlabel='',doLog=doLog,cmap = cmap)
 	ax1.set_extent([-180.,180.,-90.,90.])
 	print "mapPlotSingle.py:\tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)		
 	pyplot.close()
 	
 
-def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lon0=0.,drawCbar=True,cbarlabel='',doLog=False,dpi=100,):#**kwargs):
+def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lon0=0.,drawCbar=True,cbarlabel='',doLog=False,dpi=100,cmap = defcmap):#**kwargs):
 	"""
 	Makes a pair of plots - model top, observational data below.	
 	If no obs data remain, it sends it to singlePlot tool
@@ -907,9 +907,14 @@ def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lo
 	rbmi = min([data1.min(),data2.min()])
 	rbma = max([data1.max(),data2.max()])		
 	
+	bins = 15
+	if defcmapstr =='viridis':
+		cmap1 = discrete_viridis(bins)
+	else:	cmap1 = pyplot.cm.get_cmap(defcmap, bins)    
+	
 	if rbmi * rbma >0. and rbma/rbmi > 100.: doLog=True
 	if 0 in [len(data2.compressed()),len(np.ma.array(lons2).compressed()),len(np.ma.array(lats2).compressed()), ]:
- 		try:    mapPlotSingle(lons1, lats1, data1,filename,titles=titles,lon0=lon0,drawCbar=drawCbar,cbarlabel=cbarlabel,doLog=doLog,dpi=dpi)
+ 		try:    mapPlotSingle(lons1, lats1, data1,filename,titles=titles,lon0=lon0,drawCbar=drawCbar,cbarlabel=cbarlabel,doLog=doLog,dpi=dpi,cmap = cmap1)
  		except:pass
  		return
 
@@ -918,25 +923,39 @@ def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lo
 
         fig = pyplot.figure()
         fig.set_size_inches(8,8)
+	####
+	# Two things I want to do here:
+	# 	1. Make the projection depend on the data available:
+	#	2. Draw a shared colour bar.	
+	
+	sharedCbar = True
+	if sharedCbar: drawCbar = False
 	
 	ax1 = pyplot.subplot(211,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
-	fig,ax1 = makemapplot(fig,ax1,lons1,lats1,data1,titles[0], zrange=[rbmi,rbma],lon0=0.,drawCbar=True,cbarlabel='',doLog=doLog,)
-	ax1.set_extent([-180.,180.,-90.,90.])	
-
 	ax2 = pyplot.subplot(212,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))	
 	try:
-		fig,ax2 = makemapplot(fig,ax2,lons2,lats2,data2,titles[1], zrange=[rbmi,rbma],lon0=0.,drawCbar=True,cbarlabel='',doLog=doLog,)
+		#####
+		# Draw second plot first, as ax1 can be made by itself if this fails.
+		fig,ax2 = makemapplot(fig,ax2,lons2,lats2,data2,titles[1], zrange=[rbmi,rbma],lon0=0.,drawCbar=drawCbar,cbarlabel='',doLog=doLog,cmap = cmap1)
 		if False in [fig, ax2]: assert False
-		ax2.set_extent([-180.,180.,-90.,90.])
-		
-		print "mapPlotPair: \tSaving:" , filename
-		pyplot.savefig(filename ,dpi=dpi)		
-		pyplot.close()		
+		ax2.set_extent([-180.,180.,-90.,90.])		
 	except: 
-		try:mapPlotSingle(lons1, lats1, data1,filename,titles=titles,lon0=lon0,drawCbar=drawCbar,cbarlabel=cbarlabel,doLog=doLog,dpi=dpi)
+		try:mapPlotSingle(lons1, lats1, data1,filename,titles=titles,lon0=lon0,drawCbar=True,cbarlabel=cbarlabel,doLog=doLog,dpi=dpi,cmap = cmap1)
 		except:pass
 		return
 
+	fig,ax1 = makemapplot(fig,ax1,lons1,lats1,data1,titles[0], zrange=[rbmi,rbma],lon0=0.,drawCbar=drawCbar,cbarlabel='',doLog=doLog,cmap = cmap1)
+	ax1.set_extent([-180.,180.,-90.,90.])	
+	
+	if sharedCbar: 
+		divider = make_axes_locatable(ax2)
+		cax = divider.append_axes("right", size="50%", pad=0.15)								
+		cb = pyplot.colorbar(cax=cax)
+		cb.set_label(zaxislabel)		
+		
+	print "mapPlotPair: \tSaving:" , filename
+	pyplot.savefig(filename ,dpi=dpi)		
+	pyplot.close()	
 
 
 
@@ -1031,7 +1050,6 @@ def hovmoellerPlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords=
 		dd = np.ma.array([-999,],mask=True)
 		dyaxis_cc = np.ma.array([-999,],mask=True)	
 		
-	
 	#####
 	# A hack to defuse an unusal bug that occurs when all layers of the data set are masked.
 	while len(dd.shape)> 2:
@@ -1040,7 +1058,6 @@ def hovmoellerPlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords=
 		if len(dd.shape) >2 and dd.shape[-1] !=1: 
 			print "Something very strange is happenning with this array:", dd
 			assert False
-		
 
 	dxaxis = np.array([0,1,])
 	dyaxis = zaxisfromCC(dyaxis_cc)
