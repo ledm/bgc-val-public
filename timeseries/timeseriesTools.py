@@ -195,6 +195,7 @@ class DataLoader:
   	self.Fulldata 	= data
   	self.__lay__ 	= -999.
   	self.regions, self.maskingfunctions = loadMaskMakers(regions = regions )
+        self._makeTimeDict_()
 	self.run()
 	
   def run(self):
@@ -209,7 +210,6 @@ class DataLoader:
  #  	assert 0
    	lays = self.layers[:]
    	lays.reverse()
-
     	for l in lays:#self.layers: 
     	    try:	layer = int(l)
     	    except:	layer = l
@@ -242,6 +242,14 @@ class DataLoader:
   		print '\tdata length:',len(self.load[(region,layer)]), 
   		print '\tmean:',self.load[(region,layer)].mean(), 'of', len(self.load[(region,layer)]),
   		print '\trange:',[self.load[(region,layer)].min(),self.load[(region,layer)].max()]
+
+  def _makeTimeDict_(self,):
+	""" Make a dictionairy linking the time index with the float time.
+	"""
+	ts = bvp.getTimes(self.nc,self.coords)
+	self.timedict = {i:t for i,t in enumerate(ts)}
+        self.timedict_ti = {t:i for i,t in enumerate(ts)}
+
   		
   def maskedload(self,region,layer):
   	""" Quick in line tool to set a layer/region to masked.

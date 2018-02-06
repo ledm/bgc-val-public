@@ -820,7 +820,10 @@ def regrid(data,lat,lon):
 	
 	
 def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=True,cbarlabel='',doLog=False,):
-
+	"""
+	 Wrapper for the map plots.
+	Makes a plot according to the options specified in the function call.	
+	"""
 	if len(lons)==0:return fig,ax
 	try:
 		if len(lons.compressed())==0:return False, False 
@@ -829,8 +832,6 @@ def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=
 	lons = np.array(lons)
 	lats = np.array(lats)
 	data = np.ma.array(data)	
-	
-	
 	
 	if doLog and zrange[0]*zrange[1] <=0.:
 		print "makemapplot: \tMasking"
@@ -853,25 +854,22 @@ def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=
 	
 	ax.add_feature(cartopy.feature.LAND,  facecolor='0.85')	
 
-
-	
 	if drawCbar:
 	    c1 = fig.colorbar(im,pad=0.05,shrink=0.75)
 	    if len(cbarlabel)>0: c1.set_label(cbarlabel)
 
 	pyplot.title(title)
 
-
 	ax.set_axis_off()
 	pyplot.axis('off')
 	ax.axis('off')
 		
-	
-		
 	return fig, ax
 	
 def mapPlotSingle(lons1, lats1, data1,filename,titles=['',],lon0=0.,drawCbar=True,cbarlabel='',doLog=False,dpi=100,):#**kwargs):
-
+	"""
+	Makes a single pane map plot (ie, when there is no observartional data)
+	"""
 	fig = pyplot.figure()
 	fig.set_size_inches(10,6)
 	
@@ -893,10 +891,11 @@ def mapPlotSingle(lons1, lats1, data1,filename,titles=['',],lon0=0.,drawCbar=Tru
 	
 
 def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lon0=0.,drawCbar=True,cbarlabel='',doLog=False,dpi=100,):#**kwargs):
+	"""
+	Makes a pair of plots - model top, observational data below.	
+	If no obs data remain, it sends it to singlePlot tool
+	"""
 
-	fig = pyplot.figure()
-	fig.set_size_inches(10,10)
-	
 	lons1 = np.array(lons1)
 	lats1 = np.array(lats1)
 	data1 = np.ma.array(data1)
@@ -916,7 +915,10 @@ def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lo
 
 	if 0 in [len(data1.compressed()),len(data2.compressed()),len(np.ma.array(lons1).compressed()),len(np.ma.array(lats1).compressed()),]:
 		return
-		
+
+        fig = pyplot.figure()
+        fig.set_size_inches(8,8)
+	
 	ax1 = pyplot.subplot(211,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
 	fig,ax1 = makemapplot(fig,ax1,lons1,lats1,data1,titles[0], zrange=[rbmi,rbma],lon0=0.,drawCbar=True,cbarlabel='',doLog=doLog,)
 	ax1.set_extent([-180.,180.,-90.,90.])	

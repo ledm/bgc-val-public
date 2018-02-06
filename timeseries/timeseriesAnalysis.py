@@ -604,18 +604,27 @@ class timeseriesAnalysis:
 	mDL = tst.DataLoader(fn,'',self.modelcoords,self.modeldetails, regions = self.regions, layers = newlayers,)
         nc = dataset(fn,'r')
         ts = bvp.getTimes(nc,self.modelcoords)
-        meantime = np.mean(ts)
  
 	for r in self.regions:
 	    for l in self.layers:	
 		if type(l) in [type(0),type(0.)]:continue
-	 	mapfilename = self.plotname([r,l,'map',])	    				    
-		#mapfilename = bvp.folder(self.imageDir)+'_'.join([self.model, self.scenario, self.jobID,r, l, self.dataType,'map'])+'.png'				
- 		#mapfilename = bvp.folder(self.imageDir)+'_'.join(['map',self.jobID,self.dataType,str(l),r,])+'.png'
+	 	mapfilename = self.plotname([r,l,'map',])	    				   
+ 
    		modeldata	= mDL.load[(r,l)]
    		modellat	= mDL.load[(r,l,'lat')]
    		modellon	= mDL.load[(r,l,'lon')]
-		  	
+		modelt		= mDL.load[(r,l,'t')]
+
+		maxtime 	= ts.max()
+		maxtime_index 	= mDL.timedict_ti[maxtime]
+                timestr         = str(int(maxtime))
+
+		timemask 	= np.ma.masked_where(modelt!=maxtime_index,modelt).mask
+                modeldata 	= np.ma.masked_where(timemask,modeldata).compressed()
+                modellat 	= np.ma.masked_where(timemask,modellat).compressed()
+                modellon 	= np.ma.masked_where(timemask,modellon).compressed()
+
+  	
 		if not len(modeldata): continue
 		if modellat.mean() == 0. and modellon.mean() == 0. : continue
 		
@@ -637,7 +646,7 @@ class timeseriesAnalysis:
 	  	print "mapplotsRegionsLayers:\t",r,l, "data lat:",len(datalat),datalat.min(),datalat.mean(),datalat.max()
 	  	print "mapplotsRegionsLayers:\t",r,l, "data lon:",len(datalon),datalon.min(),datalon.mean(),datalon.max()
 	
-		titles = [' '.join([getLongName(t) for t in [self.model,'('+self.jobID+')',str(l),self.modeldetails['name'],str(int(meantime))]]),
+		titles = [' '.join([getLongName(t) for t in [self.model,'('+self.jobID+')',str(l),self.modeldetails['name'],timestr]]),
 			  ' '.join([getLongName(t) for t in [self.datasource,str(l),self.datadetails['name']]])]
 			  
 	  	tsp.mapPlotPair(modellon, modellat, modeldata,
@@ -767,72 +776,6 @@ class timeseriesAnalysis:
 			
 			tsp.simpletimeseries(times,modeldata,datamean,title = title,filename=filename,units = self.modeldetails['units'],greyband=False)
 							
-	"""
-	#####
-	# Hovmoeller plots
-	for r in self.regions:
-	    for m in self.metrics: 
-	    	if m not in ['mean','median',]:continue
-	    	
-	   	#####
-	   	# Load data layers:
-		data = {}
-		modeldata = {}
-	  	for l in self.layers:
-	  		#print "Hovmoeller plots:",r,m,l
-	  		
-	  		if type(l) == type('str'):continue	# no strings, only numbered layers.
-			#####
-			# Test for presence/absence of in situ data.
-			try:	
-				dataslice = self.dataD[(r,l)]	  
-				dataslice = dataslice.compressed()				
-			except:	dataslice = np.ma.array([-1000,],mask=[True,])
-						
-			if m == 'mean': 
-				try:	data[l] = np.ma.mean(dataslice)
-				except:	data[l] = np.ma.array([-1000,],mask=[True,])				
-			elif m == 'median':
-				try: 	data[l] = np.ma.median(dataslice)
-				except:	data[l] = np.ma.array([-1000,],mask=[True,])
-			elif m == 'min': 
-				try: 	data[l] = np.ma.min(dataslice)
-				except:	data[l] = np.ma.array([-1000,],mask=[True,])
-			elif m == 'max':
-				try:	data[l] = np.ma.max(dataslice)
-				except:	data[l] = np.ma.array([-1000,],mask=[True,])				
-			else: continue		
-			
-			#print "makePlots:\tHovmoeller plots:",r,m,l,'modeldata',self.modeldataD[(r,l,m)]
-			#print "makePlots:\tHovmoeller plots:",r,m,l,'data',data[l]			
-			modeldata[l] = self.modeldataD[(r,l,m)]
-
-		#####
-		# check that multiple layers were requested.
-		if len(data.keys())<1: continue
-
-		#####
-		# create a dictionary of model depths and layers.
-	  	mnc = dataset(self.modelFiles[-1],'r')		
-		modelZcoords = {i:z for i,z in enumerate(mnc.variables[self.modelcoords['z']][:])}
-	  	mnc.close()  	
-
-		if self.dataFile:
-		  	dnc = dataset(self.dataFile,'r')	
-		  	dataZcoords = {i:z for i,z in enumerate(dnc.variables[self.datacoords['z']][:])}
-		  	dnc.close()  	
-		else: 	dataZcoords = {}
-
-		title = ' '.join([getLongName(t) for t in [r,m,self.dataType]])	
-	    	hovfilename = bvp.folder(self.imageDir)+'_'.join(['profile',self.jobID,self.dataType,r,m,])+'.png'
-		if  bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename,debug=False):				
-			tsp.hovmoellerPlot(modeldata,data,hovfilename, modelZcoords = modelZcoords, dataZcoords= dataZcoords, title = title,diff=False)		
-	
-	    	hovfilename = bvp.folder(self.imageDir)+'_'.join(['profileDiff',self.jobID,self.dataType,r,m,])+'.png'
-		if  bvp.shouldIMakeFile([self.shelvefn, self.shelvefn_insitu],hovfilename,debug=False):					    	
-			tsp.hovmoellerPlot(modeldata,data,hovfilename, modelZcoords = modelZcoords, dataZcoords= dataZcoords, title = title,diff=True)		
-	"""
-
 	#####
 	# map plots for specific regions:	
 	runmapplots=False
