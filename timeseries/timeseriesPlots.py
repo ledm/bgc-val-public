@@ -47,12 +47,15 @@ import timeseriesTools as tst
 from bgcvaltools.viridis import viridis,discrete_viridis
 from bgcvaltools import bgcvalpython as bvp
 
-try:	
-	defcmap = pyplot.cm.jet
-	defcmapstr = 'jet'
-except:	
-	defcmap = viridis
-	defcmapstr = 'viridis'	
+defcmap = viridis
+defcmapstr = 'viridis'
+
+#try:	
+#	defcmap = pyplot.cm.jet
+#	defcmapstr = 'jet'
+#except:	
+#	defcmap = viridis
+#	defcmapstr = 'viridis'	
 
 cmipcolours = 	['goldenrod',
 		 'navy',
@@ -163,7 +166,8 @@ def percentilesPlot(
 	#####
 	# Make, resize and divide the figure into an uneven grid/
 	fig = pyplot.figure()
-	fig.set_size_inches(10,6)
+	#fig.set_size_inches(10,6)	
+        fig.set_size_inches(8,4)
 	gs = gridspec.GridSpec(1, 2, width_ratios=[12,1], wspace=0.0, hspace=0.0) 		
 	
 	#####
@@ -389,6 +393,7 @@ def trafficlightsPlot(
 	xlims= [times[0],times[-1]]
 	
 	fig = pyplot.figure()
+        fig.set_size_inches(5,5)
 	
 	ax = fig.add_subplot(111)
 	
@@ -467,13 +472,13 @@ def simpletimeseries(
 	xlims= [times[0],times[-1]]
 	
 	fig = pyplot.figure()
-	#print "simpletimeseries,",arr, times
 	ax = fig.add_subplot(111)	
+        fig.set_size_inches(6,5)
+
 	
         arr_new = movingaverage_DT(arr,times, window_len=5.,window_units='years')	# 5 year average.
 	pyplot.plot(times,arr,    c='b',ls='-',lw=0.2, label = 'Model')	
 	pyplot.plot(times,arr_new,c='b',ls='-',lw=2. , label='Model 5yr moving average')
-			
 		
 	pyplot.xlim(xlims)	
 	pyplot.title(title)	
@@ -482,9 +487,9 @@ def simpletimeseries(
         if data not in [np.ma.masked,np.ma.array([0.,0.],mask=True)[0],-999,-999.,] and np.isnan(data)==False and np.isinf(data) == False:
 		pyplot.axhline(y=data,c='k',ls='-',lw=1,label = 'Data')
 		
-	legend = pyplot.legend(loc='lower center',  numpoints = 1, ncol=2, prop={'size':12}) 
-	legend.draw_frame(False) 
-	legend.get_frame().set_alpha(0.)
+#	legend = pyplot.legend(loc='lower center',  numpoints = 1, ncol=2, prop={'size':16}) 
+#	legend.draw_frame(False) 
+#	legend.get_frame().set_alpha(0.)
 		
 	print "timeseriesPlots:\tsimpletimeseries:\tSaving:" , filename
 	pyplot.savefig(filename )
@@ -641,7 +646,8 @@ def multitimeseries(
 
         	
 	fig = pyplot.figure()
-	fig.set_size_inches(10,6)
+	#fig.set_size_inches(10,6)
+        fig.set_size_inches(5,5)
 		
 	if plotStyle == 'Together':
 		ax = fig.add_subplot(111)
@@ -935,7 +941,7 @@ def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lo
 def hovmoellerAxis(fig,ax,title,xaxis,yaxis,data,vmin='',vmax='',cmap = defcmap ,debug = False):
 	yaxis = np.array(yaxis)
 	if yaxis.min()*yaxis.max() <=0.:
-		if yaxis.mean()<0:yaxis = np.clip(yaxis,-10000.,-0.1)
+		if yaxis.mean()<0:yaxis = np.clip(yaxis,-10000.,-0.001)
 	
 	if debug:	print "hovmoellerAxis:\txaxis:",title, xaxis,"\tyaxis:",yaxis,"\tdata:",data
 	if debug:	print "hovmoellerAxis:\txaxis:",title, xaxis.shape,"\tyaxis:",yaxis.shape,"\tdata:",data.shape
@@ -1097,7 +1103,8 @@ def hovmoellerPlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords=
 	# Grid spec allows you to make un-even shaped subplots.
 	# here we want the in situ data to be much narrower.
 	fig = pyplot.figure()	
-	fig.set_size_inches(10,6)
+	#fig.set_size_inches(10,6)
+	fig.set_size_inches(8,4)
 	if diff:
 		#####
 		# model - data plot
@@ -1106,7 +1113,7 @@ def hovmoellerPlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords=
 		pyplot.xlim([times.min(),times.max()])
 		pyplot.ylim([zmi,zma])	
 		ax2.set_yscale('symlog')	
-		pyplot.xlabel('Year')			
+		#pyplot.xlabel('Year')			
 		pyplot.ylabel('Depth, m')
 		
 		divider = make_axes_locatable(ax2)
@@ -1118,7 +1125,8 @@ def hovmoellerPlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords=
 
 	else:
 		#gs = gridspec.GridSpec(1, 2, width_ratios=[12, 1]) 
-		gs = gridspec.GridSpec(1, 2, width_ratios=[10,1], wspace=0.01, hspace=0.)
+#                gs = gridspec.GridSpec(1, 2, width_ratios=[10,1], wspace=0.01, hspace=0.)
+        	gs = gridspec.GridSpec(1, 2, width_ratios=[9,1], wspace=0.005, hspace=0.0)
 
 		#####
 		# model subplot
@@ -1127,17 +1135,12 @@ def hovmoellerPlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords=
 		pyplot.xlim([times.min(),times.max()])
 		pyplot.ylim([zmi,zma])	
 
-
-
 		ax1.set_yscale('symlog')	
 		#ax1.yaxis.set_ticklabels([])
-		pyplot.xlabel('Year')
+		#pyplot.xlabel('Year')
 		pyplot.ylabel('Depth, m') 	 	
 		pyplot.ylim([zmi,zma])
 		
-
-
-	
 		#####
 		# Data  subplot
 		ax2 = pyplot.subplot(gs[1])
@@ -1151,20 +1154,18 @@ def hovmoellerPlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords=
 		ax2.get_yaxis().set_ticks([])
 		
 		divider = make_axes_locatable(ax2)
-		cax = divider.append_axes("right", size="50%", pad=0.25)								
+		cax = divider.append_axes("right", size="50%", pad=0.15)								
 		cb = pyplot.colorbar(cax=cax)
 		cb.set_label(zaxislabel)	
 	
-		
-		ax2.text(0.5,1.030,'Data',
+		ax2.text(0.7,1.0450,'Data',
 			va='top',ha='center',
 			transform=ax2.transAxes)
 
-		ax1.text(1.,1.030,'Model  ',
+		ax1.text(1.,1.050,'Model  ',
 			va='top',ha='right',
 			transform=ax1.transAxes)
 		
-			
 	#pyplot.tight_layout()			
 	print "hovmoellerPlot.py: \tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)		
@@ -1239,7 +1240,9 @@ def profilePlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords= {}
 	# Grid spec allows you to make un-even shaped subplots.
 	# here we want the in situ data to be much narrower.
 	fig = pyplot.figure()	
-	fig.set_size_inches(8,6)
+	#fig.set_size_inches(8,6)
+        fig.set_size_inches(6,5)
+
 
 	#####
 	# Data  subplot
@@ -1266,11 +1269,12 @@ def profilePlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords= {}
 	####
 	# Add model data
 	plotDetails = {}
+	jetmap = pyplot.cm.jet
 	for i in sorted(profileTimes.keys()):
 		print 'profilePlot',i,profileTimes[i], md[:,i].shape,yaxis_cc.shape
 		lw =1
 		if i == lastyr: 	lw =2
-		color = defcmap((float(profileTimes[i])-times_cc[0])/(float(times_cc[-1]-times_cc[0])))
+		color = jetmap((float(profileTimes[i])-times_cc[0])/(float(times_cc[-1]-times_cc[0])))
 		label = str(int(profileTimes[i]))
 		plotDetails[i] = {'c': color, 'label':label, 'lw':lw,}
 		pyplot.plot(md[:,i], yaxis_cc, c=color, lw = lw, )#label=label)

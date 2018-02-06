@@ -218,7 +218,10 @@ def analysis_parser(
 		print "analysis_parser:\tReport maker  is switched Off. To turn it on, use the makeReport boolean flag in "
 
 def main():
-	analysis_parser()
+	try:	configfile = argv[1],
+	except: configfile = 'runconfig.ini',
+
+	analysis_parser(configfile=configfile)
 	
 	
 if __name__=="__main__":
