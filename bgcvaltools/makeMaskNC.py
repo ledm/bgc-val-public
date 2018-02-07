@@ -150,7 +150,7 @@ def makeMaskNC(outFile, regions, grid,coords, gridfn=''):
 			else:	assert 0
 		threeDmasks[r] = mask
 		if mask.sum() == 0: 
-			raise AssertionError("Mask is 100%"+region)
+			raise AssertionError("Mask is 100%"+r)
 			
 	plotting = 1
 	if plotting:
