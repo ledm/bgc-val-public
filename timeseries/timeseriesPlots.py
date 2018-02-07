@@ -829,10 +829,6 @@ def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lo
 	rbmi = min([data1.min(),data2.min()])
 	rbma = max([data1.max(),data2.max()])		
 	
-	lami = min([lat1.min(),lat2.min()])
-	lama = max([lat1.max(),lat2.max()])
-	lomi = min([lon1.min(),lon2.min()])
-	loma = max([lon1.max(),lon2.max()])
 			
 	bins = 15
 	if defcmapstr =='viridis':
@@ -848,32 +844,67 @@ def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lo
 	if 0 in [len(data1.compressed()),len(data2.compressed()),len(np.ma.array(lons1).compressed()),len(np.ma.array(lats1).compressed()),]:
 		return
 
-	plotShape = 'Global'	# default
+
+        mask1 = data1.mask
+	mlons1 = np.ma.masked_where(data1.mask,lons1)        
+	mlats1 = np.ma.masked_where(data1.mask,lats1)
+
+        mask2 = data2.mask
+	mlons2 = np.ma.masked_where(data2.mask,lons2)        
+	mlats2 = np.ma.masked_where(data2.mask,lats2)
+
+        lami = min([mlats1.min(),mlats2.min()])
+        lama = max([mlats1.max(),mlats2.max()])
+        lomi = min([mlons1.min(),mlons2.min()])
+        loma = max([mlons1.max(),mlons2.max()])
 	
-	if lama - lami < 25. & loma - lomi > 180.: 
-		plotShape == 'longthin'
+
+
+	plotShape = 'Global'	# default
+	larange = float(lama-lami)
+        lorange = float(loma-lomi)
+	print "Lat range:",lami,lama,(larange)
+        print "Lon range:",lomi,loma,(lorange)
+
+	if larange < 40.  and lorange > 180.: 
+		plotShape = 'longthin'
 		
-	if lama - lami >120. & loma - lomi < 25.: 
-		plotShape == 'tallthin'		
+	if larange >120. and lorange < 25.: 
+		plotShape = 'tallthin'		
+        print "plot shape:", plotShape
 	
         fig = pyplot.figure()
-        if plotShape == 'Global': 
-        	fig.set_size_inches(8,8)
-        	width_ratio = [15, 1]
-        	
-        if plotShape == 'longthin': 
-        	fig.set_size_inches(6,8)
-        	width_ratio = [25, 1]
-
-        if plotShape == 'tallthin': 
-        	fig.set_size_inches(8,6)
-        	width_ratio = [5, 1]
-        		
 	sharedCbar = True
 	if sharedCbar: 
+	        if plotShape == 'Global':
+	                fig.set_size_inches(8,8)
+        	        width_ratio = [15, 1]
+	                gs = gridspec.GridSpec(2, 2,  width_ratios=[15,1] )
+			gs_ax1 = gs[0]
+                        gs_ax2 = gs[2]
+                        gs_cb  = gs[:,1]
+                        cb_Orientation='vertical'
+
+	        if plotShape == 'longthin':
+	                fig.set_size_inches(8,5)
+			gs = gridspec.GridSpec(3, 1, height_ratios=[10,10, 1], )
+                        gs_ax1 = gs[0]
+                        gs_ax2 = gs[1]
+                        gs_cb  = gs[2]
+			cb_Orientation='horizontal'
+
+	        if plotShape == 'tallthin':
+        	        fig.set_size_inches(5,8)
+                        gs = gridspec.GridSpec(1, 3, width_ratios=[10,10, 1], )
+                        gs_ax1 = gs[0]
+                        gs_ax2 = gs[1]
+                        gs_cb  = gs[2]
+                        cb_Orientation='vertical'
+			ytitles = titles[:]	# put titles on y axis instead of above
+			titles = ['','']
+
 		drawCbar = False
-		gs = gridspec.GridSpec(2, 2,  width_ratios=width_ratio )
-		ax1 = pyplot.subplot(gs[0],projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
+		ax1 = pyplot.subplot(gs_ax1,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
 	else:
 		ax1 = pyplot.subplot(211,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
 		ax2 = pyplot.subplot(212,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))	
@@ -889,16 +920,31 @@ def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lo
 	#	return
 	
 	fig,ax1,im1 = makemapplot(fig,ax1,lons1,lats1,data1,titles[0], zrange=[rbmi,rbma],lon0=0.,drawCbar=drawCbar,cbarlabel='',doLog=doLog,cmap = cmap1)
+        if plotShape == 'tallthin':  
+		#ax1.set_ylabel(ytitles[0])
+		ax1.set_title(ytitles[0],x=-1.5,y=0.5,
+			rotation='vertical',
+			horizontalalignment='left',
+			verticalalignment='center',)
+		#ax1.update()
 #	ax1.set_extent([-180.,180.,-90.,90.])	
 
         if sharedCbar: 
-		ax2 = pyplot.subplot(gs[2], projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
+		ax2 = pyplot.subplot(gs_ax2, projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
         fig,ax2,im2 = makemapplot(fig,ax2,lons2,lats2,data2,titles[1], zrange=[rbmi,rbma],lon0=0.,drawCbar=drawCbar,cbarlabel='',doLog=doLog,cmap = cmap1)
 #        ax2.set_extent([-180.,180.,-90.,90.])
 
+        if plotShape == 'tallthin':
+                #x2.set_ylabel(ytitles[1])
+                ax2.set_title(ytitles[1],x=-1.5,y=0.5,
+			rotation='vertical', 
+			horizontalalignment='left',
+			verticalalignment='center',)
+
+		#ax2.update()
 	if sharedCbar:
-	        axcb = pyplot.subplot(gs[:,1])
-		cb = pyplot.colorbar(im1,cax=axcb)
+	        axcb = pyplot.subplot(gs_cb)
+		cb = pyplot.colorbar(im1,cax=axcb,orientation=cb_Orientation)
 		cb.set_label(cbarlabel)		
 		
 	print "mapPlotPair: \tSaving:" , filename

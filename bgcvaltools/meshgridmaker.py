@@ -286,8 +286,9 @@ def drawLine(	fn,
 	openValue = 4.
 
 	points = np.array(points)
-	latline = np.linspace(points[0,0],points[1,0],num=2000)
-	lonline = np.linspace(points[0,1],points[1,1],num=2000)
+	pointnum = 500.
+	latline = np.linspace(points[0,0],points[1,0],num=pointnum)
+	lonline = np.linspace(points[0,1],points[1,1],num=pointnum)
 
 	#for (j,k), d in np.ndenumerate(data):
 	#	data[j,k] = float(tmask[0,j,k]	)
