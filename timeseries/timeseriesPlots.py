@@ -829,6 +829,11 @@ def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lo
 	rbmi = min([data1.min(),data2.min()])
 	rbma = max([data1.max(),data2.max()])		
 	
+	lami = min([lat1.min(),lat2.min()])
+	lama = max([lat1.max(),lat2.max()])
+	lomi = min([lon1.min(),lon2.min()])
+	loma = max([lon1.max(),lon2.max()])
+			
 	bins = 15
 	if defcmapstr =='viridis':
 		cmap1 = discrete_viridis(bins)
@@ -843,17 +848,31 @@ def mapPlotPair(lons1, lats1, data1,lons2,lats2,data2,filename,titles=['',''],lo
 	if 0 in [len(data1.compressed()),len(data2.compressed()),len(np.ma.array(lons1).compressed()),len(np.ma.array(lats1).compressed()),]:
 		return
 
-        fig = pyplot.figure()
-        fig.set_size_inches(8,8)
-	####
-	# Two things I want to do here:
-	# 	1. Make the projection depend on the data available:
-	#	2. Draw a shared colour bar.	
+	plotShape = 'Global'	# default
 	
+	if lama - lami < 25. & loma - lomi > 180.: 
+		plotShape == 'longthin'
+		
+	if lama - lami >120. & loma - lomi < 25.: 
+		plotShape == 'tallthin'		
+	
+        fig = pyplot.figure()
+        if plotShape == 'Global': 
+        	fig.set_size_inches(8,8)
+        	width_ratio = [15, 1]
+        	
+        if plotShape == 'longthin': 
+        	fig.set_size_inches(6,8)
+        	width_ratio = [25, 1]
+
+        if plotShape == 'tallthin': 
+        	fig.set_size_inches(8,6)
+        	width_ratio = [5, 1]
+        		
 	sharedCbar = True
 	if sharedCbar: 
 		drawCbar = False
-		gs = gridspec.GridSpec(2, 2,  width_ratios=[15, 1],)
+		gs = gridspec.GridSpec(2, 2,  width_ratios=width_ratio )
 		ax1 = pyplot.subplot(gs[0],projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
 	else:
 		ax1 = pyplot.subplot(211,projection=cartopy.crs.PlateCarree(central_longitude=0.0, ))
