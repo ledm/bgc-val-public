@@ -1696,7 +1696,8 @@ def scatterPlot(datax, datay,  filename, Title='', labelx='',labely='', logx=Fal
 		addStraightLineFit(ax, datax, datay, showtext =False, extent=plotrange)
 
 
-        b1, b0, rValue, pValue, stdErr = getLinRegText(ax, datax, datay, showtext =True)
+	        b1, b0, rValue, pValue, stdErr = getLinRegText(ax, datax, datay, showtext =False)
+		
 
  
         if addOneToOne:
