@@ -52,6 +52,11 @@ from bgcvaltools.configparser import AnalysisKeyParser, GlobalSectionParser
 
 from html.makeReportConfig import htmlMakerFromConfig
 
+import matplotlib
+# Force matplotlib to not use any Xwindows backend.
+matplotlib.use('Agg')
+
+
 parrallel = False
 if parrallel:
 	try:	from multiprocessing import Pool
@@ -218,11 +223,15 @@ def analysis_parser(
 		print "analysis_parser:\tReport maker  is switched Off. To turn it on, use the makeReport boolean flag in "
 
 def main():
-	try:	configfile = argv[1],
-	except: configfile = 'runconfig.ini',
+        try: 	configfn = argv[1]
+	except:
+		configfn = 'runconfig.ini'
+		print "run.py:\tNo config file provided, using default: ", configfn
 
-	analysis_parser(configfile=configfile)
-	
+	analysis_parser(
+		configfile= configfn,
+		)
+		
 	
 if __name__=="__main__":
 	main()

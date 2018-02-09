@@ -73,6 +73,852 @@ noXYLogs 	= [ 'pCO2',
 		
 #transectSlices = ['All','Global',]
 
+
+
+
+def robinPlotQuad(lons,
+		lats,
+		data1, 
+                data2, 
+                filename, 
+                titles=['',''], 
+                title='', 
+                lon0=0., 
+                marble=False, 
+                drawCbar=True, 
+                cbarlabel='', 
+                doLog=False, 
+                scatter=True, 
+                dpi=100, 
+                vmin='', 
+                vmax='',
+		maptype='Basemap'):#,**kwargs):
+	"""
+	takes a pair of lat lon, data, and title, and filename and then makes a quad of maps (data 1, data 2, difference and quotient), then saves the figure.
+	"""
+	fig = pyplot.figure()
+	fig.set_size_inches(8,5)
+
+	lons = np.array(lons)
+	lats = np.array(lats)
+	data1 = np.ma.array(data1)
+	data2 = np.ma.array(data2)
+	axs,bms,cbs,ims = [],[],[],[]
+
+	if not vmin: vmin = data1.min()
+	if not vmax: vmax = data1.max()
+	vmin = min([data1.min(),data2.min(),vmin])
+	vmax = max([data1.max(),data2.max(),vmax])			
+	
+	#doLog, vmin,vmax = determineLimsAndLog(vmin,vmax)
+	doLog, vmin,vmax = determineLimsFromData(data1,data2)
+	
+	
+	doLogs = [doLog,doLog,False,True]
+	print "robinPlotQuad:\t",len(lons),len(lats),len(data1),len(data2)
+	for i,spl in enumerate([221,222,223,224]):	
+		
+		if spl in [221,222]:
+			rbmi = vmin
+			rbma = vmax
+			
+		if spl in [223,]:
+			rbmi,rbma = symetricAroundZero(data1,data2)
+			#rbma =3*np.ma.std(data1 -data2)
+			#print spl,i, rbma, max(data1),max(data2)
+			#assert False
+			#rbmi = -rbma
+		if spl in [224,]:
+			rbma = 10. #max(np.ma.abs(data1 -data2))
+			rbmi = 0.1		
+				
+		if doLogs[i] and rbmi*rbma <=0.:
+			print "UKESMpython:\trobinPlotQuad: \tMasking",
+			data1 = np.ma.masked_less_equal(ma.array(data1), 0.)
+			data2 = np.ma.masked_less_equal(ma.array(data2), 0.)
+		data = ''
+		
+		if spl in [221,]:data  = np.ma.clip(data1, 	 rbmi,rbma)
+		if spl in [222,]:data  = np.ma.clip(data2, 	 rbmi,rbma)
+		if spl in [223,]:data  = np.ma.clip(data1-data2, rbmi,rbma)
+		if spl in [224,]:data  = np.ma.clip(data1/data2, rbmi,rbma)
+
+		
+		if spl in [221,222,]:
+			if rbmi == -rbma: 	cmap= pyplot.cm.RdBu_r
+			else:			cmap= defcmap
+		if spl in [223,224,]:		cmap= pyplot.cm.RdBu_r		
+		
+
+			
+		if maptype=='Basemap':
+			axs.append(fig.add_subplot(spl))		
+			bms.append( Basemap(projection='robin',lon_0=lon0,resolution='c') )#lon_0=-106.,
+			x1, y1 = bms[i](lons, lats)
+			bms[i].drawcoastlines(linewidth=0.5)
+			if marble: bms[i].bluemarble()
+			else:
+				bms[i].drawmapboundary(fill_color='1.')
+				bms[i].fillcontinents(color=(255/255.,255/255.,255/255.,1))
+			#bms[i].drawparallels(np.arange(-90.,120.,30.))
+			#bms[i].drawmeridians(np.arange(0.,420.,60.))
+			
+			if doLogs[i]:
+				rbmi = np.int(np.log10(rbmi))
+				rbma = np.log10(rbma)
+				if rbma > np.int(rbma): rbma+=1
+				rbma = np.int(rbma)
+											
+			if scatter:
+				if doLogs[i]:	
+					if len(cbarlabel)>0: 
+						cbarlabel='log$_{10}$('+cbarlabel+')'									
+					ims.append(bms[i].scatter(x1,y1,c = np.log10(data),cmap=cmap, marker="s",alpha=0.9,linewidth='0',vmin=rbmi, vmax=rbma,))# **kwargs))
+				else:	ims.append(bms[i].scatter(x1,y1,c = data,	   cmap=cmap, marker="s",alpha=0.9,linewidth='0',vmin=rbmi, vmax=rbma,))# **kwargs))
+			else:
+				xi1,yi1,di1=mapIrregularGrid(bms[i],axs[i],lons,lats,data,lon0,xres=360,yres=180)
+				if doLogs[i]: 	ims.append( bms[i].pcolormesh(xi1,yi1,di1,cmap=cmap,norm = LogNorm() ))
+				else:	  	ims.append( bms[i].pcolormesh(xi1,yi1,di1,cmap=cmap))
+			if drawCbar:
+				if spl in [221,222,223]:
+					if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+					else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+				if spl in [224,]:
+					cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+					cbs[i].set_ticks ([-1,0,1])
+					cbs[i].set_ticklabels(['0.1','1.','10.'])
+										  
+										  
+		if maptype=='Cartopy':
+			#axs.append(fig.add_subplot(spl))
+			bms.append(pyplot.subplot(spl,projection=ccrs.Robinson()))
+			bms[i].set_global()
+			
+
+						
+			if marble:	bms[i].stock_img()
+			else:
+				# Because Cartopy is hard wired to download the shapes files from a website that doesn't exist anymore:
+
+				bms[i].add_geometries(list(shapereader.Reader('data/ne_110m_coastline.shp').geometries()),
+							ccrs.PlateCarree(), color='k',facecolor = 'none',linewidth=0.5)
+			
+			if scatter:
+				if doLogs[i] and spl in [221,222]:
+					rbmi = np.int(np.log10(rbmi))
+					rbma = np.log10(rbma)
+					if rbma > np.int(rbma): rbma+=1
+					rbma = np.int(rbma)
+							
+				if doLogs[i]:
+					ims.append(
+						bms[i].scatter(lons, lats,c = np.log10(data),
+							cmap=cmap,marker="s",alpha=0.9,linewidth='0',
+							vmin=rbmi, vmax=rbma,
+							transform=ccrs.PlateCarree(),
+							)
+						)
+				else:	
+					ims.append(
+						bms[i].scatter(lons, lats,c = data,
+						        cmap=cmap,marker="s",alpha=0.9,linewidth='0',
+						        vmin=rbmi, vmax=rbma,
+						        transform=ccrs.PlateCarree(),)
+						  )
+				if drawCbar:
+					if spl in [221,222,223]:
+						if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+						else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+					if spl in [224,]:
+						cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+						cbs[i].set_ticks ([-1,0,1])
+						cbs[i].set_ticklabels(['0.1','1.','10.'])
+										  
+			else:
+				crojp2, newData, newLon,newLat = regrid(data.squeeze(),lons, lats)	
+				print "cartopy robin quad:",i,spl,newData.shape,newData.min(),newData.max(), rbmi,rbma
+				if doLogs[i]:
+					ims.append(							
+						bms[i].pcolormesh(newLon, newLat,newData,
+							transform=ccrs.PlateCarree(),
+							cmap=cmap,
+							norm=LogNorm(vmin=rbmi,vmax=rbma)
+							)
+						)
+							
+				else:
+					ims.append(											
+						bms[i].pcolormesh(newLon, newLat,newData,
+							transform=ccrs.PlateCarree(),
+							cmap=cmap,
+							vmin=rbmi,vmax=rbma)
+						)
+				bms[i].coastlines()	#doesn't work.
+				#bms[i].fillcontinents(color=(255/255.,255/255.,255/255.,1))
+				bms[i].add_feature(cfeature.LAND,  facecolor='1.')	
+				if drawCbar:
+					if spl in [221,222,223]:
+						if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))#ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+						else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+					if spl in [224,]:
+						cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+						cbs[i].set_ticks ([0.1,1.,10.])
+						cbs[i].set_ticklabels(['0.1','1.','10.'])				
+
+			#else:		ticks = np.linspace( rbmi,rbma,9)
+			#print i, spl, ticks, [rbmi,rbma]
+			
+			#pyplot.colorbar(ims[i],cmap=defcmap,values=[rbmi,rbma])#boundaries=[rbmi,rbma])
+		 	#cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5))#,ticks=ticks))
+		 	
+		 	cbs[i].set_clim(rbmi,rbma)
+
+		    	if len(cbarlabel)>0 and spl in [221,222,]: cbs[i].set_label(cbarlabel)
+		if i in [0,1]:
+			pyplot.title(titles[i])
+		if i ==2:	pyplot.title('Difference ('+titles[0]+' - '+titles[1]+')')
+		if i ==3:	pyplot.title('Quotient ('  +titles[0]+' / '+titles[1]+')')
+	
+	if title:
+		#fig.text(0.5,0.975,title,horizontalalignment='center',verticalalignment='top')
+		fig.suptitle(title)	
+	pyplot.tight_layout()		
+	print "p2pPlots:\trobinPlotQuad: \tSaving:" , filename
+	pyplot.savefig(filename ,dpi=dpi)		
+	pyplot.close()
+	
+	
+def HovPlotQuad(lons,lats, depths, 
+		data1,data2,filename,
+		titles=['',''],title='',
+		lon0=0.,
+		marble=False,
+		drawCbar=True,
+		cbarlabel='',
+		doLog=False,
+		scatter=True,
+		dpi=100,
+		vmin='',
+		vmax='',
+		logy = False,
+		maskSurface=True,
+		):#,**kwargs):
+	"""
+	:param lons: Longitude array
+	:param lats: Lattitude array	
+	:param depths: Depth array	
+	:param data1: Data  array
+	:param data2: Second data array	
+	takes a pair of lat lon, depths, data, and title, and filename and then makes a quad of transect plots
+	(data 1, data 2, difference and quotient), then saves the figure.
+	"""
+	
+	fig = pyplot.figure()
+	fig.set_size_inches(10,6)
+	depths = np.array(depths)
+	if depths.max() * depths.min() >0. and depths.max()  >0.: depths = -depths
+	
+	lons = np.array(lons)
+	lats = np.array(lats)
+	data1 = np.ma.array(data1)
+	data2 = np.ma.array(data2)
+	if maskSurface:
+		data1 = np.ma.masked_where(depths>-10.,data1)
+		data2 = np.ma.masked_where(depths>-10.,data2)
+
+		if len(data1.compressed())==0:
+			print "No hovmoeller for surface only plots."
+			return
+	
+	doLog, vmin,vmax = determineLimsFromData(data1,data2)
+			
+	axs,bms,cbs,ims = [],[],[],[]
+	doLogs = [doLog,doLog,False,True]
+	print "HovPlotQuad:\t",len(depths),len(lats),len(data1),len(data2)
+
+	#####
+	# Plotting coordinate with lowest standard deviation.	
+	lon_std = lons.std()
+	lat_std = lats.std()	
+	if lon_std<lat_std:
+		hovXaxis = lats
+	else:	hovXaxis = lons
+			
+	
+	for i,spl in enumerate([221,222,223,224]):	
+		
+		if spl in [221,222]:
+			rbmi = vmin
+			rbma = vmax
+		if spl in [223,]:
+			rbmi,rbma = symetricAroundZero(data1,data2)
+			#rbma =3*np.ma.std(data1 -data2)
+			#print spl,i, rbma, max(data1),max(data2)
+			#rbmi = -rbma
+		if spl in [224,]:
+			rbma = 10.001 
+			rbmi = 0.0999		
+				
+		if doLogs[i] and rbmi*rbma <=0.:
+			print "UKESMpython:\tHovPlotQuad: \tMasking",
+			data1 = np.ma.masked_less_equal(ma.array(data1), 0.)
+			data2 = np.ma.masked_less_equal(ma.array(data2), 0.)
+		data = ''
+		
+		if spl in [221,]:	data  = np.ma.clip(data1, 	 rbmi,rbma)
+		if spl in [222,]:	data  = np.ma.clip(data2, 	 rbmi,rbma)
+		if spl in [223,]:	data  = np.ma.clip(data1-data2, rbmi,rbma)
+		if spl in [224,]:	data  = np.ma.clip(data1/data2, rbmi,rbma)
+		if spl in [221,222,]:	cmap= defcmap
+		if spl in [223,224,]:	cmap= pyplot.cm.RdBu_r		
+		
+		axs.append(fig.add_subplot(spl))
+		if scatter:
+			if doLogs[i] and spl in [221,222]:
+				rbmi = np.int(np.log10(rbmi))
+				rbma = np.log10(rbma)
+				if rbma > np.int(rbma): rbma+=1
+				rbma = np.int(rbma)
+					
+			if doLogs[i]:	
+				ims.append(pyplot.scatter(hovXaxis,depths, c= np.log10(data),cmap=cmap, marker="s",alpha=0.9,linewidth='0',vmin=rbmi, vmax=rbma,))
+			else:	ims.append(pyplot.scatter(hovXaxis,depths, c=          data ,cmap=cmap, marker="s",alpha=0.9,linewidth='0',vmin=rbmi, vmax=rbma,))
+			
+		else:
+			print "hovXaxis:",hovXaxis.min(),hovXaxis.max(),"\tdepths:",depths.min(),depths.max(),"\tdata:",data.min(),data.max()
+			newX,newY,newData = arrayify(hovXaxis,depths,data)
+			print "newX:",newX.min(),newX.max(),"\tnewY:",newY.min(),newY.max(),"\tnewData:",newData.min(),newData.max() , 'range:', rbmi,rbma			
+			if doLogs[i]:	ims.append(pyplot.pcolormesh(newX,newY, newData, cmap=cmap, norm=LogNorm(vmin=rbmi,vmax=rbma),))
+			else:		ims.append(pyplot.pcolormesh(newX,newY, newData, cmap=cmap, vmin=rbmi, vmax=rbma,))			
+		
+		#####
+		# All the tools to make a colour bar
+		if drawCbar:
+			if spl in [221,222,223]:
+				if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+				else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+			if spl in [224,]:
+				cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+				cbs[i].set_ticks ([0.1,1.,10.])
+				cbs[i].set_ticklabels(['0.1','1.','10.'])
+	 	
+	 		cbs[i].set_clim(rbmi,rbma)
+			if doLogs[i] and len(cbarlabel)>0: cbarlabel='log$_{10}$('+cbarlabel+')'	
+
+	    		if len(cbarlabel)>0 and spl in [221,222,]: cbs[i].set_label(cbarlabel)
+	    		
+	    	#####
+	    	# Add the titles.	
+		if i in [0,1]:	pyplot.title(titles[i])
+		if i ==2:	pyplot.title('Difference ('+titles[0]+' - '+titles[1]+')')
+		if i ==3:	pyplot.title('Quotient ('  +titles[0]+' / '+titles[1]+')')
+	
+		#####
+		# Add the log scaliing and limts. 
+                if logy: 		axs[i].set_yscale('symlog')	
+		if maskSurface:		axs[i].set_ylim([depths.min(),-10.])
+		axs[i].set_xlim([hovXaxis.min(),hovXaxis.max()])						
+							
+		
+	#####
+	# Add main title
+	if title:	fig.text(0.5,0.99,title,horizontalalignment='center',verticalalignment='top')	
+	
+	#####
+	# Print and save
+	pyplot.tight_layout()		
+	print "UKESMpython:\tHovPlotQuad: \tSaving:" , filename
+	pyplot.savefig(filename ,dpi=dpi)		
+	pyplot.close()
+	
+	
+def ArcticTransectPlotQuad(lons,lats, depths, 
+		data1,data2,filename,
+		titles=['',''],title='',
+		lon0=0.,marble=False,drawCbar=True,cbarlabel='',doLog=False,scatter=True,dpi=100,vmin='',vmax='',
+		logy = False,
+		maskSurface=False,
+		transectName  = 'ArcTransect',
+		):#,**kwargs):
+	"""
+	:param lons: Longitude array
+	:param lats: Lattitude array	
+	:param depths: Depth array	
+	:param data1: Data  array
+	:param data2: Second data array	
+	takes a pair of lat lon, depths, data, and title, and filename and then makes a quad of transect plots
+	(data 1, data 2, difference and quotient), then saves the figure.
+	This only applies to the Arctic Transect plot
+	"""
+
+	depths = np.array(depths)
+	if depths.max() * depths.min() >0. and depths.max()  >0.: depths = -depths
+	
+	lons = np.array(lons)
+	lats = np.array(lats)
+	data1 = np.ma.array(data1)
+	data2 = np.ma.array(data2)
+
+	
+	if transectName=='AntTransect':
+		####
+		# Custom request from Katya for this specific figure.
+		data1 = np.ma.array(np.ma.masked_where(depths<-500.,data1).compressed())
+		data2 = np.ma.array(np.ma.masked_where(depths<-500.,data2).compressed())
+		lats = np.ma.masked_where(depths<-500.,lats).compressed()
+		lons = np.ma.masked_where(depths<-500.,lons).compressed()
+		depths = np.ma.masked_where(depths<-500.,depths).compressed()
+		print lons.shape,lats.shape, depths.shape, data1.shape,data2.shape
+		logy = False
+		maskSurface = False
+		
+	if maskSurface:
+		data1 = np.ma.masked_where(depths>-10.,data1)
+		data2 = np.ma.masked_where(depths>-10.,data2)
+		
+	if 0 in [len(data1),len(data2)]:
+		return
+		
+	doLog, vmin,vmax = determineLimsFromData(data1,data2)
+	
+	fig = pyplot.figure()
+	fig.set_size_inches(10,6)			
+	axs,bms,cbs,ims = [],[],[],[]
+	doLogs = [doLog,doLog,False,True]
+	print "ArcticTransectPlotQuad:\t",len(depths),len(lats),len(data1),len(data2)
+
+	#####
+	# Artificially build an x axis coordinate list for the Arctic.
+	hovXaxis = []
+	meanlon = np.mean(lons)
+	if transectName in ['ArcTransect','CanRusTransect'] :
+		for i,(la,lo) in enumerate(zip(lats,lons)):
+			if lo <= meanlon: #lowest lo transect goes first.
+				hovXaxis.append(la)
+			else:	
+				nl = 90.+ abs((90.-la))
+				hovXaxis.append(nl)
+	else:
+		hovXaxis = lats
+		
+	hovXaxis = np.array(hovXaxis)				
+
+	for i,spl in enumerate([221,222,223,224]):	
+		
+		if spl in [221,222]:
+			rbmi = vmin
+			rbma = vmax
+		if spl in [223,]:
+			rbmi,rbma = symetricAroundZero(data1,data2)
+			#			rbma =3.*np.ma.std(data1 -data2)
+			#print spl,i, rbma, max(data1),max(data2)
+			#rbmi = -rbma
+		if spl in [224,]:
+			rbma = 10.001 
+			rbmi = 0.0999		
+				
+		if doLogs[i] and rbmi*rbma <=0.:
+			print "UKESMpython:\tArcticTransectPlotQuad: \tMasking",
+			data1 = np.ma.masked_less_equal(ma.array(data1), 0.)
+			data2 = np.ma.masked_less_equal(ma.array(data2), 0.)
+		data = ''
+		
+		if spl in [221,]:	data  = np.ma.clip(data1, 	 rbmi,rbma)
+		if spl in [222,]:	data  = np.ma.clip(data2, 	 rbmi,rbma)
+		if spl in [223,]:	data  = np.ma.clip(data1-data2, rbmi,rbma)
+		if spl in [224,]:	data  = np.ma.clip(data1/data2, rbmi,rbma)
+		if spl in [221,222,]:	cmap= defcmap
+		if spl in [223,224,]:	cmap= pyplot.cm.RdBu_r		
+		
+		axs.append(fig.add_subplot(spl))
+		if scatter:
+			if doLogs[i] and spl in [221,222]:
+				rbmi = np.int(np.log10(rbmi))
+				rbma = np.log10(rbma)
+				if rbma > np.int(rbma): rbma+=1
+				rbma = np.int(rbma)
+					
+			if doLogs[i]:	
+				ims.append(pyplot.scatter(hovXaxis,depths, c= np.log10(data),cmap=cmap, marker="s",alpha=0.9,linewidth='0',vmin=rbmi, vmax=rbma,))
+			else:	ims.append(pyplot.scatter(hovXaxis,depths, c=          data ,cmap=cmap, marker="s",alpha=0.9,linewidth='0',vmin=rbmi, vmax=rbma,))
+			
+		else:
+			print "ArcticTransectPlotQuad: hovXaxis:",hovXaxis.min(),hovXaxis.max(),"\tdepths:",depths.min(),depths.max(),"\tdata:",data.min(),data.max()
+			newX,newY,newData = arrayify(hovXaxis,depths,data)
+			print "ArcticTransectPlotQuad: newX:",newX.min(),newX.max(),"\tnewY:",newY.min(),newY.max(),"\tnewData:",newData.min(),newData.max() , 'range:', rbmi,rbma			
+			if doLogs[i]:	ims.append(pyplot.pcolormesh(newX,newY, newData, cmap=cmap, norm=LogNorm(vmin=rbmi,vmax=rbma),))
+			else:		ims.append(pyplot.pcolormesh(newX,newY, newData, cmap=cmap, vmin=rbmi, vmax=rbma,))			
+
+		if transectName == 'ArcTransect':		
+			xticks 		= [ 60.,	    75.,  90.,         105., 120.]
+			xtickslabs 	= ['Bering Strait','75N','North Pole','75N','Shetland']
+			pyplot.xticks(xticks,xtickslabs)#,labelsize=8)
+			pyplot.tick_params(axis='x', which='both', labelsize=9)
+
+		if transectName == 'CanRusTransect':		
+			xticks 		= [ 75.,     80.,  85.,  90.,      95., 100.,  105.]
+			xtickslabs 	= ['Canada','80N','85N','N. Pole','85N','80N','Siberia']
+			pyplot.xticks(xticks,xtickslabs)#,labelsize=8)
+			pyplot.tick_params(axis='x', which='both', labelsize=9)
+		if transectName == 'AntTransect':
+			pyplot.xlabel('Latitude')
+	
+								
+		#####
+		# All the tools to make a colour bar
+		if drawCbar:
+			if spl in [221,222,223]:
+				if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+				else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+			if spl in [224,]:
+				cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+				cbs[i].set_ticks ([0.1,1.,10.])
+				cbs[i].set_ticklabels(['0.1','1.','10.'])
+	 	
+	 		cbs[i].set_clim(rbmi,rbma)
+			if doLogs[i] and len(cbarlabel)>0: cbarlabel='log$_{10}$('+cbarlabel+')'	
+
+	    		if len(cbarlabel)>0 and spl in [221,222,]: cbs[i].set_label(cbarlabel)
+	    		
+	    	#####
+	    	# Add the titles.	
+		if i in [0,1]:	pyplot.title(titles[i])
+		if i ==2:	pyplot.title('Difference ('+titles[0]+' - '+titles[1]+')')
+		if i ==3:	pyplot.title('Quotient ('  +titles[0]+' / '+titles[1]+')')
+	
+		#####
+		# Add the log scaliing and limts. 
+                if logy: 		axs[i].set_yscale('symlog')	
+		if maskSurface:		axs[i].set_ylim([depths.min(),-10.])
+		axs[i].set_xlim([hovXaxis.min(),hovXaxis.max()])						
+							
+		
+	#####
+	# Add main title
+	if title:	fig.text(0.5,0.99,title,horizontalalignment='center',verticalalignment='top')	
+	
+	#####
+	# Print and save
+	pyplot.tight_layout()		
+	print "p2pPlots.py:\tArcticTransectPlotQuad: \tSaving:" , filename
+	pyplot.savefig(filename ,dpi=dpi)		
+	pyplot.close()
+
+
+
+def histPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel='', logx=False,logy=False,nbins=50,dpi=100,minNumPoints = 6, legendDict= ['mean','mode','std','median','mad']):
+#	try:import seaborn as sb
+#	except:pass
+	"""
+	Produces a histogram pair.
+	"""
+
+	fig = pyplot.figure()
+        fig.set_size_inches(6,6)
+		
+        if len(legendDict)>0:
+	       	gs = gridspec.GridSpec(2, 1, height_ratios=[5,2], wspace=0.005, hspace=0.0)
+		ax = pyplot.subplot(gs[0])
+	else:	ax = pyplot.subplot(111)
+
+
+	xmin =  np.ma.min([np.ma.min(datax),np.ma.min(datay)])#*0.9
+	xmax =  np.ma.max([np.ma.max(datax),np.ma.max(datay)])#*1.1
+
+		
+	logx, xmin,xmax = determineLimsAndLog(xmin,xmax)
+	
+		
+	if datax.size < minNumPoints and datay.size < minNumPoints:
+		print "UKESMpython:\thistPlot:\tThere aren't enough points for a sensible dataplot: ", datax.size
+		return		
+
+	print "UKESMpython:\thistplot:\t preparing", Title, datax.size, datay.size, (xmin, '-->',xmax)#, datax,datay
+		
+	if logx:
+		n, bins, patchesx = pyplot.hist(datax,  histtype='stepfilled', bins=10.**np.linspace(np.log10(xmin), np.log10(xmax), nbins),range=[xmin,xmax])
+		n, bins, patchesy = pyplot.hist(datay,  histtype='stepfilled', bins=10.**np.linspace(np.log10(xmin), np.log10(xmax), nbins),range=[xmin,xmax])
+	else: 
+		n, bins, patchesx = pyplot.hist(datax,  bins=np.linspace(xmin, xmax, nbins), histtype='stepfilled',range=[xmin,xmax] )
+		n, bins, patchesy = pyplot.hist(datay,  bins=np.linspace(xmin, xmax, nbins), histtype='stepfilled',range=[xmin,xmax])
+
+	ax.set_xlim([xmin,xmax])			
+	pyplot.setp(patchesx, 'facecolor', 'g', 'alpha', 0.5)	
+	pyplot.setp(patchesy, 'facecolor', 'b', 'alpha', 0.5)
+
+        #if logx:
+        #       bins = range(xmin, xmax)
+        #       pyplot.xticks(bins, ["2^%s" % i for i in bins])
+        #       plt.hist(numpy.log2(data), log=True, bins=bins)
+
+        if logx:
+                ax.set_xscale('log')
+
+        if logy: ax.set_yscale('log')
+        pyplot.title(Title)
+        pyplot.xlabel(xaxislabel)
+
+
+        leg = pyplot.legend([labelx,labely],loc='best')
+        leg.draw_frame(False)
+        leg.get_frame().set_alpha(0.)
+
+	# box = ax.get_position()
+	# ax.set_position([box.x0, box.y0 + box.height * 0.1,
+        #         box.width, box.height * 0.9])
+	# Put a legend below current axis
+	leg2 = pyplot.legend([labelx,labely], ncol=2,
+		loc='upper center', bbox_to_anchor=(0.5, -0.1),)
+	leg2.draw_frame(False)
+        leg2.get_frame().set_alpha(0.)
+
+
+	if len(legendDict)>0:
+                ax2 = pyplot.subplot(gs[1])
+		ax2.axis('off')
+		
+		if logx: 
+			mod = scimode(np.ma.round(np.ma.log10(datax),2))[0][0]#	
+			mod = 10.**mod
+		else:	mod = scimode(np.ma.round(datax,2))[0][0]#		
+		med = np.ma.median(datax)
+		mea = np.ma.mean(datax)
+		std = np.ma.std(datax)
+		mad = MAD(datax)
+
+		txt ='' 
+		if 'mean' in legendDict: 	txt += 'Mean:      '+str(round(mea,2)) +'\n'
+		if 'median' in legendDict: 	txt += 'Median:   '+str(round(med,2))+'\n'
+		if 'mode' in legendDict: 	txt += 'Mode:      '+str(round(mod,2))+'\n'
+		if 'std' in legendDict: 	txt += r'$\sigma$'+':             '+str(round(std,2))+'\n'
+		if 'mad' in legendDict: 	txt += 'MAD:       '+str(round(mad,2))+'\n'
+                ax2.text(0.14,-0.34,txt,horizontalalignment='left',verticalalignment='bottom')
+				
+		if logx: 
+			mody = scimode(np.ma.round(np.ma.log10(datay),2))[0][0]#
+			mody= 10.**mody
+		else:	mody= scimode(np.ma.round(datay,2))[0][0]#	
+		
+		medy = np.ma.median(datay)
+		meay = np.ma.mean(datay)
+		stdy = np.ma.std(datay)
+		mady = MAD(datay)
+							
+		txt ='' 
+		if 'mean' in legendDict: 	txt += 'Mean:      '+str(round(meay,2))+'\n'
+		if 'median' in legendDict: 	txt += 'Median:   '+str(round(medy,2))+'\n'
+		if 'mode' in legendDict: 	txt += 'Mode:      '+str(round(mody,2))+'\n'
+		if 'std' in legendDict: 	txt += r'$\sigma$'+':             '+str(round(stdy,2))+'\n'
+		if 'mad' in legendDict: 	txt += 'MAD:       '+str(round(mady,2))	+'\n'
+		ax2.text(0.63,-0.34,txt,horizontalalignment='left',verticalalignment='bottom')
+		
+	
+	print "UKESMpython:\thistPlot:\tSaving:" , filename
+	pyplot.savefig(filename ,dpi=dpi)
+	pyplot.close()	
+
+
+def histsPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel='', logx=False,logy=False,nbins=50,dpi=100,minNumPoints = 6):
+
+	"""
+	Produces a single histogram.
+	"""
+	
+	fig = pyplot.figure()		
+
+	fig.set_size_inches(10,10)	
+	xmin =  np.ma.min([np.ma.min(datax),np.ma.min(datay)])
+	xmax =  np.ma.max([np.ma.max(datax),np.ma.max(datay)])
+	
+	logx, xmin,xmax = determineLimsAndLog(xmin,xmax)
+		
+	
+	
+	if datax.size < minNumPoints and datay.size < minNumPoints:
+		print "UKESMpython:\thistsPlot:\tThere aren't enough points for a sensible dataplot: ", datax.size
+		return		
+
+	ax = pyplot.subplot(221)	
+	if logx:
+		n, bins, patchesx = pyplot.hist(datax,  histtype='stepfilled', bins=10.**np.linspace(np.log10(xmin), np.log10(xmax), nbins),range=[xmin,xmax])
+	else: 
+		n, bins, patchesx = pyplot.hist(datax,  bins=np.linspace(xmin, xmax, nbins), histtype='stepfilled',range=[xmin,xmax] )
+			
+	pyplot.setp(patchesx, 'facecolor', 'g', 'alpha', 0.5)	
+	
+	if logx: ax.set_xscale('log')
+	if logy: ax.set_yscale('log')
+	pyplot.legend([labelx,labely],loc='upper left')
+	
+	pyplot.title(labelx +' '+Title)	
+
+	ax = pyplot.subplot(222)	
+	if logx:
+		n, bins, patchesy = pyplot.hist(datay,  histtype='stepfilled', bins=10.**np.linspace(np.log10(xmin), np.log10(xmax), nbins),range=[xmin,xmax])
+	else: 
+		n, bins, patchesy = pyplot.hist(datay,  bins=np.linspace(xmin, xmax, nbins), histtype='stepfilled',range=[xmin,xmax])
+			
+	pyplot.setp(patchesy, 'facecolor', 'b', 'alpha', 0.5)
+	
+	if logx: ax.set_xscale('log')
+	if logy: ax.set_yscale('log')
+	pyplot.legend([labelx,labely],loc='upper left')
+	
+	pyplot.title(labely +' '+Title)
+	
+	
+
+	ax = pyplot.subplot(223)
+	pyplot.title('Difference: '+labelx+' - '+labely )	
+	d = datax-datay
+	maxd = np.max(np.abs(d))
+	n, bins, patchesx = pyplot.hist(d,  bins=np.linspace(-maxd, maxd, nbins), histtype='stepfilled',range=[-maxd,maxd] )
+	pyplot.setp(patchesx, 'facecolor', 'g', 'alpha', 0.5,)		
+	y = pyplot.axvline(x=0., c = 'k',ls='--',lw=2,)
+	y = pyplot.axvline(x=np.ma.mean(d), c = 'k',ls='-',label= 'Mean Bias: '+str(round(np.ma.mean(d),2)))	
+	y = pyplot.axvline(x=np.ma.median(d), c = 'k',ls='--',label= 'Median Bias: '+str(round(np.ma.median(d),2)))		
+	pyplot.legend(loc='upper left')
+	
+	ax = pyplot.subplot(224)
+	pyplot.title('Quotient: '+labelx+' / '+labely)	
+	d = datax/np.ma.masked_where(datay==0.,datay)
+
+	if logx:		
+		maxd = np.ma.power(10.,np.int(np.ma.max(np.ma.abs(np.ma.log10(d)))+1))
+		print maxd, 1/maxd
+		n, bins, patchesx = pyplot.hist(d,  histtype='stepfilled', bins=10**np.linspace(np.log10(1./maxd), np.log10(maxd), nbins),range=[xmin,xmax])	
+		pyplot.setp(patchesx, 'facecolor', 'g', 'alpha', 0.5)	
+		ax.set_xscale('log')
+	else:
+		n, bins, patchesx = pyplot.hist(d,  histtype='stepfilled', range=[d.min(),d.max()])	
+		pyplot.setp(patchesx, 'facecolor', 'g', 'alpha', 0.5)	
+				
+	y = pyplot.axvline(x=1., c = 'k',ls='--',lw=2,)
+	y = pyplot.axvline(x=np.ma.mean(d), c = 'k',ls='-',label= 'Mean Slope: '+str(round(np.ma.mean(d),2)))	
+	y = pyplot.axvline(x=np.ma.median(d), c = 'k',ls='--',label= 'Median Slope: '+str(round(np.ma.median(d),2)))	
+	pyplot.legend(loc='upper left')		
+	
+	print "UKESMpython:\thistPlot:\tSaving:" , filename
+	pyplot.savefig(filename ,dpi=dpi)
+	pyplot.close()	
+	
+	
+
+
+	
+def scatterPlot(datax, datay,  filename, Title='', labelx='',labely='', logx=False,logy=False, hexPlot = True, bestfitLine=True,addOneToOne=True,gridsize=50,set_equal=True,percentileRange = [0,100],dpi=100):
+	"""
+	Produces a scatter plot and saves it.
+	"""
+	statsOutsidePicture = True
+	fig = pyplot.figure()	
+	if statsOutsidePicture:
+                #fig.set_size_inches(5,5.5)
+	       	#gs = gridspec.GridSpec(2,1, height_ratios=[5,2], )# wspace=0.005, hspace=0.0)
+                fig.set_size_inches(6,5)
+                gs = gridspec.GridSpec(1,2, width_ratios=[5,2], )# wspace=0.005, hspace=0.0)
+
+		ax = pyplot.subplot(gs[0])		
+		showtext = False	
+	else:
+		ax = pyplot.subplot(111)
+        	fig.set_size_inches(6,5)
+		showtext = True
+
+	if percentileRange == [0,100]:
+		xmin = datax.min()
+		xmax = datax.max()
+		ymin = datay.min()
+		ymax = datay.max()
+	else:
+		xmin = scoreatpercentile(datax.compressed(),percentileRange[0])
+		xmax = scoreatpercentile(datax.compressed(),percentileRange[1])
+		ymin = scoreatpercentile(datay.compressed(),percentileRange[0])
+		ymax = scoreatpercentile(datay.compressed(),percentileRange[1])
+	
+	if set_equal:
+		ax.set_aspect("equal")
+		#xmin = ymin= np.ma.min([xmin,ymin])
+		#xmax = ymax= np.ma.max([xmax,ymax])
+                xmin = np.ma.min([xmin,ymin])
+                xmax = np.ma.max([xmax,ymax])
+
+	
+	dolog, xmin,xmax = determineLimsAndLog(xmin,xmax)
+	logx=dolog
+	logy=dolog	
+	
+	plotrange = [xmin, xmax, xmin, xmax]			
+	print "UKESMpython:\tscatterPlot:\trange:",plotrange
+	
+	if logx: ax.set_xscale('log')
+	if logy: ax.set_yscale('log')
+		
+	#gridsize = 50
+	if hexPlot:
+		colours = 'Blues' #'gist_yarg' # 'Greens'
+		
+		#if logx:bins = 10**linspace(np.log10(xmin), np.log10(xmax))
+		#else: 
+		bins = 'log'
+
+		if logx and logy:
+			
+			h = pyplot.hexbin(datax, datay,xscale='log', yscale='log',  bins='log', extent=np.log10(plotrange), gridsize = gridsize, cmap=pyplot.get_cmap(colours),mincnt=0)
+		else:
+			h = pyplot.hexbin(datax, datay, bins='log',gridsize = gridsize, extent=plotrange,cmap=pyplot.get_cmap(colours),mincnt=0)	
+
+		#divider = make_axes_locatable(ax)
+		#cax = divider.append_axes('right', size='5%', pad=0.05)
+	        #cb = pyplot.colorbar(h, cax=cax, ticks=[0, 1, 2, 3, 4, 5, 6, ],)#fraction=1.)
+		cb = pyplot.colorbar(ticks=[0, 1, 2, 3, 4, 5, 6, ],fraction=0.041, pad=0.04)#fraction=1.)
+	
+		cb.set_ticklabels([r'$10^0$',r'$10^1$',r'$10^2$',r'$10^3$',r'$10^4$',r'$10^5$',r'$10^6$',])
+		#cb.set_label('np.log10(N)')
+					
+	else:
+		pyplot.scatter(datax, datay, marker ='o')	
+
+	if bestfitLine:
+		addStraightLineFit(ax, datax, datay, showtext =False, extent=plotrange)
+
+        if addOneToOne:
+		pyplot.plot([xmin,xmax],[xmin,xmax], 'k--')
+			
+	pyplot.axis(plotrange)	
+		
+	#pyplot.title(Title)	
+	pyplot.xlabel(labelx)
+	pyplot.ylabel(labely)
+
+
+        if statsOutsidePicture:
+                b1, b0, rValue, pValue, stdErr = getLinRegText(ax, datax, datay, showtext =False)
+                pyplot.title(Title,loc='left')
+
+                ax2 = pyplot.subplot(gs[1])
+		ax2.axis('off')
+        	txt =   'Slope      = '+strRound(b1)             
+               	txt+= '\nIntersect = '+strRound(b0)        
+                txt+= '\nP value   = '+strRound(pValue)
+	        txt+= '\nR             = '+ strRound(rValue)            
+                txt+= '\nN             = '+str(int(len(datax)))
+
+                #ax2.text(0.45,-0.14,txt,horizontalalignment='left',verticalalignment='bottom')
+                ax2.text(0.,0.5,txt,horizontalalignment='left',verticalalignment='bottom')
+	else:
+	        pyplot.title(Title)
+
+
+	print "UKESMpython:\tscatterPlot:\tSaving:" , filename
+	pyplot.savefig(filename ,dpi=dpi)
+	pyplot.close()	
+	
+		
+
+
+
+
 class makePlots:
   def __init__(self,matchedDataFile,
   		matchedModelFile, 
@@ -95,6 +941,7 @@ class makePlots:
 		clean		= False,  		
   		dpi = 100): #xfilename,yfilename,saveShelve=True,
 
+	""" This is the class that loads all the information and sends it to the plotting tools, above."""
   
   	self.xfn =matchedModelFile
   	self.yfn =matchedDataFile  	
@@ -414,7 +1261,7 @@ class makePlots:
 			else:	
 				doLog=True
 			print "plotWithSlices:\tROBIN QUAD:",[ti1,ti2],False,dmin,dmax
-			bvp.robinPlotQuad(nmxx, nmxy, 
+			robinPlotQuad(nmxx, nmxy, 
 					datax,
 					datay,
 					robfnquad,
@@ -442,7 +1289,7 @@ class makePlots:
 				doLog=True
 			print "plotWithSlices:\tROBIN QUAD:",[ti1,ti2],False,dmin,dmax
 			try:
-				bvp.robinPlotQuad(nmxx, nmxy, 
+				robinPlotQuad(nmxx, nmxy, 
 					datax,
 					datay,
 					robfncartopy,
@@ -469,7 +1316,7 @@ class makePlots:
 				doLog=True
 			print "plotWithSlices:\ttransect quad:",[ti1,ti2],False,dmin,dmax
 			if self.layer in ['ArcTransect','AntTransect','CanRusTransect',]:
-				bvp.ArcticTransectPlotQuad(nmxx,nmxy, nmxz, 
+				ArcticTransectPlotQuad(nmxx,nmxy, nmxz, 
 					datax,
 					datay,
 					transectquadfn,
@@ -484,7 +1331,7 @@ class makePlots:
 					transectName  	= self.layer,
 					)			
 			else:
-				bvp.HovPlotQuad(nmxx,nmxy, nmxz, 
+				HovPlotQuad(nmxx,nmxy, nmxz, 
 					datax,
 					datay,
 					transectquadfn,
@@ -513,8 +1360,8 @@ class makePlots:
 				histxaxis = 'DMS, '+ xunits
 				
 			if self.name in noXYLogs or dmin*dmax <=0.:				
-				bvp.histPlot(datax, datay,  histfnxy, Title=histtitle, labelx=labelx,labely=labely,dpi=self.dpi,xaxislabel =histxaxis)	
-			else:	bvp.histPlot(datax, datay,  histfnxy, Title=histtitle, labelx=labelx,labely=labely,dpi=self.dpi,xaxislabel =histxaxis, logx = True, )
+				histPlot(datax, datay,  histfnxy, Title=histtitle, labelx=labelx,labely=labely,dpi=self.dpi,xaxislabel =histxaxis)	
+			else:	histPlot(datax, datay,  histfnxy, Title=histtitle, labelx=labelx,labely=labely,dpi=self.dpi,xaxislabel =histxaxis, logx = True, )
 
 		# Simultaneous histograms plot	- triple
 		#if bvp.shouldIMakeFile([self.xfn,self.yfn],histsfnxy,debug=False):
