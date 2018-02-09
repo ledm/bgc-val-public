@@ -1632,11 +1632,20 @@ def scatterPlot(datax, datay,  filename, Title='', labelx='',labely='', logx=Fal
 	"""
 	Produces a scatter plot and saves it.
 	"""
-	
-	fig = pyplot.figure()		
-	ax = pyplot.subplot(111)
-        fig.set_size_inches(6,5)
-	
+	statsOutsidePicture = True
+	fig = pyplot.figure()	
+	if statsOutsidePicture:
+                #fig.set_size_inches(5,5.5)
+	       	#gs = gridspec.GridSpec(2,1, height_ratios=[5,2], )# wspace=0.005, hspace=0.0)
+                fig.set_size_inches(6,5)
+                gs = gridspec.GridSpec(1,2, width_ratios=[5,2], )# wspace=0.005, hspace=0.0)
+
+		ax = pyplot.subplot(gs[0])		
+		showtext = False	
+	else:
+		ax = pyplot.subplot(111)
+        	fig.set_size_inches(6,5)
+		showtext = True
 
 	if percentileRange == [0,100]:
 		xmin = datax.min()
@@ -1695,19 +1704,33 @@ def scatterPlot(datax, datay,  filename, Title='', labelx='',labely='', logx=Fal
 	if bestfitLine:
 		addStraightLineFit(ax, datax, datay, showtext =False, extent=plotrange)
 
-
-	        b1, b0, rValue, pValue, stdErr = getLinRegText(ax, datax, datay, showtext =False)
-		
-
- 
         if addOneToOne:
 		pyplot.plot([xmin,xmax],[xmin,xmax], 'k--')
 			
 	pyplot.axis(plotrange)	
 		
-	pyplot.title(Title)	
+	#pyplot.title(Title)	
 	pyplot.xlabel(labelx)
 	pyplot.ylabel(labely)
+
+
+        if statsOutsidePicture:
+                b1, b0, rValue, pValue, stdErr = getLinRegText(ax, datax, datay, showtext =False)
+                pyplot.title(Title,loc='left')
+
+                ax2 = pyplot.subplot(gs[1])
+		ax2.axis('off')
+        	txt =   'Slope      = '+strRound(b1)             
+               	txt+= '\nIntersect = '+strRound(b0)        
+                txt+= '\nP value   = '+strRound(pValue)
+	        txt+= '\nR             = '+ strRound(rValue)            
+                txt+= '\nN             = '+str(int(len(datax)))
+
+                #ax2.text(0.45,-0.14,txt,horizontalalignment='left',verticalalignment='bottom')
+                ax2.text(0.,0.5,txt,horizontalalignment='left',verticalalignment='bottom')
+	else:
+	        pyplot.title(Title)
+
 
 	print "UKESMpython:\tscatterPlot:\tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)
