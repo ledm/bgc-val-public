@@ -41,10 +41,12 @@ import matplotlib
 # Force matplotlib to not use any Xwindows backend.
 matplotlib.use('Agg')
 
-from matplotlib import pyplot
+from matplotlib import pyplot,gridspec
 from mpl_toolkits.basemap import Basemap
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.colors import LogNorm
+
 from netCDF4 import num2date
 from datetime import datetime
 from bgcvaltools.dataset import dataset
@@ -659,12 +661,28 @@ def robinPlotPair(lons, lats, data1,data2,filename,titles=['',''],lon0=0.,marble
 
 
 
-def robinPlotQuad(lons, lats, data1,data2,filename,titles=['',''],title='',lon0=0.,marble=False,drawCbar=True,cbarlabel='',doLog=False,scatter=True,dpi=100,vmin='',vmax='',maptype='Basemap'):#,**kwargs):
+def robinPlotQuad(lons,
+		lats,
+		data1, 
+                data2, 
+                filename, 
+                titles=['',''], 
+                title='', 
+                lon0=0., 
+                marble=False, 
+                drawCbar=True, 
+                cbarlabel='', 
+                doLog=False, 
+                scatter=True, 
+                dpi=100, 
+                vmin='', 
+                vmax='',
+		maptype='Basemap'):#,**kwargs):
 	"""
 	takes a pair of lat lon, data, and title, and filename and then makes a quad of maps (data 1, data 2, difference and quotient), then saves the figure.
 	"""
 	fig = pyplot.figure()
-	fig.set_size_inches(10,6)
+	fig.set_size_inches(8,5)
 
 	lons = np.array(lons)
 	lats = np.array(lats)
@@ -727,8 +745,8 @@ def robinPlotQuad(lons, lats, data1,data2,filename,titles=['',''],title='',lon0=
 			else:
 				bms[i].drawmapboundary(fill_color='1.')
 				bms[i].fillcontinents(color=(255/255.,255/255.,255/255.,1))
-			bms[i].drawparallels(np.arange(-90.,120.,30.))
-			bms[i].drawmeridians(np.arange(0.,420.,60.))
+			#bms[i].drawparallels(np.arange(-90.,120.,30.))
+			#bms[i].drawmeridians(np.arange(0.,420.,60.))
 			
 			if doLogs[i]:
 				rbmi = np.int(np.log10(rbmi))
@@ -847,7 +865,8 @@ def robinPlotQuad(lons, lats, data1,data2,filename,titles=['',''],title='',lon0=
 		if i ==3:	pyplot.title('Quotient ('  +titles[0]+' / '+titles[1]+')')
 	
 	if title:
-		fig.text(0.5,0.975,title,horizontalalignment='center',verticalalignment='top')	
+		#fig.text(0.5,0.975,title,horizontalalignment='center',verticalalignment='top')
+		fig.suptitle(title)	
 	pyplot.tight_layout()		
 	print "UKESMpython:\trobinPlotQuad: \tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)		
@@ -857,7 +876,15 @@ def robinPlotQuad(lons, lats, data1,data2,filename,titles=['',''],title='',lon0=
 def HovPlotQuad(lons,lats, depths, 
 		data1,data2,filename,
 		titles=['',''],title='',
-		lon0=0.,marble=False,drawCbar=True,cbarlabel='',doLog=False,scatter=True,dpi=100,vmin='',vmax='',
+		lon0=0.,
+		marble=False,
+		drawCbar=True,
+		cbarlabel='',
+		doLog=False,
+		scatter=True,
+		dpi=100,
+		vmin='',
+		vmax='',
 		logy = False,
 		maskSurface=True,
 		):#,**kwargs):
@@ -1304,8 +1331,15 @@ def histPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel='
 	Produces a histogram pair.
 	"""
 
-	fig = pyplot.figure()		
-	ax = pyplot.subplot(111)
+	fig = pyplot.figure()
+        fig.set_size_inches(6,6)
+		
+        if len(legendDict)>0:
+	       	gs = gridspec.GridSpec(2, 1, height_ratios=[5,2], wspace=0.005, hspace=0.0)
+		ax = pyplot.subplot(gs[0])
+	else:	ax = pyplot.subplot(111)
+
+
 	xmin =  np.ma.min([np.ma.min(datax),np.ma.min(datay)])#*0.9
 	xmax =  np.ma.max([np.ma.max(datax),np.ma.max(datay)])#*1.1
 
@@ -1329,8 +1363,38 @@ def histPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel='
 	ax.set_xlim([xmin,xmax])			
 	pyplot.setp(patchesx, 'facecolor', 'g', 'alpha', 0.5)	
 	pyplot.setp(patchesy, 'facecolor', 'b', 'alpha', 0.5)
-	
+
+        #if logx:
+        #       bins = range(xmin, xmax)
+        #       pyplot.xticks(bins, ["2^%s" % i for i in bins])
+        #       plt.hist(numpy.log2(data), log=True, bins=bins)
+
+        if logx:
+                ax.set_xscale('log')
+
+        if logy: ax.set_yscale('log')
+        pyplot.title(Title)
+        pyplot.xlabel(xaxislabel)
+
+
+        leg = pyplot.legend([labelx,labely],loc='best')
+        leg.draw_frame(False)
+        leg.get_frame().set_alpha(0.)
+
+	# box = ax.get_position()
+	# ax.set_position([box.x0, box.y0 + box.height * 0.1,
+        #         box.width, box.height * 0.9])
+	# Put a legend below current axis
+	leg2 = pyplot.legend([labelx,labely], ncol=2,
+		loc='upper center', bbox_to_anchor=(0.5, -0.1),)
+	leg2.draw_frame(False)
+        leg2.get_frame().set_alpha(0.)
+
+
 	if len(legendDict)>0:
+                ax2 = pyplot.subplot(gs[1])
+		ax2.axis('off')
+		
 		if logx: 
 			mod = scimode(np.ma.round(np.ma.log10(datax),2))[0][0]#	
 			mod = 10.**mod
@@ -1340,13 +1404,14 @@ def histPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel='
 		std = np.ma.std(datax)
 		mad = MAD(datax)
 
-		txt =labelx
-		if 'mean' in legendDict: 	txt += '\n'+'   Mean:      '+str(round(mea,2))
-		if 'median' in legendDict: 	txt += '\n'+'   Median:   '+str(round(med,2))
-		if 'mode' in legendDict: 	txt += '\n'+'   Mode:      '+str(round(mod,2))
-		if 'std' in legendDict: 	txt += '\n'+'   '+r'$\sigma$'+':             '+str(round(std,2))
-		if 'mad' in legendDict: 	txt += '\n'+'   MAD:       '+str(round(mad,2))
-		
+		txt ='' 
+		if 'mean' in legendDict: 	txt += 'Mean:      '+str(round(mea,2)) +'\n'
+		if 'median' in legendDict: 	txt += 'Median:   '+str(round(med,2))+'\n'
+		if 'mode' in legendDict: 	txt += 'Mode:      '+str(round(mod,2))+'\n'
+		if 'std' in legendDict: 	txt += r'$\sigma$'+':             '+str(round(std,2))+'\n'
+		if 'mad' in legendDict: 	txt += 'MAD:       '+str(round(mad,2))+'\n'
+                ax2.text(0.14,-0.34,txt,horizontalalignment='left',verticalalignment='bottom')
+				
 		if logx: 
 			mody = scimode(np.ma.round(np.ma.log10(datay),2))[0][0]#
 			mody= 10.**mody
@@ -1357,32 +1422,14 @@ def histPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel='
 		stdy = np.ma.std(datay)
 		mady = MAD(datay)
 							
-		txt +='\n\n'+labely
-		if 'mean' in legendDict: 	txt += '\n'+'   Mean:      '+str(round(meay,2))
-		if 'median' in legendDict: 	txt += '\n'+'   Median:   '+str(round(medy,2))
-		if 'mode' in legendDict: 	txt += '\n'+'   Mode:      '+str(round(mody,2))
-		if 'std' in legendDict: 	txt += '\n'+'   '+r'$\sigma$'+':             '+str(round(stdy,2))
-		if 'mad' in legendDict: 	txt += '\n'+'   MAD:       '+str(round(mady,2))	
-		fig.text(0.15,0.12,txt,horizontalalignment='left',verticalalignment='bottom')
+		txt ='' 
+		if 'mean' in legendDict: 	txt += 'Mean:      '+str(round(meay,2))+'\n'
+		if 'median' in legendDict: 	txt += 'Median:   '+str(round(medy,2))+'\n'
+		if 'mode' in legendDict: 	txt += 'Mode:      '+str(round(mody,2))+'\n'
+		if 'std' in legendDict: 	txt += r'$\sigma$'+':             '+str(round(stdy,2))+'\n'
+		if 'mad' in legendDict: 	txt += 'MAD:       '+str(round(mady,2))	+'\n'
+		ax2.text(0.63,-0.34,txt,horizontalalignment='left',verticalalignment='bottom')
 		
-	#if logx:
-	#	bins = range(xmin, xmax)
-	#	pyplot.xticks(bins, ["2^%s" % i for i in bins])
-	#	plt.hist(numpy.log2(data), log=True, bins=bins)
-	
-	if logx: 
-		ax.set_xscale('log')
-		
-	if logy: ax.set_yscale('log')
-
-		
-	leg = pyplot.legend([labelx,labely],loc='upper left')
-	leg.draw_frame(False) 
-	leg.get_frame().set_alpha(0.)	
-	
-	pyplot.title(Title)	
-	pyplot.xlabel(xaxislabel)
-	#pyplot.ylabel(labely)
 	
 	print "UKESMpython:\thistPlot:\tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)
@@ -1534,27 +1581,29 @@ def round_sig(x, sig=2):
 	if x <  0. :	return -1.* round(abs(x), sig-int(math.floor(math.log10(abs(x))))-1)	
 	if x >  0. :	return      round(x, sig-int(math.floor(math.log10(x)))-1)
 
-	
+
+def getLinRegText(ax, x, y, showtext=True):
+        x = [a for a in x if (a is np.ma.masked)==False]
+        y = [a for a in y if (a is np.ma.masked)==False]
+        beta1, beta0, rValue, pValue, stdErr = linregress(x, y)
+        thetext = r'$\^\beta_0$ = '+strRound(beta0)             \
+                + '\n'+r'$\^\beta_1$ = '+strRound(beta1)        \
+                + '\nR = '+ strRound(rValue)            \
+                + '\nP = '+strRound(pValue)             \
+                + '\nN = '+str(int(len(x)))
+                #+ '\n'+r'$\epsilon$ = ' + strRound(stdErr)     \
+        if showtext: pyplot.text(0.04, 0.96,thetext ,
+                        horizontalalignment='left',
+                        verticalalignment='top',
+                        transform = ax.transAxes)
+        return beta1, beta0, rValue, pValue, stdErr
+
+
 def addStraightLineFit(ax, x,y,showtext=True, addOneToOne=False,extent = [0,0,0,0]):
 	"""
 	Adds a straight line fit to an axis.
 	"""
 	if 0 in [len(x), len(y)]: return
-	def getLinRegText(ax, x, y, showtext=True):
-		x = [a for a in x if (a is np.ma.masked)==False]
-		y = [a for a in y if (a is np.ma.masked)==False]
-		beta1, beta0, rValue, pValue, stdErr = linregress(x, y)
-		thetext = r'$\^\beta_0$ = '+strRound(beta0)		\
-			+ '\n'+r'$\^\beta_1$ = '+strRound(beta1)	\
-			+ '\nR = '+ strRound(rValue)		\
-			+ '\nP = '+strRound(pValue)		\
-			+ '\nN = '+str(int(len(x)))
-			#+ '\n'+r'$\epsilon$ = ' + strRound(stdErr)	\
-		if showtext: pyplot.text(0.04, 0.96,thetext ,
-	     			horizontalalignment='left',
-	     			verticalalignment='top',
-	     			transform = ax.transAxes)
-		return beta1, beta0, rValue, pValue, stdErr
 	
 	b1, b0, rValue, pValue, stdErr = getLinRegText(ax, x, y, showtext =showtext)
 	if extent == [0,0,0,0]:
@@ -1570,8 +1619,7 @@ def addStraightLineFit(ax, x,y,showtext=True, addOneToOne=False,extent = [0,0,0,
 		fy = np.ma.masked_where((fx<minv) + (fy < minv) + (fx>maxv) + (fy > maxv), fy)
 		
 	pyplot.plot(fx,fy, 'k')
-	if addOneToOne: pyplot.plot(fx,fx, 'k--')
-				
+	#if addOneToOne: pyplot.plot([minv,minv],[maxv,maxv], 'k--')
 	#xstep = (x.max()-x.min())/40.
 	#ystep = (y.max()-y.min())/40.
 	#pyplot.axis([x.min()-xstep, x.max()+xstep, y.min()-ystep, y.max()+ystep])
@@ -1580,13 +1628,15 @@ def addStraightLineFit(ax, x,y,showtext=True, addOneToOne=False,extent = [0,0,0,
 	
 
 	
-def scatterPlot(datax, datay,  filename, Title='', labelx='',labely='', logx=False,logy=False, hexPlot = True, bestfitLine=True,gridsize=50,set_equal=True,percentileRange = [0,100],dpi=100):
+def scatterPlot(datax, datay,  filename, Title='', labelx='',labely='', logx=False,logy=False, hexPlot = True, bestfitLine=True,addOneToOne=True,gridsize=50,set_equal=True,percentileRange = [0,100],dpi=100):
 	"""
 	Produces a scatter plot and saves it.
 	"""
 	
 	fig = pyplot.figure()		
 	ax = pyplot.subplot(111)
+        fig.set_size_inches(6,5)
+	
 
 	if percentileRange == [0,100]:
 		xmin = datax.min()
@@ -1601,27 +1651,25 @@ def scatterPlot(datax, datay,  filename, Title='', labelx='',labely='', logx=Fal
 	
 	if set_equal:
 		ax.set_aspect("equal")
-		xmin = ymin= np.ma.min([xmin,ymin])
-		xmax = ymax= np.ma.max([xmax,ymax])
-		
+		#xmin = ymin= np.ma.min([xmin,ymin])
+		#xmax = ymax= np.ma.max([xmax,ymax])
+                xmin = np.ma.min([xmin,ymin])
+                xmax = np.ma.max([xmax,ymax])
+
+	
 	dolog, xmin,xmax = determineLimsAndLog(xmin,xmax)
 	logx=dolog
 	logy=dolog	
 	
-	plotrange = [xmin, xmax, ymin, ymax]			
+	plotrange = [xmin, xmax, xmin, xmax]			
 	print "UKESMpython:\tscatterPlot:\trange:",plotrange
-	
-	#if xmin*xmax <= 0. or ymin*ymax <=.0:
-#		logx=False
-#		logy=False
-#		print "UKESMpython:\tscatterPlot:\tx value below zero, can not run log scale.", '\t',labelx,'(x):', xmin, '\t',labely,'(y):', ymin		
 	
 	if logx: ax.set_xscale('log')
 	if logy: ax.set_yscale('log')
 		
 	#gridsize = 50
 	if hexPlot:
-		colours = 'gist_yarg' # 'Greens'
+		colours = 'Blues' #'gist_yarg' # 'Greens'
 		
 		#if logx:bins = 10**linspace(np.log10(xmin), np.log10(xmax))
 		#else: 
@@ -1631,8 +1679,12 @@ def scatterPlot(datax, datay,  filename, Title='', labelx='',labely='', logx=Fal
 			
 			h = pyplot.hexbin(datax, datay,xscale='log', yscale='log',  bins='log', extent=np.log10(plotrange), gridsize = gridsize, cmap=pyplot.get_cmap(colours),mincnt=0)
 		else:
-			h = pyplot.hexbin(datax, datay, bins='log',gridsize = gridsize, extent=plotrange,cmap=pyplot.get_cmap(colours),mincnt=0)		
-		cb = pyplot.colorbar(ticks=[0, 1, 2, 3, 4, 5, 6, ],)
+			h = pyplot.hexbin(datax, datay, bins='log',gridsize = gridsize, extent=plotrange,cmap=pyplot.get_cmap(colours),mincnt=0)	
+
+		#divider = make_axes_locatable(ax)
+		#cax = divider.append_axes('right', size='5%', pad=0.05)
+	        #cb = pyplot.colorbar(h, cax=cax, ticks=[0, 1, 2, 3, 4, 5, 6, ],)#fraction=1.)
+		cb = pyplot.colorbar(ticks=[0, 1, 2, 3, 4, 5, 6, ],fraction=0.041, pad=0.04)#fraction=1.)
 	
 		cb.set_ticklabels([r'$10^0$',r'$10^1$',r'$10^2$',r'$10^3$',r'$10^4$',r'$10^5$',r'$10^6$',])
 		#cb.set_label('np.log10(N)')
@@ -1641,9 +1693,15 @@ def scatterPlot(datax, datay,  filename, Title='', labelx='',labely='', logx=Fal
 		pyplot.scatter(datax, datay, marker ='o')	
 
 	if bestfitLine:
-		addStraightLineFit(ax, datax, datay, showtext =True,addOneToOne=True, extent=plotrange) 
-		
+		addStraightLineFit(ax, datax, datay, showtext =False, extent=plotrange)
 
+
+        b1, b0, rValue, pValue, stdErr = getLinRegText(ax, datax, datay, showtext =True)
+
+ 
+        if addOneToOne:
+		pyplot.plot([xmin,xmax],[xmin,xmax], 'k--')
+			
 	pyplot.axis(plotrange)	
 		
 	pyplot.title(Title)	
@@ -2117,3 +2175,4 @@ def extractData_old(nc, details,key = ['',],debug=False):
   	
 		      		
 		      		
+

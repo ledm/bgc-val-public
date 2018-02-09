@@ -102,7 +102,11 @@ def getLongName(text,debug=False):
 	
 	
 
-
+def titleify(ls):
+	"""
+	Turns a list of strings into a longname.
+	"""
+       	return ' '.join([ getLongName(i) for i in ls])
 	
 		
 	

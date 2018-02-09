@@ -51,7 +51,7 @@ from bgcvaltools.robust import StatsDiagram as robustStatsDiagram
 from bgcvaltools import bgcvalpython as bvp 
 from regions.makeMask import makeMask,loadMaskMakers
 from p2p.slicesDict import populateSlicesList, slicesDict
-from longnames.longnames import getLongName, fancyUnits # getmt
+from longnames.longnames import getLongName, fancyUnits,titleify # getmt
 from functions.stdfunctions import extractData
 #from longnames.longnames import MaredatTypes,IFREMERTypes,WOATypes,GEOTRACESTypes
 
@@ -383,9 +383,10 @@ class makePlots:
 	
 	labelx = getLongName(self.xtype)+' '+getLongName(self.name)+', '+ xunits
 	labely = getLongName(self.ytype)+' '+getLongName(self.name)+', '+ yunits	
-		
-	try: title = getLongName(newSlice)+' '+getLongName(self.name+self.layer)#+getLongName(self.name)
-	except:title = newSlice+' '+xkey+' vs '+ykey
+	
+	title = titleify([newSlice,self.layer,self.name,self.year])	
+	#try: title = getLongName(newSlice)+' '+getLongName(self.name+self.layer)#+getLongName(self.name)
+	#except:title = newSlice+' '+xkey+' vs '+ykey
 			
 	scatterfn  	= filename.replace('.png','_scatter.png')
 	robfnxy  	= filename.replace('.png','_xyrobin.png')
@@ -418,12 +419,15 @@ class makePlots:
 					datay,
 					robfnquad,
 					titles=[ti1,ti2],
-					title  = ' '.join([getLongName(newSlice),getLongName(self.name),getLongName(self.layer),self.year]),
+					title  = title, #' '.join([getLongName(newSlice),getLongName(self.name),getLongName(self.layer),self.year]),
 					cbarlabel=cbarlabel, 
 					doLog=doLog,
-					vmin=dmin,vmax=dmax,)
+					vmin=dmin,vmax=dmax,
+					maptype='Basemap',
+					)
 
 		# Robinson projection plots - Cartopy
+		# Global plot only, and interpollation is switched on.
 		#makeCartopy = True	# Don't need both.	
 		if newSlice=='Global' and self.layer in ['Surface','100m','200m','500m','1000m',] :
 		   # ####
@@ -443,7 +447,7 @@ class makePlots:
 					datay,
 					robfncartopy,
 					titles=[ti1,ti2],
-					title  = ' '.join([getLongName(self.name),getLongName(self.layer),self.year]),
+					title  = title, #' '.join([getLongName(self.name),getLongName(self.layer),self.year]),
 					cbarlabel=cbarlabel, 
 					doLog=doLog,
 					vmin=dmin,vmax=dmax,
@@ -451,7 +455,9 @@ class makePlots:
 					scatter=False)
 			except:
 				print "Cartopy is broken again, can't make: ",robfncartopy
-	
+
+		#####
+		# Hovmoeller plots for transects
 		if self.layer not in ['Surface','100m','200m','500m','1000m',]:# No point in making these.
 		  if bvp.shouldIMakeFile([self.xfn,self.yfn],transectquadfn,debug=False):
 			ti1 = getLongName(self.xtype)
@@ -468,7 +474,7 @@ class makePlots:
 					datay,
 					transectquadfn,
 					titles=[ti1,ti2],
-					title  = ' '.join([getLongName(self.name),getLongName(self.layer),self.year]),
+					title  = title , #' '.join([getLongName(self.name),getLongName(self.layer),self.year]),
 					cbarlabel=cbarlabel, 
 					doLog=doLog,
 					vmin=dmin,
@@ -483,7 +489,7 @@ class makePlots:
 					datay,
 					transectquadfn,
 					titles=[ti1,ti2],
-					title  = ' '.join([getLongName(self.name),getLongName(self.layer),self.year]),
+					title  = title, #' '.join([getLongName(self.name),getLongName(self.layer),self.year]),
 					cbarlabel=cbarlabel, 
 					doLog=doLog,
 					vmin=dmin,

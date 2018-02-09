@@ -1116,8 +1116,8 @@ def hovmoellerPlot(modeldata,dataslice,filename, modelZcoords = {}, dataZcoords=
 		ax2max = max([abs(md.max()),abs(md.min()),])
 		ax2min = - ax2max
 		#cmapax2 = pyplot.cm.bwr
-		cmapax2 = pyplot.cm.get_cmap('bwr', bins)    
-		
+		cmapax2 = pyplot.cm.get_cmap('RdBu_r', bins)    
+		#pyplot.cm.RdBu_r	
 		title = 'Model - Data: '+title		
 	else:
 		ax2max	= rbma
