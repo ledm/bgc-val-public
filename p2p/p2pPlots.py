@@ -41,6 +41,7 @@ from mpl_toolkits.basemap import Basemap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.colors import LogNorm
+import cartopy
 
 from calendar import month_name
 from itertools import product
@@ -197,17 +198,25 @@ def robinPlotQuad(lons,
 					cbs[i].set_ticks ([-1,0,1])
 					cbs[i].set_ticklabels(['0.1','1.','10.'])
 										  
-		if maptype=='platecquad':		
-			axs.append(pyplot.subplot(spl,projection=cartopy.crs.PlateCarree(central_longitude=0.0, )))
-			makemapplot(fig,axs[i],lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=True,cbarlabel='',doLog=doLogs[i],cmap = cmap):
+		if maptype=='PlateCarree':
+                        if doLogs[i]:
+                                rbmi = np.int(np.log10(rbmi))
+                                rbma = np.log10(rbma)
+                                if rbma > np.int(rbma): rbma+=1
+                                rbma = np.int(rbma)
+					
+			axs.append(pyplot.subplot(spl,projection=cartopy.crs.PlateCarree(central_longitude=0.  )))
+			ims.append(i)
+			#if doLogs[i]: continue
+			fig,axs[i],ims[i] = makemapplot(fig,axs[i],lons,lats,data,title, zrange=[rbmi,rbma],lon0=0.,drawCbar=False,cbarlabel='',doLog=False,cmap = cmap)
 			if drawCbar:
-				if spl in [221,222,223]:
-					if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
-					else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
-				if spl in [224,]:
-					cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
-					cbs[i].set_ticks ([-1,0,1])
-					cbs[i].set_ticklabels(['0.1','1.','10.'])
+			  if spl in [221,222,223]:
+				if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+				else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+			  if spl in [224,]:
+				cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+				cbs[i].set_ticks ([-1,0,1])
+				cbs[i].set_ticklabels(['0.1','1.','10.'])
 										  
 										  
 		if maptype=='Cartopy':
@@ -325,7 +334,7 @@ def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=
 	
 	if doLog and zrange[0]*zrange[1] <=0.:
 		print "makemapplot: \tMasking"
-		data = np.ma.masked_less_equal(ma.array(data), 0.)
+		data = np.ma.masked_less_equal(np.ma.array(data), 0.)
 	
 	print data.min(),lats.min(),lons.min(), data.shape,lats.shape,lons.shape
 	
@@ -1347,7 +1356,6 @@ class makePlots:
 					maptype='Basemap',
 					)
 		  if bvp.shouldIMakeFile([self.xfn,self.yfn],platecquad,debug=False):
-			print "plotWithSlices:\tPlate Carre quad:",[ti1,ti2],False,dmin,dmax
 			ti1 = getLongName(self.xtype)
 			ti2 =  getLongName(self.ytype)
 			cbarlabel=xunits
@@ -1355,7 +1363,7 @@ class makePlots:
 				doLog=False
 			else:	
 				doLog=True
-			print "plotWithSlices:\tROBIN QUAD:",[ti1,ti2],False,dmin,dmax			
+                        print "plotWithSlices:\tPlate Carre quad:",[ti1,ti2],False,dmin,dmax
 			robinPlotQuad(nmxx, nmxy, 
 					datax,
 					datay,
