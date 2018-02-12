@@ -106,7 +106,7 @@ def robinPlotQuad(lons,
 	takes a pair of lat lon, data, and title, and filename and then makes a quad of maps (data 1, data 2, difference and quotient), then saves the figure.
 	"""
 	fig = pyplot.figure()
-	fig.set_size_inches(8,5)
+
 
 	lons = np.array(lons)
 	lats = np.array(lats)
@@ -128,6 +128,7 @@ def robinPlotQuad(lons,
 	
 	if maptype in ['Basemap','Cartopy']:
 		spls = [221,222,223,224]
+		fig.set_size_inches(8,5)		
 	if maptype=='PlateCarree':		
 
 		mlons = np.ma.masked_where(data1.mask,lons)        
@@ -138,12 +139,18 @@ def robinPlotQuad(lons,
 		lorange = float(mlons.max()-mlons.min())
 
 		if larange < 40.  and lorange > 180.: 	plotShape = 'longthin'
-		if larange >120. and lorange < 25.: 	plotShape = 'tallthin'		
+		if larange > 120. and lorange < 25.: 	plotShape = 'tallthin'		
 		print "plot shape:", plotShape
 		
-	        if plotShape == 'Global': 	spls = [221,222,223,224]		
-	        if plotShape == 'longthin': 	spls = [141,142,143,144]		
-	        if plotShape == 'tallthin': 	spls = [411,412,413,414]			    
+	        if plotShape == 'Global': 	
+	        	spls = [221,222,223,224]		
+			fig.set_size_inches(8,5)			        	
+	        if plotShape == 'longthin': 	
+	        	spls = [411,412,413,414]			    
+			fig.set_size_inches(8,5)			        	
+	        if plotShape == 'tallthin': 	
+	        	spls = [141,142,143,144]			        
+			fig.set_size_inches(8,5)			        	
 		
 	for i,spl in enumerate(spls):	
 		
