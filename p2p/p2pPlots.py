@@ -29,7 +29,6 @@
 
 """
 	
-	
 from netCDF4 import Dataset
 from datetime import datetime
 from sys import argv
@@ -126,19 +125,38 @@ def robinPlotQuad(lons,
 	
 	doLogs = [doLog,doLog,False,True]
 	print "robinPlotQuad:\t",len(lons),len(lats),len(data1),len(data2)
-	for i,spl in enumerate([221,222,223,224]):	
+	
+	if maptype in ['Basemap','Cartopy']:
+		spls = [221,222,223,224]
+	if maptype=='PlateCarree':		
+
+		mlons = np.ma.masked_where(data1.mask,lons)        
+		mlats = np.ma.masked_where(data1.mask,lats)
 		
-		if spl in [221,222]:
+		plotShape = 'Global'	# default
+		larange = float(mlats.max()-mlats.min())
+		lorange = float(mlons.max()-mlons.min())
+
+		if larange < 40.  and lorange > 180.: 	plotShape = 'longthin'
+		if larange >120. and lorange < 25.: 	plotShape = 'tallthin'		
+		print "plot shape:", plotShape
+		
+	        if plotShape == 'Global': 	spls = [221,222,223,224]		
+	        if plotShape == 'longthin': 	spls = [141,142,143,144]		
+	        if plotShape == 'tallthin': 	spls = [411,412,413,414]			    
+		
+	for i,spl in enumerate(spls):	
+		
+		if i in [0,1]:
 			rbmi = vmin
 			rbma = vmax
-			
-		if spl in [223,]:
+		if i == 2:	
 			rbmi,rbma = bvp.symetricAroundZero(data1,data2)
 			#rbma =3*np.ma.std(data1 -data2)
 			#print spl,i, rbma, max(data1),max(data2)
 			#assert False
 			#rbmi = -rbma
-		if spl in [224,]:
+		if i == 3:
 			rbma = 10. #max(np.ma.abs(data1 -data2))
 			rbmi = 0.1		
 				
@@ -148,18 +166,41 @@ def robinPlotQuad(lons,
 			data2 = np.ma.masked_less_equal(ma.array(data2), 0.)
 		data = ''
 		
-		if spl in [221,]:data  = np.ma.clip(data1, 	 rbmi,rbma)
-		if spl in [222,]:data  = np.ma.clip(data2, 	 rbmi,rbma)
-		if spl in [223,]:data  = np.ma.clip(data1-data2, rbmi,rbma)
-		if spl in [224,]:data  = np.ma.clip(data1/data2, rbmi,rbma)
 
+		if i in [0,]:	data  = np.ma.clip(data1, 	 rbmi,rbma)
+		if i in [1,]:	data  = np.ma.clip(data2, 	 rbmi,rbma)
+		if i in [2,]:	data  = np.ma.clip(data1-data2, rbmi,rbma)
+		if i in [3,]:	data  = np.ma.clip(data1/data2, rbmi,rbma)
 		
-		if spl in [221,222,]:
-			if rbmi == -rbma: 	cmap= pyplot.cm.RdBu_r
-			else:			cmap= defcmap
-		if spl in [223,224,]:		cmap= pyplot.cm.RdBu_r		
+		
+		if i in [0,1]:
+			if rbmi == -rbma:
+				 	cmap= pyplot.cm.RdBu_r
+			else:		cmap= defcmap
+		if i in [2,3]:		cmap= pyplot.cm.RdBu_r
 		
 
+		if maptype=='PlateCarree':
+                        if doLogs[i]:
+                                rbmi = np.int(np.log10(rbmi))
+                                rbma = np.log10(rbma)
+                                if rbma > np.int(rbma): rbma+=1
+                                rbma = np.int(rbma)
+					
+			axs.append(pyplot.subplot(spl,projection=cartopy.crs.PlateCarree(central_longitude=0.  )))
+			ims.append(i)
+			#if doLogs[i]: continue
+			fig,axs[i],ims[i] = makemapplot(fig,axs[i],lons,lats,data,title, zrange=[rbmi,rbma],lon0=0.,drawCbar=False,cbarlabel='',doLog=False,cmap = cmap)
+			if drawCbar:
+			  if i in [0,1,2]:
+				if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+				else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+			  if i in [3,]:
+				cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+				cbs[i].set_ticks ([-1,0,1])
+				cbs[i].set_ticklabels(['0.1','1.','10.'])
+								
+								
 			
 		if maptype=='Basemap':
 			axs.append(fig.add_subplot(spl))		
@@ -190,34 +231,15 @@ def robinPlotQuad(lons,
 				if doLogs[i]: 	ims.append( bms[i].pcolormesh(xi1,yi1,di1,cmap=cmap,norm = LogNorm() ))
 				else:	  	ims.append( bms[i].pcolormesh(xi1,yi1,di1,cmap=cmap))
 			if drawCbar:
-				if spl in [221,222,223]:
+			  	if i in [0,1,2]:
 					if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
 					else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
-				if spl in [224,]:
+			  	if i in [3,]:
 					cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
 					cbs[i].set_ticks ([-1,0,1])
 					cbs[i].set_ticklabels(['0.1','1.','10.'])
 										  
-		if maptype=='PlateCarree':
-                        if doLogs[i]:
-                                rbmi = np.int(np.log10(rbmi))
-                                rbma = np.log10(rbma)
-                                if rbma > np.int(rbma): rbma+=1
-                                rbma = np.int(rbma)
-					
-			axs.append(pyplot.subplot(spl,projection=cartopy.crs.PlateCarree(central_longitude=0.  )))
-			ims.append(i)
-			#if doLogs[i]: continue
-			fig,axs[i],ims[i] = makemapplot(fig,axs[i],lons,lats,data,title, zrange=[rbmi,rbma],lon0=0.,drawCbar=False,cbarlabel='',doLog=False,cmap = cmap)
-			if drawCbar:
-			  if spl in [221,222,223]:
-				if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
-				else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
-			  if spl in [224,]:
-				cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
-				cbs[i].set_ticks ([-1,0,1])
-				cbs[i].set_ticklabels(['0.1','1.','10.'])
-										  
+		  
 										  
 		if maptype=='Cartopy':
 			#axs.append(fig.add_subplot(spl))
@@ -234,7 +256,7 @@ def robinPlotQuad(lons,
 							ccrs.PlateCarree(), color='k',facecolor = 'none',linewidth=0.5)
 			
 			if scatter:
-				if doLogs[i] and spl in [221,222]:
+				if doLogs[i] and i in [0,1]:
 					rbmi = np.int(np.log10(rbmi))
 					rbma = np.log10(rbma)
 					if rbma > np.int(rbma): rbma+=1
@@ -256,10 +278,10 @@ def robinPlotQuad(lons,
 						        transform=ccrs.PlateCarree(),)
 						  )
 				if drawCbar:
-					if spl in [221,222,223]:
+					  if i in [0,1,2]:
 						if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
 						else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
-					if spl in [224,]:
+					  if i in [3,]:
 						cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
 						cbs[i].set_ticks ([-1,0,1])
 						cbs[i].set_ticklabels(['0.1','1.','10.'])
@@ -287,10 +309,10 @@ def robinPlotQuad(lons,
 				#bms[i].fillcontinents(color=(255/255.,255/255.,255/255.,1))
 				bms[i].add_feature(cfeature.LAND,  facecolor='1.')	
 				if drawCbar:
-					if spl in [221,222,223]:
+					  if i in [0,1,2]:
 						if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))#ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
 						else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
-					if spl in [224,]:
+					  if i in [3,]:
 						cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
 						cbs[i].set_ticks ([0.1,1.,10.])
 						cbs[i].set_ticklabels(['0.1','1.','10.'])				
@@ -303,7 +325,7 @@ def robinPlotQuad(lons,
 		 	
 		 	cbs[i].set_clim(rbmi,rbma)
 
-		    	if len(cbarlabel)>0 and spl in [221,222,]: cbs[i].set_label(cbarlabel)
+		    	if len(cbarlabel)>0 and i in [0,1,]: cbs[i].set_label(cbarlabel)
 		if i in [0,1]:
 			pyplot.title(titles[i])
 		if i ==2:	pyplot.title('Difference ('+titles[0]+' - '+titles[1]+')')
