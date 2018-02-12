@@ -36,8 +36,12 @@ from sys import argv
 from os.path import exists,split, getmtime, basename
 from glob import glob
 from shelve import open as shOpen
+from matplotlib import pyplot,gridspec, ticker
+from mpl_toolkits.basemap import Basemap
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.ticker import FormatStrFormatter
 from matplotlib.colors import LogNorm
-from matplotlib import pyplot, ticker
+
 from calendar import month_name
 from itertools import product
 from scipy.stats import linregress
@@ -53,6 +57,11 @@ from regions.makeMask import makeMask,loadMaskMakers
 from p2p.slicesDict import populateSlicesList, slicesDict
 from longnames.longnames import getLongName, fancyUnits,titleify # getmt
 from functions.stdfunctions import extractData
+
+try:	defcmap = pyplot.cm.viridis
+except:	
+	from bgcvaltools.viridis import viridis
+	defcmap = viridis
 #from longnames.longnames import MaredatTypes,IFREMERTypes,WOATypes,GEOTRACESTypes
 
 #import seaborn as sb
@@ -111,7 +120,7 @@ def robinPlotQuad(lons,
 	vmax = max([data1.max(),data2.max(),vmax])			
 	
 	#doLog, vmin,vmax = determineLimsAndLog(vmin,vmax)
-	doLog, vmin,vmax = determineLimsFromData(data1,data2)
+	doLog, vmin,vmax = bvp.determineLimsFromData(data1,data2)
 	
 	
 	doLogs = [doLog,doLog,False,True]
@@ -123,7 +132,7 @@ def robinPlotQuad(lons,
 			rbma = vmax
 			
 		if spl in [223,]:
-			rbmi,rbma = symetricAroundZero(data1,data2)
+			rbmi,rbma = bvp.symetricAroundZero(data1,data2)
 			#rbma =3*np.ma.std(data1 -data2)
 			#print spl,i, rbma, max(data1),max(data2)
 			#assert False
@@ -330,7 +339,7 @@ def HovPlotQuad(lons,lats, depths,
 			print "No hovmoeller for surface only plots."
 			return
 	
-	doLog, vmin,vmax = determineLimsFromData(data1,data2)
+	doLog, vmin,vmax = bvp.determineLimsFromData(data1,data2)
 			
 	axs,bms,cbs,ims = [],[],[],[]
 	doLogs = [doLog,doLog,False,True]
@@ -351,7 +360,7 @@ def HovPlotQuad(lons,lats, depths,
 			rbmi = vmin
 			rbma = vmax
 		if spl in [223,]:
-			rbmi,rbma = symetricAroundZero(data1,data2)
+			rbmi,rbma = bvp.symetricAroundZero(data1,data2)
 			#rbma =3*np.ma.std(data1 -data2)
 			#print spl,i, rbma, max(data1),max(data2)
 			#rbmi = -rbma
@@ -479,7 +488,7 @@ def ArcticTransectPlotQuad(lons,lats, depths,
 	if 0 in [len(data1),len(data2)]:
 		return
 		
-	doLog, vmin,vmax = determineLimsFromData(data1,data2)
+	doLog, vmin,vmax = bvp.determineLimsFromData(data1,data2)
 	
 	fig = pyplot.figure()
 	fig.set_size_inches(10,6)			
@@ -509,7 +518,7 @@ def ArcticTransectPlotQuad(lons,lats, depths,
 			rbmi = vmin
 			rbma = vmax
 		if spl in [223,]:
-			rbmi,rbma = symetricAroundZero(data1,data2)
+			rbmi,rbma = bvp.symetricAroundZero(data1,data2)
 			#			rbma =3.*np.ma.std(data1 -data2)
 			#print spl,i, rbma, max(data1),max(data2)
 			#rbmi = -rbma
@@ -626,7 +635,7 @@ def histPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel='
 	xmax =  np.ma.max([np.ma.max(datax),np.ma.max(datay)])#*1.1
 
 		
-	logx, xmin,xmax = determineLimsAndLog(xmin,xmax)
+	logx, xmin,xmax = bvp.determineLimsAndLog(xmin,xmax)
 	
 		
 	if datax.size < minNumPoints and datay.size < minNumPoints:
@@ -678,13 +687,13 @@ def histPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel='
 		ax2.axis('off')
 		
 		if logx: 
-			mod = scimode(np.ma.round(np.ma.log10(datax),2))[0][0]#	
+			mod = bvp.scimode(np.ma.round(np.ma.log10(datax),2))[0][0]#	
 			mod = 10.**mod
-		else:	mod = scimode(np.ma.round(datax,2))[0][0]#		
+		else:	mod = bvp.scimode(np.ma.round(datax,2))[0][0]#		
 		med = np.ma.median(datax)
 		mea = np.ma.mean(datax)
 		std = np.ma.std(datax)
-		mad = MAD(datax)
+		mad = bvp.MAD(datax)
 
 		txt ='' 
 		if 'mean' in legendDict: 	txt += 'Mean:      '+str(round(mea,2)) +'\n'
@@ -695,14 +704,14 @@ def histPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel='
                 ax2.text(0.14,-0.34,txt,horizontalalignment='left',verticalalignment='bottom')
 				
 		if logx: 
-			mody = scimode(np.ma.round(np.ma.log10(datay),2))[0][0]#
+			mody = bvp.scimode(np.ma.round(np.ma.log10(datay),2))[0][0]#
 			mody= 10.**mody
-		else:	mody= scimode(np.ma.round(datay,2))[0][0]#	
+		else:	mody= bvp.scimode(np.ma.round(datay,2))[0][0]#	
 		
 		medy = np.ma.median(datay)
 		meay = np.ma.mean(datay)
 		stdy = np.ma.std(datay)
-		mady = MAD(datay)
+		mady = bvp.MAD(datay)
 							
 		txt ='' 
 		if 'mean' in legendDict: 	txt += 'Mean:      '+str(round(meay,2))+'\n'
@@ -730,7 +739,7 @@ def histsPlot(datax, datay,  filename, Title='', labelx='',labely='',xaxislabel=
 	xmin =  np.ma.min([np.ma.min(datax),np.ma.min(datay)])
 	xmax =  np.ma.max([np.ma.max(datax),np.ma.max(datay)])
 	
-	logx, xmin,xmax = determineLimsAndLog(xmin,xmax)
+	logx, xmin,xmax = bvp.determineLimsAndLog(xmin,xmax)
 		
 	
 	
@@ -844,7 +853,7 @@ def scatterPlot(datax, datay,  filename, Title='', labelx='',labely='', logx=Fal
                 xmax = np.ma.max([xmax,ymax])
 
 	
-	dolog, xmin,xmax = determineLimsAndLog(xmin,xmax)
+	dolog, xmin,xmax = bvp.determineLimsAndLog(xmin,xmax)
 	logx=dolog
 	logy=dolog	
 	
@@ -880,7 +889,7 @@ def scatterPlot(datax, datay,  filename, Title='', labelx='',labely='', logx=Fal
 		pyplot.scatter(datax, datay, marker ='o')	
 
 	if bestfitLine:
-		addStraightLineFit(ax, datax, datay, showtext =False, extent=plotrange)
+		bvp.addStraightLineFit(ax, datax, datay, showtext =False, extent=plotrange)
 
         if addOneToOne:
 		pyplot.plot([xmin,xmax],[xmin,xmax], 'k--')
@@ -893,15 +902,15 @@ def scatterPlot(datax, datay,  filename, Title='', labelx='',labely='', logx=Fal
 
 
         if statsOutsidePicture:
-                b1, b0, rValue, pValue, stdErr = getLinRegText(ax, datax, datay, showtext =False)
+                b1, b0, rValue, pValue, stdErr = bvp.getLinRegText(ax, datax, datay, showtext =False)
                 pyplot.title(Title,loc='left')
 
                 ax2 = pyplot.subplot(gs[1])
 		ax2.axis('off')
-        	txt =   'Slope      = '+strRound(b1)             
-               	txt+= '\nIntersect = '+strRound(b0)        
-                txt+= '\nP value   = '+strRound(pValue)
-	        txt+= '\nR             = '+ strRound(rValue)            
+        	txt =   'Slope      = '+bvp.strRound(b1)             
+               	txt+= '\nIntersect = '+bvp.strRound(b0)        
+                txt+= '\nP value   = '+bvp.strRound(pValue)
+	        txt+= '\nR             = '+ bvp.strRound(rValue)            
                 txt+= '\nN             = '+str(int(len(datax)))
 
                 #ax2.text(0.45,-0.14,txt,horizontalalignment='left',verticalalignment='bottom')
@@ -1386,8 +1395,8 @@ class makePlots:
 				pass
 			
 			if self.name in noXYLogs or dmin*dmax <=0.:
-				bvp.scatterPlot(datax, datay,  scatterfn, Title=scattitle, labelx=slabelx,labely=slabely,dpi=self.dpi, bestfitLine=True,gridsize=gs)
-			else:	bvp.scatterPlot(datax, datay,  scatterfn, Title=scattitle, labelx=slabelx,labely=slabely,dpi=self.dpi, bestfitLine=True,gridsize=gs,logx = True, logy=True,)
+				scatterPlot(datax, datay,  scatterfn, Title=scattitle, labelx=slabelx,labely=slabely,dpi=self.dpi, bestfitLine=True,gridsize=gs)
+			else:	scatterPlot(datax, datay,  scatterfn, Title=scattitle, labelx=slabelx,labely=slabely,dpi=self.dpi, bestfitLine=True,gridsize=gs,logx = True, logy=True,)
 
 	#####
 	# Save fit in a shelve file.		
