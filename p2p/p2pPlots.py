@@ -197,6 +197,18 @@ def robinPlotQuad(lons,
 					cbs[i].set_ticks ([-1,0,1])
 					cbs[i].set_ticklabels(['0.1','1.','10.'])
 										  
+		if maptype=='platecquad':		
+			axs.append(pyplot.subplot(spl,projection=cartopy.crs.PlateCarree(central_longitude=0.0, )))
+			makemapplot(fig,axs[i],lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=True,cbarlabel='',doLog=doLogs[i],cmap = cmap):
+			if drawCbar:
+				if spl in [221,222,223]:
+					if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+					else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+				if spl in [224,]:
+					cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+					cbs[i].set_ticks ([-1,0,1])
+					cbs[i].set_ticklabels(['0.1','1.','10.'])
+										  
 										  
 		if maptype=='Cartopy':
 			#axs.append(fig.add_subplot(spl))
@@ -295,7 +307,56 @@ def robinPlotQuad(lons,
 	print "p2pPlots:\trobinPlotQuad: \tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)		
 	pyplot.close()
+
+
+def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=True,cbarlabel='',doLog=False,cmap = defcmap):
+	"""
+	 Wrapper for the map plots.
+	Makes a plot according to the options specified in the function call.	
+	"""
+	if len(lons)==0:return fig,ax
+	try:
+		if len(lons.compressed())==0:return False, False 
+	except:pass
 	
+	lons = np.array(lons)
+	lats = np.array(lats)
+	data = np.ma.array(data)	
+	
+	if doLog and zrange[0]*zrange[1] <=0.:
+		print "makemapplot: \tMasking"
+		data = np.ma.masked_less_equal(ma.array(data), 0.)
+	
+	print data.min(),lats.min(),lons.min(), data.shape,lats.shape,lons.shape
+	
+	if data.ndim ==1:
+		if doLog:
+			im = ax.scatter(lons, lats,c=data, lw=0,marker='s', cmap = cmap, transform=cartopy.crs.PlateCarree(),norm=LogNorm(),vmin=zrange[0],vmax=zrange[1])
+		else:	
+			im = ax.scatter(lons, lats,c=data, lw=0,marker='s', cmap = cmap, transform=cartopy.crs.PlateCarree(),vmin=zrange[0],vmax=zrange[1])
+	else:
+		crojp2, data, newLon,newLat = regrid(data,lats,lons)
+
+		if doLog:
+			im = ax.pcolormesh(newLon, newLat,data, cmap = cmap, transform=cartopy.crs.PlateCarree(),norm=LogNorm(vmin=zrange[0],vmax=zrange[1]),)
+		else:	
+			im = ax.pcolormesh(newLon, newLat,data, cmap = cmap, transform=cartopy.crs.PlateCarree(),vmin=zrange[0],vmax=zrange[1])
+	
+	ax.add_feature(cartopy.feature.LAND,  facecolor='0.85')	
+
+	if drawCbar:
+	    c1 = fig.colorbar(im,pad=0.05,shrink=0.75)
+	    if len(cbarlabel)>0: c1.set_label(cbarlabel)
+
+	pyplot.title(title)
+	print "makemapplot: title:",title	
+	ax.set_axis_off()
+	pyplot.axis('off')
+	ax.axis('off')
+		
+	return fig, ax, im
+	
+		
 	
 def HovPlotQuad(lons,lats, depths, 
 		data1,data2,filename,
@@ -440,6 +501,9 @@ def HovPlotQuad(lons,lats, depths,
 	pyplot.savefig(filename ,dpi=dpi)		
 	pyplot.close()
 	
+
+
+
 	
 def ArcticTransectPlotQuad(lons,lats, depths, 
 		data1,data2,filename,
@@ -1247,6 +1311,7 @@ class makePlots:
 	scatterfn  	= filename.replace('.png','_scatter.png')
 	robfnxy  	= filename.replace('.png','_xyrobin.png')
 	robfnquad  	= filename.replace('.png','_robinquad.png')	
+	platecquad  	= filename.replace('.png','_PlateCarreeQuad.png')		
 	robfncartopy	= filename.replace('.png','_robinquad-cartopy.png')		
 	transectquadfn	= filename.replace('.png','_transect.png')			
 	histfnxy 	= filename.replace('.png','_hist.png')
@@ -1281,7 +1346,28 @@ class makePlots:
 					vmin=dmin,vmax=dmax,
 					maptype='Basemap',
 					)
-
+		  if bvp.shouldIMakeFile([self.xfn,self.yfn],platecquad,debug=False):
+			print "plotWithSlices:\tPlate Carre quad:",[ti1,ti2],False,dmin,dmax
+			ti1 = getLongName(self.xtype)
+			ti2 =  getLongName(self.ytype)
+			cbarlabel=xunits
+			if self.name in noXYLogs or dmin*dmax <=0.:
+				doLog=False
+			else:	
+				doLog=True
+			print "plotWithSlices:\tROBIN QUAD:",[ti1,ti2],False,dmin,dmax			
+			robinPlotQuad(nmxx, nmxy, 
+					datax,
+					datay,
+					platecquad,
+					titles=[ti1,ti2],
+					title  = title, #' '.join([getLongName(newSlice),getLongName(self.name),getLongName(self.layer),self.year]),
+					cbarlabel=cbarlabel, 
+					doLog=doLog,
+					vmin=dmin,vmax=dmax,
+					maptype='PlateCarree',
+					)
+					
 		# Robinson projection plots - Cartopy
 		# Global plot only, and interpollation is switched on.
 		#makeCartopy = True	# Don't need both.	
