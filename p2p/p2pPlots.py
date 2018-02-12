@@ -198,14 +198,25 @@ def robinPlotQuad(lons,
 			ims.append(i)
 			#if doLogs[i]: continue
 			fig,axs[i],ims[i] = makemapplot(fig,axs[i],lons,lats,data,title, zrange=[rbmi,rbma],lon0=0.,drawCbar=False,cbarlabel='',doLog=False,cmap = cmap)
-			if drawCbar:
-			  if i in [0,1,2]:
-				if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
-				else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
-			  if i in [3,]:
-				cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
-				cbs[i].set_ticks ([-1,0,1])
-				cbs[i].set_ticklabels(['0.1','1.','10.'])
+			print axs[i].get_position()
+			assert 0
+                        if drawCbar:
+                          if i in [0,1,2]:
+                                if doLogs[i]:   cbs.append(fig.colorbar(ims[i],ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+                                else:           cbs.append(fig.colorbar(ims[i],))
+                          if i in [3,]:
+                                cbs.append(fig.colorbar(ims[i],) )#d=0.05,shrink=0.5,))
+                                cbs[i].set_ticks ([-1,0,1])
+                                cbs[i].set_ticklabels(['0.1','1.','10.'])
+
+#			if drawCbar:
+#			  if i in [0,1,2]:
+#				if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+#				else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+#			  if i in [3,]:
+#				cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+#				cbs[i].set_ticks ([-1,0,1])
+#				cbs[i].set_ticklabels(['0.1','1.','10.'])
 								
 								
 			
