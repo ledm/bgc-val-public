@@ -198,8 +198,9 @@ def robinPlotQuad(lons,
 			ims.append(i)
 			#if doLogs[i]: continue
 			fig,axs[i],ims[i] = makemapplot(fig,axs[i],lons,lats,data,title, zrange=[rbmi,rbma],lon0=0.,drawCbar=False,cbarlabel='',doLog=False,cmap = cmap)
-			print axs[i].get_position()
-			assert 0
+			aspect = bvp.getAxesAspectRatio(axs[i])
+			print 'aspect:', aspect, axs[i].get_position()			
+
                         if drawCbar:
                           if i in [0,1,2]:
                                 if doLogs[i]:   cbs.append(fig.colorbar(ims[i],ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
@@ -257,8 +258,8 @@ def robinPlotQuad(lons,
 					cbs[i].set_ticks ([-1,0,1])
 					cbs[i].set_ticklabels(['0.1','1.','10.'])
 										  
-		  
-										  
+		assert 0
+		
 		if maptype=='Cartopy':
 			#axs.append(fig.add_subplot(spl))
 			bms.append(pyplot.subplot(spl,projection=ccrs.Robinson()))

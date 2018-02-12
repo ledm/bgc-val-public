@@ -466,6 +466,14 @@ def shouldIMakeFile(fin,fout,debug = True):
 
 
 
+def getAxesAspectRatio(ax):
+	"""
+	"""
+	axes = ax.get_position()
+	width  = axes.x1 - axes.x0
+	height = axes.y1 - axes.y0	
+	return width/height
+	
 	
 def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=True,cbarlabel='',doLog=False,drawLand=True,cmap='default'):
 	"""
