@@ -21,7 +21,7 @@
 # ledm@pml.ac.uk
 #
 """
-.. module:: UKESMpython
+.. module:: BGC-val python
    :platform: Unix
    :synopsis: A swiss army knife of tools for BGCval.
 .. moduleauthor:: Lee de Mora <ledm@pml.ac.uk>
@@ -66,7 +66,7 @@ from  bgcvaltools.RobustStatistics import MAD
 try:import yaml 
 except: pass
 
-"""	UKESMpython is a catch all toolkit for the python methods and shorthands used in this code.
+"""	BGC-val python is a catch all toolkit for the python methods and shorthands used in this code.
 """
 
 try:	defcmap = pyplot.cm.viridis
@@ -409,8 +409,8 @@ def getGridFile(grid):
 		try: 
 			if exists(gridFile):pass
 		except: 
-			print "UKESMpython:\tgetGridFile:\tERROR:\tIt's not possible to load the ORCA025 grid on this machine."+ \
-			      "\n\t\t\tPlease add the ORCA025 file to the orcafn getGridFile() list to UKESMpython.py"
+			print "bgcvalpython:\tgetGridFile:\tERROR:\tIt's not possible to load the ORCA025 grid on this machine."+ \
+			      "\n\t\t\tPlease add the ORCA025 file to the orcafn getGridFile() list to BGC-val python.py"
 			assert False
         return gridFile
 	
@@ -609,7 +609,7 @@ def robinPlotPair(lons, lats, data1,data2,filename,titles=['',''],lon0=0.,marble
 	m1.drawmeridians(np.arange(0.,420.,60.))
 
 	if doLog and rbmi*rbma <=0.:
-		print "UKESMpython:\trobinPlotPair: \tMasking",
+		print "bgcvalpython:\trobinPlotPair: \tMasking",
 		data1 = np.ma.masked_less_equal(ma.array(data1), 0.)
 		data2 = np.ma.masked_less_equal(ma.array(data2), 0.)
 	if scatter:
@@ -662,7 +662,7 @@ def robinPlotPair(lons, lats, data1,data2,filename,titles=['',''],lon0=0.,marble
 
 	pyplot.title(titles[1])			
 		
-	print "UKESMpython:\trobinPlotPair: \tSaving:" , filename
+	print "bgcvalpython:\trobinPlotPair: \tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)		
 	pyplot.close()
 
@@ -949,8 +949,8 @@ def getORCAdepth(z,depth_arr,debug=True):
 		if d2<d:
 		   d=d2
 		   best = i
-		   if debug: print 'UKESMPython.getORCAdepth:',i,z,zz,depth_arr.shape, 'best:',best
-	if debug: print 'UKESMPython.getORCAdepth:\tdepth: in situ:', z,'index:', best, 'distance:',d,', closest model:',depth_arr.shape, depth_arr[best]
+		   if debug: print 'bgcvalython.getORCAdepth:',i,z,zz,depth_arr.shape, 'best:',best
+	if debug: print 'bgcvalython.getORCAdepth:\tdepth: in situ:', z,'index:', best, 'distance:',d,', closest model:',depth_arr.shape, depth_arr[best]
 	return best
 
 def getclosestlon(x,lons,debug=True):

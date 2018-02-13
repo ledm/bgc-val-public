@@ -178,7 +178,7 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 		customLayerType	 = 'z'
 		customLayerValue = 0.
 
-	if layer == 'Transect':
+	if layer == 'ATransect':
 		customLayerType	 = 'lon'
 		customLayerValue = -28.				
 	if layer == 'PTransect':
