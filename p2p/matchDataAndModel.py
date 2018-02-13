@@ -252,34 +252,8 @@ class matchDataAndModel:
 			print 'matchDataAndModel:\tconvertDataTo1D:\tDepth field is the wrong shape:', nc.variables[self.datacoords['z']].shape	
 			assert 0
 			
-#	elif self.layer in ['Transect','PTransect',]:
-#		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along longitude direction.'		
-#		if self.layer == 'Transect':	x = -28.
-#		if self.layer == 'PTransect': 	x = 200.
-#		if nc.variables[self.datacoords['lon']].ndim ==1:						
-#			k =  bvp.getclosestlon(x,nc.variables[self.datacoords['lon']][:],debug=True)
-#			if mmask.ndim == 4:	mmask[:,:,:,k] = 0
-#			if mmask.ndim == 3:	mmask[:,:,k] = 0							
-#		else:
-#			####
-#			# Depth field is the wrong number of dimensions. (Not yet implemented)
-#			raise AssertionError( 'matchDataAndModel:\tconvertDataTo1D:\tLongitude field is the wrong shape:'+str(nc.variables[self.datacoords['lon']].shape))
-#		
-#	elif self.layer in ['SOTransect','Equator']:
-#		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along latitude direction.'			
-#		if self.layer == 'SOTransect':	y = -60.
-#		if self.layer == 'Equator':	y =   0.
-#
-#		if nc.variables[self.datacoords['lat']].ndim ==1:						
-#			k =  bvp.getclosestlat(y,nc.variables[self.datacoords['lat']][:],debug=True)
-#			if mmask.ndim == 4:	mmask[:,:,k,:] = 0
-#			if mmask.ndim == 3:	mmask[:,k,:] = 0						
-#		else:
-#			####
-#			# Depth field is the wrong number of dimensions. (Not yet implemented)
-#			raise AssertionError('matchDataAndModel:\tconvertDataTo1D:\tData Latitude field - not expecting these dimensions: '+str(nc.variables[self.datacoords['lat']].shape))
 					
-	elif self.layer in ['Transect','PTransect','SOTransect','Equator','ArcTransect','AntTransect','CanRusTransect']:
+	elif self.layer in ['ATransect','PTransect','SOTransect','Equator','ArcTransect','AntTransect','CanRusTransect']:
 		print 'matchDataAndModel:\tconvertDataTo1D:\tSlicing along ',self.layer,' direction.'			
 		####
 		# Create a lines, then produce a mask along that line.
@@ -292,7 +266,7 @@ class matchDataAndModel:
 
 		mask2d = np.ones_like(lon2d)
 
-		if self.layer == 'Transect':
+		if self.layer == 'ATransect':
 			numpoints = 500
 			lon = bvp.makeLonSafe(-28.) # W
 			minlat = -89.
