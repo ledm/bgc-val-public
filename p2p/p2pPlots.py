@@ -151,6 +151,9 @@ def robinPlotQuad(lons,
 	        if plotShape == 'tallthin': 	
 	        	spls = [141,142,143,144]			        
 			fig.set_size_inches(8,5)			        	
+
+        titles.append('Difference ('+titles[0]+' - '+titles[1]+')')
+	titles.append('Quotient ('  +titles[0]+' / '+titles[1]+')')
 		
 	for i,spl in enumerate(spls):	
 		
@@ -197,28 +200,37 @@ def robinPlotQuad(lons,
 			axs.append(pyplot.subplot(spl,projection=cartopy.crs.PlateCarree(central_longitude=0.  )))
 			ims.append(i)
 			#if doLogs[i]: continue
-			fig,axs[i],ims[i] = makemapplot(fig,axs[i],lons,lats,data,title, zrange=[rbmi,rbma],lon0=0.,drawCbar=False,cbarlabel='',doLog=False,cmap = cmap)
+			fig,axs[i],ims[i] = makemapplot(fig,axs[i],lons,lats,data,titles[i], zrange=[rbmi,rbma],lon0=0.,drawCbar=False,cbarlabel=cbarlabel,doLog=False,cmap = cmap)
 			aspect = bvp.getAxesAspectRatio(axs[i])
 			print 'aspect:', aspect, axs[i].get_position()			
 
-                        if drawCbar:
+
+                        if drawCbar and plotShape == 'longthin':
+                          divider = make_axes_locatable(axs[i])
+                          #cax = divider.append_axes("right", size="5%", pad=0.05)
+			  cax = divider.new_horizontal(size="5%", pad=0.01, axes_class=pyplot.Axes)
+ 			  fig.add_axes(cax)
+
                           if i in [0,1,2]:
-                                if doLogs[i]:   cbs.append(fig.colorbar(ims[i],ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
-                                else:           cbs.append(fig.colorbar(ims[i],))
+                                if doLogs[i]:   cbs.append(fig.colorbar(ims[i],cax=cax,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+                                else:           cbs.append(fig.colorbar(ims[i],cax=cax,))
                           if i in [3,]:
-                                cbs.append(fig.colorbar(ims[i],) )#d=0.05,shrink=0.5,))
+                                cbs.append(fig.colorbar(ims[i],cax=cax,) )#d=0.05,shrink=0.5,))
                                 cbs[i].set_ticks ([-1,0,1])
                                 cbs[i].set_ticklabels(['0.1','1.','10.'])
 
-#			if drawCbar:
-#			  if i in [0,1,2]:
-#				if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
-#				else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
-#			  if i in [3,]:
-#				cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
-#				cbs[i].set_ticks ([-1,0,1])
-#				cbs[i].set_ticklabels(['0.1','1.','10.'])
-								
+			if drawCbar and plotShape == 'Global':
+			  if i in [0,1,2]:
+				if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+				else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+			  if i in [3,]:
+				cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+				cbs[i].set_ticks ([-1,0,1])
+				cbs[i].set_ticklabels(['0.1','1.','10.'])
+                        if drawCbar and len(cbarlabel)>0 and i in [0,1,]: 
+				try:cbs[i].set_label(cbarlabel)
+				except:pass
+									
 								
 			
 		if maptype=='Basemap':
@@ -257,9 +269,11 @@ def robinPlotQuad(lons,
 					cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
 					cbs[i].set_ticks ([-1,0,1])
 					cbs[i].set_ticklabels(['0.1','1.','10.'])
+                        if len(cbarlabel)>0 and i in [0,1,]: cbs[i].set_label(cbarlabel)
+
+                        pyplot.title(titles[i])
+
 										  
-		assert 0
-		
 		if maptype=='Cartopy':
 			#axs.append(fig.add_subplot(spl))
 			bms.append(pyplot.subplot(spl,projection=ccrs.Robinson()))
@@ -345,15 +359,12 @@ def robinPlotQuad(lons,
 		 	cbs[i].set_clim(rbmi,rbma)
 
 		    	if len(cbarlabel)>0 and i in [0,1,]: cbs[i].set_label(cbarlabel)
-		if i in [0,1]:
-			pyplot.title(titles[i])
-		if i ==2:	pyplot.title('Difference ('+titles[0]+' - '+titles[1]+')')
-		if i ==3:	pyplot.title('Quotient ('  +titles[0]+' / '+titles[1]+')')
+                        pyplot.title(titles[i])
 	
 	if title:
 		#fig.text(0.5,0.975,title,horizontalalignment='center',verticalalignment='top')
 		fig.suptitle(title)	
-	pyplot.tight_layout()		
+	#pyplot.tight_layout()		
 	print "p2pPlots:\trobinPlotQuad: \tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)		
 	pyplot.close()
@@ -506,7 +517,7 @@ def HovPlotQuad(lons,lats, depths,
 			
 		else:
 			print "hovXaxis:",hovXaxis.min(),hovXaxis.max(),"\tdepths:",depths.min(),depths.max(),"\tdata:",data.min(),data.max()
-			newX,newY,newData = arrayify(hovXaxis,depths,data)
+			newX,newY,newData = bvp.arrayify(hovXaxis,depths,data)
 			print "newX:",newX.min(),newX.max(),"\tnewY:",newY.min(),newY.max(),"\tnewData:",newData.min(),newData.max() , 'range:', rbmi,rbma			
 			if doLogs[i]:	ims.append(pyplot.pcolormesh(newX,newY, newData, cmap=cmap, norm=LogNorm(vmin=rbmi,vmax=rbma),))
 			else:		ims.append(pyplot.pcolormesh(newX,newY, newData, cmap=cmap, vmin=rbmi, vmax=rbma,))			
@@ -667,7 +678,7 @@ def ArcticTransectPlotQuad(lons,lats, depths,
 			
 		else:
 			print "ArcticTransectPlotQuad: hovXaxis:",hovXaxis.min(),hovXaxis.max(),"\tdepths:",depths.min(),depths.max(),"\tdata:",data.min(),data.max()
-			newX,newY,newData = arrayify(hovXaxis,depths,data)
+			newX,newY,newData = bvp.arrayify(hovXaxis,depths,data)
 			print "ArcticTransectPlotQuad: newX:",newX.min(),newX.max(),"\tnewY:",newY.min(),newY.max(),"\tnewData:",newData.min(),newData.max() , 'range:', rbmi,rbma			
 			if doLogs[i]:	ims.append(pyplot.pcolormesh(newX,newY, newData, cmap=cmap, norm=LogNorm(vmin=rbmi,vmax=rbma),))
 			else:		ims.append(pyplot.pcolormesh(newX,newY, newData, cmap=cmap, vmin=rbmi, vmax=rbma,))			
@@ -1396,7 +1407,13 @@ class makePlots:
 					vmin=dmin,vmax=dmax,
 					maptype='Basemap',
 					)
-		  if bvp.shouldIMakeFile([self.xfn,self.yfn],platecquad,debug=False):
+                #####
+                # Plate Carre projection plots
+		# shows zoomed in map.
+		DoIt  = True
+		if nmxx.max() - nmxx.min() <1.5 or nmxy.max() - nmxy.min() <1.5: DoIt = False
+				  
+		if DoIt and bvp.shouldIMakeFile([self.xfn,self.yfn],platecquad,debug=False):
 			ti1 = getLongName(self.xtype)
 			ti2 =  getLongName(self.ytype)
 			cbarlabel=xunits

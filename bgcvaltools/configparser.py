@@ -164,7 +164,8 @@ def parseList(Config,section,option,findreplace=True):
 	list1 = list1.replace(',', ' ')
 	list1 = list1.replace('  ', ' ')
 	list1 = list1.replace('\'', '')
-	list1 = list1.replace('\"', '')	
+	list1 = list1.replace('\"', '')
+        list1 = list1.replace(';', '')
 	while list1.count('  ')>0: 
 		list1 = list1.replace('  ', ' ')
 	#if len(list1)==0: return []

@@ -79,11 +79,11 @@ def determineZ(nc,coords,details):
 		if dim in depthNames: return d
 	raise AssertionError("determineZ:\tERROR:\tNot able to find the depth in the dimensions:"+str(dims)+"\n\t\tdepthNames:"+str(depthNames)+"\n\t\tPlease add your depth to alwaysInclude.py:depthsNames")
 
-def drawLine(lat1,lat2,lon1,lon2,numpoints=5000):
+def drawLine(lat1,lat2,lon1,lon2,numpoints=1000):
 	"""
 	draw a list of points in a coordinately straight line between two points.
 
-	"""	
+	"""
 	latstep = (lat2-lat1)/numpoints
 	lonstep	= (lon2-lon1)/numpoints
 	
@@ -179,17 +179,17 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 		customLayerValue = 0.
 
 	if layer == 'Transect':
-		customLayerType	 = 'lat'
+		customLayerType	 = 'lon'
 		customLayerValue = -28.				
 	if layer == 'PTransect':
 		customLayerType	 = 'lon'
 		customLayerValue = 200.		
 		
 	if layer == 'Equator':
-		customLayerType	 = 'lon'
+		customLayerType	 = 'lat'
 		customLayerValue = 0.	
 	if layer == 'SOTransect':
-		customLayerType	 = 'lon'
+		customLayerType	 = 'lat'
 		customLayerValue = -60.			
 	
 	#####
@@ -218,23 +218,23 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 		lon = 0.
 		minlat = 50.
 		maxlat = 90.
-		transectcoords	= drawLine(minlat,maxlat,lon,lon,)
+		transectcoords	= drawLine(minlat,maxlat,lon,lon,numpoints=200)
 
 		lon = -165.
 		minlat = 60.
 		maxlat = 90.
-		transectcoords.extend(drawLine(minlat,maxlat,lon,lon,))
+		transectcoords.extend(drawLine(minlat,maxlat,lon,lon,numpoints=200))
 		
 	if layer == 'CanRusTransect':
 		lon = 83.5
 		minlat = 65.
 		maxlat = 90.
-		transectcoords = drawLine(minlat,maxlat,lon,lon,)
+		transectcoords = drawLine(minlat,maxlat,lon,lon,numpoints=200)
 
 		lon = -96.
 		minlat = 60.
 		maxlat = 90.
-		transectcoords.extend(drawLine(minlat,maxlat,lon,lon,))
+		transectcoords.extend(drawLine(minlat,maxlat,lon,lon,numpoints=200))
 	
 	if layer == 'AntTransect':
 		lon = 0.
@@ -253,8 +253,10 @@ def extractLayer(nc,coords,details,layer,data = '',maskWanted=False):
 	try : 	transectcoords
 	except:	raise NameError('extractLayer:\tERROR:\tUnable to define the transect coordinates.\t layer:'+str(layer))
 
+	counts = len(transectcoords)	
 	print 'layer',layer
-	for (lat,lon) in sorted(transectcoords):
+	for i, (lat,lon) in enumerate(transectcoords):
+		print i,'/',counts,'\t',
 		la,lo = bvp.getOrcaIndexCC(lat, lon, lat2d, lon2d, debug=True,)
 		mask2d[la,lo] = 0	
 
