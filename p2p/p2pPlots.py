@@ -403,7 +403,8 @@ def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=
 		else:	
 			im = ax.pcolormesh(newLon, newLat,data, cmap = cmap, transform=cartopy.crs.PlateCarree(),vmin=zrange[0],vmax=zrange[1])
 	
-	ax.add_feature(cartopy.feature.LAND,  facecolor='0.85')	
+	ax.add_feature(cartopy.feature.LAND,  facecolor='0.97')	
+        ax.add_feature(cartopy.feature.COASTLINE, edgecolor='k',linewidth=0.42)# facecolor='0.85')
 
 	if drawCbar:
 	    c1 = fig.colorbar(im,pad=0.05,shrink=0.75)
