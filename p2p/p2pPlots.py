@@ -123,7 +123,7 @@ def robinPlotQuad(lons,
 	doLog, vmin,vmax = bvp.determineLimsFromData(data1,data2)
 	
 	
-	doLogs = [doLog,doLog,False,True]
+	doLogs = [doLog,doLog,False,False]
 	print "robinPlotQuad:\t",len(lons),len(lats),len(data1),len(data2)
 	
 	if maptype in ['Basemap','Cartopy']:
@@ -144,17 +144,20 @@ def robinPlotQuad(lons,
 		
 	        if plotShape == 'Global': 	
 	        	spls = [221,222,223,224]		
-			fig.set_size_inches(8,5)			        	
+			fig.set_size_inches(8,6)			        	
 	        if plotShape == 'longthin': 	
 	        	spls = [411,412,413,414]			    
-			fig.set_size_inches(8,5)			        	
+			fig.set_size_inches(8,6)			        	
 	        if plotShape == 'tallthin': 	
 	        	spls = [141,142,143,144]			        
-			fig.set_size_inches(8,5)			        	
+			fig.set_size_inches(8,6)			        	
 
-        titles.append('Difference ('+titles[0]+' - '+titles[1]+')')
-	titles.append('Quotient ('  +titles[0]+' / '+titles[1]+')')
-		
+#        titles.append('Difference ('+titles[0]+' - '+titles[1]+')')
+#	titles.append('Quotient ('  +titles[0]+' / '+titles[1]+')')
+	
+        titles.append('Difference')# ('+titles[0]+' - '+titles[1]+')')
+        titles.append('Quotient')# ('  +titles[0]+' / '+titles[1]+')')
+	
 	for i,spl in enumerate(spls):	
 		
 		if i in [0,1]:
@@ -177,57 +180,76 @@ def robinPlotQuad(lons,
 		data = ''
 		
 
-		if i in [0,]:	data  = np.ma.clip(data1, 	 rbmi,rbma)
-		if i in [1,]:	data  = np.ma.clip(data2, 	 rbmi,rbma)
+		if i in [0,]:	data  = np.ma.clip(data1, 	rbmi,rbma)
+		if i in [1,]:	data  = np.ma.clip(data2, 	rbmi,rbma)
 		if i in [2,]:	data  = np.ma.clip(data1-data2, rbmi,rbma)
 		if i in [3,]:	data  = np.ma.clip(data1/data2, rbmi,rbma)
-		
+		print title, i , data.min(),data.max()	
 		
 		if i in [0,1]:
 			if rbmi == -rbma:
-				 	cmap= pyplot.cm.RdBu_r
-			else:		cmap= defcmap
-		if i in [2,3]:		cmap= pyplot.cm.RdBu_r
+				cmap= pyplot.cm.RdBu_r
+			else:	cmap= defcmap
+		if i in [2,3]:	cmap= pyplot.cm.RdBu_r
 		
 
 		if maptype=='PlateCarree':
-                        if doLogs[i]:
+                        if doLogs[i] or i in [3,]:
                                 rbmi = np.int(np.log10(rbmi))
                                 rbma = np.log10(rbma)
                                 if rbma > np.int(rbma): rbma+=1
                                 rbma = np.int(rbma)
-					
-			axs.append(pyplot.subplot(spl,projection=cartopy.crs.PlateCarree(central_longitude=0.  )))
-			ims.append(i)
-			#if doLogs[i]: continue
-			fig,axs[i],ims[i] = makemapplot(fig,axs[i],lons,lats,data,titles[i], zrange=[rbmi,rbma],lon0=0.,drawCbar=False,cbarlabel=cbarlabel,doLog=False,cmap = cmap)
-			aspect = bvp.getAxesAspectRatio(axs[i])
-			print 'aspect:', aspect, axs[i].get_position()			
+				
+				data = np.ma.clip(np.ma.log10(data), rbmi,rbma)
 
+			axs.append(pyplot.subplot(spl,projection=cartopy.crs.PlateCarree(central_longitude=0.)))
+			ims.append(i)
+			fig,axs[i],ims[i] = makemapplot(fig,axs[i],lons,lats,data,titles[i], zrange=[rbmi,rbma],lon0=0.,drawCbar=False,doLog=False,cmap = cmap)
+			#if i ==2:assert 0	
 
                         if drawCbar and plotShape == 'longthin':
                           divider = make_axes_locatable(axs[i])
-                          #cax = divider.append_axes("right", size="5%", pad=0.05)
 			  cax = divider.new_horizontal(size="5%", pad=0.01, axes_class=pyplot.Axes)
  			  fig.add_axes(cax)
+			  pyplot.tight_layout()
 
-                          if i in [0,1,2]:
-                                if doLogs[i]:   cbs.append(fig.colorbar(ims[i],cax=cax,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
-                                else:           cbs.append(fig.colorbar(ims[i],cax=cax,))
+                          if i in [0,1,]:
+                                if doLogs[i]:
+					cbs.append(fig.colorbar(ims[i],cax=cax,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+	                                cbs[i].set_ticks([-4,-3,-2,-1,0,1,2,3,4,5,6])
+                                        cbs[i].set_ticklabels([r'$10^{-4}$',r'$10^{-3}$',r'$10^{-2}$',r'$10^{-1}$',r'$1$',r'$10^1$',r'$10^2$',r'$10^3$',r'$10^4$',r'$10^5$',r'$10^6$',])
+                                else:   
+					cbs.append(fig.colorbar(ims[i],cax=cax,))
+                                        cbs[i].set_ticks([rbmi,(rbmi+rbma)/2.,rbma])
+					
+                          if i in [2,]:
+        	                        cbs.append(fig.colorbar(ims[i],cax=cax,))
+                	                cbs[i].set_ticks([rbmi,0,rbma])
+
                           if i in [3,]:
                                 cbs.append(fig.colorbar(ims[i],cax=cax,) )#d=0.05,shrink=0.5,))
                                 cbs[i].set_ticks ([-1,0,1])
                                 cbs[i].set_ticklabels(['0.1','1.','10.'])
 
 			if drawCbar and plotShape == 'Global':
-			  if i in [0,1,2]:
-				if doLogs[i]:	cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
-				else:		cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+			  if i in [0,1,]:
+				if doLogs[i]:	
+					cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+                                        cbs[i].set_ticks([-4,-3,-2,-1,0,1,2,3,4,5,6])
+ #                                       cbs[i].set_ticklabels([r'$10^-4$',r'$10^-3$',r'$10^-2$',r'$10^-1$',r'$1$',r'$10^1$',r'$10^2$',r'$10^3$',r'$10^4$',r'$10^5$',r'$10^6$',])
+                                        cbs[i].set_ticklabels([r'$10^{-4}$',r'$10^{-3}$',r'$10^{-2}$',r'$10^{-1}$',r'$1$',r'$10^1$',r'$10^2$',r'$10^3$',r'$10^4$',r'$10^5$',r'$10^6$',])
+				else:	
+					cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
+                                        cbs[i].set_ticks([rbmi,(rbmi+rbma)/2.,rbma])
+
+                          if i in [2,]:
+                                cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,ticks = np.linspace(rbmi,rbma,rbma-rbmi+1)))
+                                cbs[i].set_ticks([rbmi,0,rbma])
 			  if i in [3,]:
 				cbs.append(fig.colorbar(ims[i],pad=0.05,shrink=0.5,))
-				cbs[i].set_ticks ([-1,0,1])
+				cbs[i].set_ticks([-1,0,1])
 				cbs[i].set_ticklabels(['0.1','1.','10.'])
-                        if drawCbar and len(cbarlabel)>0 and i in [0,1,]: 
+                        if drawCbar and len(cbarlabel)>0 and i in [0,1,2]: 
 				try:cbs[i].set_label(cbarlabel)
 				except:pass
 									
@@ -250,6 +272,9 @@ def robinPlotQuad(lons,
 				rbma = np.log10(rbma)
 				if rbma > np.int(rbma): rbma+=1
 				rbma = np.int(rbma)
+                        if i == 3:
+                                rbmi, rbma = -1,1
+                                data = np.ma.clip(np.ma.log10(data), -1.,1.)
 											
 			if scatter:
 				if doLogs[i]:	
@@ -294,6 +319,9 @@ def robinPlotQuad(lons,
 					rbma = np.log10(rbma)
 					if rbma > np.int(rbma): rbma+=1
 					rbma = np.int(rbma)
+	                        if i == 3:
+        	                        rbmi, rbma = -1,1
+	                                data = np.ma.clip(np.ma.log10(data), -1.,1.)
 							
 				if doLogs[i]:
 					ims.append(
@@ -361,10 +389,7 @@ def robinPlotQuad(lons,
 		    	if len(cbarlabel)>0 and i in [0,1,]: cbs[i].set_label(cbarlabel)
                         pyplot.title(titles[i])
 	
-	if title:
-		#fig.text(0.5,0.975,title,horizontalalignment='center',verticalalignment='top')
-		fig.suptitle(title)	
-	#pyplot.tight_layout()		
+	if title: fig.suptitle(title)	
 	print "p2pPlots:\trobinPlotQuad: \tSaving:" , filename
 	pyplot.savefig(filename ,dpi=dpi)		
 	pyplot.close()
@@ -375,33 +400,40 @@ def makemapplot(fig,ax,lons,lats,data,title, zrange=[-100,100],lon0=0.,drawCbar=
 	 Wrapper for the map plots.
 	Makes a plot according to the options specified in the function call.	
 	"""
-	if len(lons)==0:return fig,ax
+	if len(lons)==0:return fig,ax,False
 	try:
-		if len(lons.compressed())==0:return False, False 
+		if len(lons.compressed())==0:return False, False, False 
 	except:pass
 	
 	lons = np.array(lons)
 	lats = np.array(lats)
 	data = np.ma.array(data)	
 	
-	if doLog and zrange[0]*zrange[1] <=0.:
-		print "makemapplot: \tMasking"
-		data = np.ma.masked_less_equal(np.ma.array(data), 0.)
-	
-	print data.min(),lats.min(),lons.min(), data.shape,lats.shape,lons.shape
+	# if doLog and zrange[0]*zrange[1] <=0.:
+	#	print "makemapplot: \tMasking"
+	#	dataN = np.ma.masked_less_equal(data, 0.)
+	#	if len(dataN.compressed()) ==0:
+	#               dataN = np.ma.masked_greater_equal(data, 0.)
+        #        if len(dataN.compressed()) ==0:
+	#		print "No remaining data!"
+	#		assert 0
+	#	data = dataN
+		
+	print "makemapplot: \trange:",[data.min(),data.max()],'\tshape:', data.shape , zrange
+	print 'makemapplot:\tlats:',[lats.min(),lats.max()],'\tshape:', lats.shape
+        print 'makemapplot:\tlons:',[lons.min(),lons.max()],'\tshape:', lons.shape
 	
 	if data.ndim ==1:
 		if doLog:
-			im = ax.scatter(lons, lats,c=data, lw=0,marker='s', cmap = cmap, transform=cartopy.crs.PlateCarree(),norm=LogNorm(),vmin=zrange[0],vmax=zrange[1])
-		else:	
-			im = ax.scatter(lons, lats,c=data, lw=0,marker='s', cmap = cmap, transform=cartopy.crs.PlateCarree(),vmin=zrange[0],vmax=zrange[1])
+			im = ax.scatter(lons, lats,c=data, lw=0,marker='s', cmap = cmap, transform=cartopy.crs.PlateCarree(),norm=LogNorm(vmin=zrange[0],vmax=zrange[1]))
+                        #im = ax.scatter(lons, lats,c=data, lw=0,marker='s', cmap = cmap, transform=cartopy.crs.PlateCarree(),norm=LogNorm(),vmin=zrange[0],vmax=zrange[1])
+		else:	im = ax.scatter(lons, lats,c=data, lw=0,marker='s', cmap = cmap, transform=cartopy.crs.PlateCarree(),vmin=zrange[0],vmax=zrange[1])
 	else:
+		print "makemapplot:\tRegridding"
 		crojp2, data, newLon,newLat = regrid(data,lats,lons)
-
 		if doLog:
 			im = ax.pcolormesh(newLon, newLat,data, cmap = cmap, transform=cartopy.crs.PlateCarree(),norm=LogNorm(vmin=zrange[0],vmax=zrange[1]),)
-		else:	
-			im = ax.pcolormesh(newLon, newLat,data, cmap = cmap, transform=cartopy.crs.PlateCarree(),vmin=zrange[0],vmax=zrange[1])
+		else:	im = ax.pcolormesh(newLon, newLat,data, cmap = cmap, transform=cartopy.crs.PlateCarree(),vmin=zrange[0],vmax=zrange[1])
 	
 	ax.add_feature(cartopy.feature.LAND,  facecolor='0.97')	
         ax.add_feature(cartopy.feature.COASTLINE, edgecolor='k',linewidth=0.42)# facecolor='0.85')
@@ -542,8 +574,10 @@ def HovPlotQuad(lons,lats, depths,
 	    	#####
 	    	# Add the titles.	
 		if i in [0,1]:	pyplot.title(titles[i])
-		if i ==2:	pyplot.title('Difference ('+titles[0]+' - '+titles[1]+')')
-		if i ==3:	pyplot.title('Quotient ('  +titles[0]+' / '+titles[1]+')')
+                if i ==2:       pyplot.title('Difference')#+titles[0]+' - '+titles[1]+')')
+                if i ==3:       pyplot.title('Quotient')#  +titles[0]+' / '+titles[1]+')')
+		#if i ==2:	pyplot.title('Difference ('+titles[0]+' - '+titles[1]+')')
+		#if i ==3:	pyplot.title('Quotient ('  +titles[0]+' / '+titles[1]+')')
 	
 		#####
 		# Add the log scaliing and limts. 
