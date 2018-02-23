@@ -324,10 +324,9 @@ class GlobalSectionParser:
 	model			= parseOptionOrDefault(self.__cp__, defaultSection, 'model')	
 	if len(self.models)==0:	self.models = [model,]
 	
-	self.scenarios 		= parseList(self.__cp__, defaultSection, 'scenario')
+	self.scenarios 		= parseList(self.__cp__, defaultSection, 'scenarios')
 	scenario		= parseOptionOrDefault(self.__cp__, defaultSection, 'scenario')	
 	if len(self.scenarios)==0:	self.scenarios = [scenario,]
-
 
 	self.makeReport 	= parseBoolean(self.__cp__, defaultSection, 'makeReport',	default=True)	
 	self.makeComp 		= parseBoolean(self.__cp__, defaultSection, 'makeComp',		default=True)
