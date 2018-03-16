@@ -40,7 +40,7 @@ import numpy as np
 #####	
 # Load specific local code:
 from bgcvaltools import bgcvalpython as bvp
-from longnames.longnames import getLongName
+from longnames.longnames import getLongName, fancyUnits,titleify 
 from timeseries import timeseriesPlots as tsp 
 from bgcvaltools.configparser import GlobalSectionParser
 
@@ -364,6 +364,11 @@ def comparisonAnalysis(configfile, writeCSV=True):
 	
 			units = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].units
 			datarange = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].datarange
+                        datarange = [float(t) for t in datarange]
+
+			datatimes = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].datatimes
+                        datatimes = [float(t) for t in datatimes]
+
 			timerange = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].timerange			
 			timerange = [float(t) for t in sorted(timerange)]
 			for jobID in jobIDs:
@@ -384,13 +389,14 @@ def comparisonAnalysis(configfile, writeCSV=True):
 			if not len(arrD.keys()):continue	
 		
 			for linestyle in linestyles:
-				title = ' '.join([getLongName(i) for i in [model, scenario, region, layer, metric, key]])	
+				title = titleify([model, scenario, region, layer, metric, key])	
 				filename =  bvp.folder(globalkeys.images_comp)+'_'.join([model, scenario, region, layer, metric, key,linestyle])+'.png'
 		
 				tsp.multitimeseries(
 					timesD, 		# model times (in floats)
 					arrD,			# model time series
 					data 		= datarange,		# in situ data distribution
+					datatimes	= datatimes,
 					title 		= title,
 					filename	= filename,
 					units 		= units,
@@ -408,9 +414,17 @@ def comparisonAnalysis(configfile, writeCSV=True):
 			arrD   = {}
 	
 			units = globalkeys.AnalysisKeyParser[(models[0],jobID,globalkeys.years[0],scenario,key)].units
-			datarange = globalkeys.AnalysisKeyParser[(models[0],jobID,globalkeys.years[0],scenario,key)].datarange		
-			timerange = globalkeys.AnalysisKeyParser[(models[0],jobID,globalkeys.years[0],scenario,key)].timerange			
-			timerange = [float(t) for t in sorted(timerange)]	
+
+                        datarange = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].datarange
+                        datarange = [float(t) for t in datarange]
+
+                        datatimes = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].datatimes
+                        datatimes = [float(t) for t in datatimes]
+
+                        timerange = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].timerange
+                        timerange = [float(t) for t in sorted(timerange)]
+
+	
 			for model in models:
 			
 				try:	mdata = data[(key,model,scenario, jobID)][(region,layer,metric)]
@@ -427,13 +441,14 @@ def comparisonAnalysis(configfile, writeCSV=True):
 			if not len(arrD.keys()):continue
 		
 			for linestyle in linestyles:
-				title = ' '.join([getLongName(i) for i in [scenario,jobID, region, layer, metric, key]])
+				title = titleify([scenario,jobID, region, layer, metric, key])
 				filename =  bvp.folder(globalkeys.images_comp)+'_'.join([ scenario, jobID, region, layer, metric, key,linestyle])+'.png'
 		
 				tsp.multitimeseries(
 					timesD, 		# model times (in floats)
 					arrD,			# model time series
 					data 		= datarange,		# in situ data distribution
+                                        datatimes       = datatimes,
 					title 		= title,
 					filename	= filename,
 					units 		= units,
@@ -451,9 +466,20 @@ def comparisonAnalysis(configfile, writeCSV=True):
 			arrD   = {}
 	
 			units = globalkeys.AnalysisKeyParser[(model,jobID,globalkeys.years[0],scenarios[0],key)].units
-			datarange = globalkeys.AnalysisKeyParser[(model,jobID,globalkeys.years[0],scenarios[0],key)].datarange				
-			timerange = globalkeys.AnalysisKeyParser[(model,jobID,globalkeys.years[0],scenarios[0],key)].timerange			
-			timerange = [float(t) for t in sorted(timerange)]	
+                        datarange = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].datarange
+                        datarange = [float(t) for t in datarange]
+
+                        datatimes = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].datatimes
+                        datatimes = [float(t) for t in datatimes]
+
+                        timerange = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].timerange
+                        timerange = [float(t) for t in sorted(timerange)]
+
+
+			#datarange = globalkeys.AnalysisKeyParser[(model,jobID,globalkeys.years[0],scenarios[0],key)].datarange			
+                        #datarange = [float(t) for t in sorted(datarange)]
+			#timerange = globalkeys.AnalysisKeyParser[(model,jobID,globalkeys.years[0],scenarios[0],key)].timerange			
+			#timerange = [float(t) for t in sorted(timerange)]	
 			for scenario in scenarios:
 			
 				try:	mdata = data[(key,model,scenario, jobID)][(region,layer,metric)]
@@ -469,13 +495,14 @@ def comparisonAnalysis(configfile, writeCSV=True):
 		
 			if not len(arrD.keys()):continue	
 			for linestyle in linestyles:			
-				title = ' '.join([getLongName(i) for i in [model, jobID, region, layer, metric, key]])	
+				title = titleify([model, jobID, region, layer, metric, key])	
 				filename =  bvp.folder(globalkeys.images_comp)+'_'.join([model, jobID, region, layer, metric, key,linestyle])+'.png'
 		
 				tsp.multitimeseries(
 					timesD, 		# model times (in floats)
 					arrD,			# model time series
 					data 		= datarange,		# in situ data distribution
+                                        datatimes       = datatimes,
 					title 		= title,
 					filename	= filename,
 					units 		= units,

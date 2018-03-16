@@ -1,4 +1,4 @@
-#!/usr/bin/ipython
+#!/usr/bin/ipython -i
 
 #
 # Copyright 2015, Plymouth Marine Laboratory
@@ -503,6 +503,9 @@ class AnalysisKeyParser:
 
 	try:	self.datarange 	= parseList(self.__cp__, self.section, 'datarange')	
 	except:	self.datarange 	= -999
+        try:    self.datatimes  = parseList(self.__cp__, self.section, 'datatimes')
+        except: self.datatimes  = -999
+
 	try:	self.timerange 	= parseOptionOrDefault(self.__cp__, self.section, 'timerange',parsetype='list')	
 	except:	self.timerange 	= [-1e20,1e20]
 	
@@ -649,6 +652,10 @@ class AnalysisKeyParser:
 	print "data coords:	", self.datacoords
 	print "model details:	", self.modeldetails
 	print "data details:	", self.datadetails
+
+	print "datatimes:       ", self.datatimes	
+        print "datarange:       ", self.datarange
+
 
 	print "regions:		", self.regions
 	print "layers:		", self.layers
