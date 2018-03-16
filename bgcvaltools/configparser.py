@@ -209,7 +209,7 @@ def get_str(Config, section, option,debug=False):
 	return ''
 
 def parseOptionOrDefault(Config,section,option,parsetype='',debug=True, optional=True,findreplace=True):
-	"""#####
+	"""
 	This tool lets you create a Defaults section, and set some fields as defaults.
 	 	ie: model_lat is always nav_lat, unless other specified.
 	"""

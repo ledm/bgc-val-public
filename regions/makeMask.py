@@ -43,7 +43,7 @@ package_directory = os.path.dirname(os.path.abspath(__file__))
 
 #####
 # Global function, returns everything that is unmasked.
-def Global(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def Global(name,region, xt,xz,xy,xx,xd,debug=False): 	
  	m = np.ma.array(xd).mask
  	for a in [xt,xz,xy,xx]:
  		try: m += a.mask
@@ -52,180 +52,180 @@ def Global(name,newSlice, xt,xz,xy,xx,xd,debug=False):
 
 #####
 # Useful zeros
-def nonZero(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( xd == 0.,xd).mask 			
-def aboveZero(name,newSlice, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( xd <= 0.,xd).mask
-def belowZero(name,newSlice, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( xd >= 0.,xd).mask
+def nonZero(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( xd == 0.,xd).mask 			
+def aboveZero(name,region, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( xd <= 0.,xd).mask
+def belowZero(name,region, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( xd >= 0.,xd).mask
 
 #####
 # Simple Regional masks
-def NorthHemisphere(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( xy < 0.,xd).mask
-def SouthHemisphere(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( xy > 0.,xd).mask
-def Tropics(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( np.ma.abs(xy) >23.,xd).mask 
-def Equatorial(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( np.ma.abs(xy) >7.,xd).mask 
-def Temperate(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xy) <23.)+(np.ma.abs(xy) >60.),xd).mask 
-def NorthTropics(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (xy >23.)+(xy < 7.),xd).mask 
-def SouthTropics(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (xy <-23.)+(xy > -7.),xd).mask 
-def NorthTemperate(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (xy <23.)+(xy >60.),xd).mask 
-def SouthTemperate(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (xy >-23.)+(xy <-60.),xd).mask 
-def AtlanticTransect(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( (xx > -26.)+(xx<-30.),xd).mask
-def PacificTransect(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( (xx > -139.)+(xx<-143.),xd).mask
-def tenN(name,newSlice, xt,xz,xy,xx,xd,debug=False): 			return np.ma.masked_where( (xy >  12.)+(xy<  8.),xd).mask
-def tenS(name,newSlice, xt,xz,xy,xx,xd,debug=False): 			return np.ma.masked_where( (xy >  -8.)+(xy<-12.),xd).mask
-def SouthernTransect(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( (xy > -55.)+(xy<-59.),xd).mask
-def Arctic(name,newSlice, xt,xz,xy,xx,xd,debug=False): 			return np.ma.masked_where( np.ma.abs(xy) < 60.,xd).mask
-def Antarctic(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( xy > -60.,xd).mask 
-def NorthArctic(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( xy < 60.,xd).mask 
-def SouthernOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where(  xy >-40.,xd).mask 
-def AntarcticOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where(  xy >-50.,xd).mask 
-def ignoreArtics(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_outside(xy,-70., 70.).mask
-def ignoreMidArtics(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(xy,-65., 65.).mask
-def ignoreMoreArtics(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(xy,-60., 60.).mask
-def ignoreExtraArtics(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(xy,-50., 50.).mask 
-def NorthAtlanticOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(bvp.makeLonSafeArr(xx), -80.,0.).mask + np.ma.masked_outside(xy, 10.,60.).mask
-def SouthAtlanticOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(bvp.makeLonSafeArr(xx), -65.,20.).mask + np.ma.masked_outside(xy, -50.,-10.).mask
-def EquatorialAtlanticOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): return np.ma.masked_outside(bvp.makeLonSafeArr(xx), -65.,20.).mask + np.ma.masked_outside(xy, -15.,15.).mask
+def NorthHemisphere(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( xy < 0.,xd).mask
+def SouthHemisphere(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( xy > 0.,xd).mask
+def Tropics(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( np.ma.abs(xy) >23.,xd).mask 
+def Equatorial(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( np.ma.abs(xy) >7.,xd).mask 
+def Temperate(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xy) <23.)+(np.ma.abs(xy) >60.),xd).mask 
+def NorthTropics(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (xy >23.)+(xy < 7.),xd).mask 
+def SouthTropics(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (xy <-23.)+(xy > -7.),xd).mask 
+def NorthTemperate(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (xy <23.)+(xy >60.),xd).mask 
+def SouthTemperate(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (xy >-23.)+(xy <-60.),xd).mask 
+def AtlanticTransect(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( (xx > -26.)+(xx<-30.),xd).mask
+def PacificTransect(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( (xx > -139.)+(xx<-143.),xd).mask
+def tenN(name,region, xt,xz,xy,xx,xd,debug=False): 			return np.ma.masked_where( (xy >  12.)+(xy<  8.),xd).mask
+def tenS(name,region, xt,xz,xy,xx,xd,debug=False): 			return np.ma.masked_where( (xy >  -8.)+(xy<-12.),xd).mask
+def SouthernTransect(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( (xy > -55.)+(xy<-59.),xd).mask
+def Arctic(name,region, xt,xz,xy,xx,xd,debug=False): 			return np.ma.masked_where( np.ma.abs(xy) < 60.,xd).mask
+def Antarctic(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( xy > -60.,xd).mask 
+def NorthArctic(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( xy < 60.,xd).mask 
+def SouthernOcean(name,region, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where(  xy >-40.,xd).mask 
+def AntarcticOcean(name,region, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where(  xy >-50.,xd).mask 
+def ignoreArtics(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_outside(xy,-70., 70.).mask
+def ignoreMidArtics(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(xy,-65., 65.).mask
+def ignoreMoreArtics(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(xy,-60., 60.).mask
+def ignoreExtraArtics(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(xy,-50., 50.).mask 
+def NorthAtlanticOcean(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(bvp.makeLonSafeArr(xx), -80.,0.).mask + np.ma.masked_outside(xy, 10.,60.).mask
+def SouthAtlanticOcean(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_outside(bvp.makeLonSafeArr(xx), -65.,20.).mask + np.ma.masked_outside(xy, -50.,-10.).mask
+def EquatorialAtlanticOcean(name,region, xt,xz,xy,xx,xd,debug=False): return np.ma.masked_outside(bvp.makeLonSafeArr(xx), -65.,20.).mask + np.ma.masked_outside(xy, -15.,15.).mask
 
 #####
 # Complex Regional masks
-def ArcticOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	
+def ArcticOcean(name,region, xt,xz,xy,xx,xd,debug=False): 	 	
 	mx = np.ma.masked_where(  xy < 60.,xd).mask 
 	mx+= np.ma.masked_inside(xx, -45., 15.).mask * np.ma.masked_inside(xy, 50.,80.).mask
 	return np.ma.masked_where( mx,xd).mask 
 
-def NorthernSubpolarAtlantic(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def NorthernSubpolarAtlantic(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx = np.ma.masked_outside(xx,-74., -3. ).mask + np.ma.masked_outside(xy,40., 60. ).mask
 	mx *= np.ma.masked_outside(xx, -45., 15.).mask + np.ma.masked_outside(xy, 60.,80.).mask
 	return mx	
 
-def NordicSea(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def NordicSea(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx = np.ma.masked_outside(xx,-44., -5. ).mask 
 	mx += np.ma.masked_outside(xy, 53., 65.).mask 
 	return mx
 	
-def LabradorSea(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def LabradorSea(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx  = np.ma.masked_outside(xx,-69., -45.).mask
 	mx += np.ma.masked_outside(xy,  53., 67.).mask
 	return mx
 
-def NorwegianSea(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def NorwegianSea(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx  = np.ma.masked_outside(xx,-15., 10.).mask
 	mx += np.ma.masked_outside(xy, 67., 76.).mask
 	return mx
 
-def YevgenyNordicSea(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def YevgenyNordicSea(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx = np.ma.masked_outside(xx,-44., -5. ).mask 
 	mx += np.ma.masked_outside(xy, 53., 65.).mask 
 	return mx
 	
-def YevgenyLabradorSea(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def YevgenyLabradorSea(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx  = np.ma.masked_outside(xx,-69., -45.).mask
 	mx += np.ma.masked_outside(xy,  53., 67.).mask
 	return mx
 
-def YevgenyNorwegianSea(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 
+def YevgenyNorwegianSea(name,region, xt,xz,xy,xx,xd,debug=False): 	 
 	mx  = np.ma.masked_outside(xx,-15., 10.).mask
 	mx += np.ma.masked_outside(xy, 67., 76.).mask
 	return mx
 
-def NorthernSubpolarPacific(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def NorthernSubpolarPacific(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx = np.ma.masked_inside(xx,-100., 120. ).mask
 	mx += np.ma.masked_inside(xx,260., 365. ).mask		
 	mx += np.ma.masked_outside(xy,40., 60. ).mask
 	return np.ma.masked_where( mx,xd).mask 		
 
-def Remainder(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
-	mx = ignoreInlandSeas(name,newSlice, xt,xz,xy,xx,xd,debug=debug)
+def Remainder(name,region, xt,xz,xy,xx,xd,debug=False): 	
+	mx = ignoreInlandSeas(name,region, xt,xz,xy,xx,xd,debug=debug)
 	mx += np.ma.masked_inside(xy,-10., 10. ).mask
 	mx += np.ma.masked_outside(abs(xy),-40., 40. ).mask		
 	return np.ma.masked_where( mx,xd).mask 		
 
-def Equator10(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
-	mx = ignoreInlandSeas(name,newSlice, xt,xz,xy,xx,xd,debug=debug)
+def Equator10(name,region, xt,xz,xy,xx,xd,debug=False): 	
+	mx = ignoreInlandSeas(name,region, xt,xz,xy,xx,xd,debug=debug)
         mx += np.ma.masked_outside(xy,-10., 10. ).mask
         return mx 
 
-def NorthPacificOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def NorthPacificOcean(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx = np.ma.masked_inside(xx,-100., 120. ).mask
 	mx += np.ma.masked_inside(xx,260., 365. ).mask		
 	mx += np.ma.masked_outside(xy,10., 60. ).mask
 	return mx
 
-def EquatorialPacificOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def EquatorialPacificOcean(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx = np.ma.masked_inside(xx,-83., 120. ).mask
 	mx += np.ma.masked_inside(xx,260., 365. ).mask		
 	mx += np.ma.masked_outside(xy,-15., 15. ).mask
 	return mx
 	
 
-def SouthPacificOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	
+def SouthPacificOcean(name,region, xt,xz,xy,xx,xd,debug=False): 	 	
 	mx = np.ma.masked_inside(xx,-70., 140. ).mask
 	mx += np.ma.masked_inside(xx,290., 365. ).mask		
 	my = np.ma.masked_outside(xy,-10., -50. ).mask
 	return np.ma.masked_where( mx+my,xd).mask 
 	
 	
-def HighLatWinter(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 
+def HighLatWinter(name,region, xt,xz,xy,xx,xd,debug=False): 	 
 	NHwinter = np.ma.masked_where( ~((xt == months['January'])+(xt == months['February']) +(xt == months['March'])    ) ,xd).mask
 	SHwinter = np.ma.masked_where( ~((xt == months['July'])   +(xt == months['August'])   +(xt == months['September'])) ,xd).mask
 	mnhw = np.ma.masked_where( (xy <  45.) + NHwinter ,xd).mask
 	mshw = np.ma.masked_where( (xy > -45.) + SHwinter ,xd).mask 
 	return   np.ma.masked_where( mnhw*mshw,xd).mask 
 
-def CCI_JJA(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def CCI_JJA(name,region, xt,xz,xy,xx,xd,debug=False): 	
         mx = np.ma.masked_where(  xy < -53.,xd).mask
         mx += np.ma.masked_where(  xy > 80.,xd).mask
         return np.ma.masked_where( mx,xd).mask
 
-def CCI_DJF(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def CCI_DJF(name,region, xt,xz,xy,xx,xd,debug=False): 	
         mx = np.ma.masked_where(  xy > 53.,xd).mask
         mx += np.ma.masked_where(  xy > 80.,xd).mask
         return np.ma.masked_where( mx,xd).mask
 	
-def BlackSea(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	
+def BlackSea(name,region, xt,xz,xy,xx,xd,debug=False): 	 	
 	mx = np.ma.masked_outside(xx, 25.9,41.7).mask
 	my = np.ma.masked_outside(xy, 39.8,48.1).mask				
 	return np.ma.masked_where( mx+my,xd).mask 
 	
-def ignoreBlackSea(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def ignoreBlackSea(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx = np.ma.masked_inside(xx, 25.9,41.7).mask
 	my = np.ma.masked_inside(xy, 39.8,48.1).mask				
 	return np.ma.masked_where( mx*my,xd).mask 	
 	
-def BalticSea(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	
+def BalticSea(name,region, xt,xz,xy,xx,xd,debug=False): 	 	
 	mx = np.ma.masked_outside(xx, 12.5,30.7).mask
 	my = np.ma.masked_outside(xy, 53.0,66.4).mask				
 	return np.ma.masked_where( mx+my,xd).mask 
 	
-def ignoreBalticSea(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def ignoreBalticSea(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx = np.ma.masked_inside(xx, 12.5,30.7).mask
 	my = np.ma.masked_inside(xy, 53.0,66.4).mask				
 	return np.ma.masked_where( mx*my,xd).mask 	
 
-def RedSea(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	
+def RedSea(name,region, xt,xz,xy,xx,xd,debug=False): 	 	
 	mx = np.ma.masked_outside(xx, 30.0,43.0).mask
 	my = np.ma.masked_outside(xy, 12.4,30.4).mask				
 	return np.ma.masked_where( mx+my,xd).mask 
 	
-def ignoreRedSea(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def ignoreRedSea(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx = np.ma.masked_inside(xx, 30.0,43.0).mask
 	my = np.ma.masked_inside(xy, 12.4,30.4).mask				
 	return np.ma.masked_where( mx*my,xd).mask 	
 	
-def PersianGulf(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	
+def PersianGulf(name,region, xt,xz,xy,xx,xd,debug=False): 	 	
 	mx = np.ma.masked_outside(xx, 47.5, 56.8).mask
 	my = np.ma.masked_outside(xy, 22.3, 32.1).mask				
 	return np.ma.masked_where( mx+my,xd).mask 
 	
-def ignorePersianGulf(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def ignorePersianGulf(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx = np.ma.masked_inside(xx, 47.5, 56.8).mask
 	my = np.ma.masked_inside(xy, 22.3, 32.1).mask				
 	return np.ma.masked_where( mx*my,xd).mask 										
 	
-def ignoreCaspian(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def ignoreCaspian(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx = np.ma.masked_inside(xx,45.0,  55.0).mask * np.ma.masked_inside(xy, 35., 48.).mask 	# caspian
 	return np.ma.masked_where( mx,xd).mask 
 	
-def ignoreMediteranean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	
+def ignoreMediteranean(name,region, xt,xz,xy,xx,xd,debug=False): 	
 	mx  = np.ma.masked_inside(xx, -5.8, 42.5).mask #E
 	my  = np.ma.masked_inside(xy, 30., 43.).mask	#N			
 	mx2 = np.ma.masked_inside(xx, 0., 20.).mask #E
@@ -233,7 +233,7 @@ def ignoreMediteranean(name,newSlice, xt,xz,xy,xx,xd,debug=False):
 	m = mx*my+ mx2*my2
 	return np.ma.masked_where( m,xd).mask 		
 
-def ignoreInlandSeas(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 
+def ignoreInlandSeas(name,region, xt,xz,xy,xx,xd,debug=False): 	 
 	mx = np.ma.masked_inside(xx, 47.5,  56.8).mask * np.ma.masked_inside(xy, 22.3, 32.1).mask	
 	mx += np.ma.masked_inside(xx, 30.0, 43.0).mask * np.ma.masked_inside(xy, 12.4,30.4).mask	
 	mx += np.ma.masked_inside(xx, 12.5, 30.7).mask * np.ma.masked_inside(xy, 53.0,66.4).mask
@@ -243,7 +243,7 @@ def ignoreInlandSeas(name,newSlice, xt,xz,xy,xx,xd,debug=False):
 	mx += np.ma.masked_inside(xx,45.0,  55.0).mask * np.ma.masked_inside(xy, 35., 52.).mask 	# caspian
 	return np.ma.masked_where( mx,xd).mask 		
 	
-def IndianOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 
+def IndianOcean(name,region, xt,xz,xy,xx,xd,debug=False): 	 
 	mx = np.ma.masked_inside(xx, 47.5,  56.8).mask * np.ma.masked_inside(xy, 22.3, 32.1).mask	
 	mx += np.ma.masked_inside(xx, 30.0, 43.0).mask * np.ma.masked_inside(xy, 12.4,30.4).mask	
 	mx += np.ma.masked_inside(xx, 12.5, 30.7).mask * np.ma.masked_inside(xy, 53.0,66.4).mask
@@ -260,46 +260,46 @@ def IndianOcean(name,newSlice, xt,xz,xy,xx,xd,debug=False):
 
 #####
 # Depths masks
-def Depth_0_10m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( np.ma.abs(xz) > 10.,xd).mask 
-def Depth_0_100m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( np.ma.abs(xz) > 100.,xd).mask 
-def Depth_10_20m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) < 10.)+(np.ma.abs(xz) > 20.),xd).mask 
-def Depth_20_50m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) > 20.)+(np.ma.abs(xz) > 50.),xd).mask 
-def Depth_50_100m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) < 50.)+(np.ma.abs(xz) > 100.),xd).mask
-def Depth_100_500m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) < 100.)+(np.ma.abs(xz) > 500.),xd).mask
-def Depth_500m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where(  np.ma.abs(xz) < 500.,xd).mask
-def Depth_0_50m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where( np.ma.abs(xz) > 50.,xd).mask
-def Depth_50_100m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where( (np.ma.abs(xz) < 50.)+(np.ma.abs(xz) > 100.),xd).mask
-def Depth_100_200m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) < 100.)+(np.ma.abs(xz) > 200.),xd).mask
-def Depth_200_500m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) < 200.)+(np.ma.abs(xz) > 500.),xd).mask
-def Depth_500_1000m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( (np.ma.abs(xz) < 500.)+(np.ma.abs(xz) > 1000.),xd).mask
-def Depth_1000_2000m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( (np.ma.abs(xz) < 1000.)+(np.ma.abs(xz) > 2000.),xd).mask
-def Depth_1000m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where(  np.ma.abs(xz) < 1000.,xd).mask
-def Depth_2000m(name,newSlice, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where(  np.ma.abs(xz) < 2000.,xd).mask
-def Shallow(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( xz > 200.,xd).mask
-def Deep(name,newSlice, xt,xz,xy,xx,xd,debug=False): 			return np.ma.masked_where( xz < 200.,xd).mask
+def Depth_0_10m(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( np.ma.abs(xz) > 10.,xd).mask 
+def Depth_0_100m(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( np.ma.abs(xz) > 100.,xd).mask 
+def Depth_10_20m(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) < 10.)+(np.ma.abs(xz) > 20.),xd).mask 
+def Depth_20_50m(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) > 20.)+(np.ma.abs(xz) > 50.),xd).mask 
+def Depth_50_100m(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) < 50.)+(np.ma.abs(xz) > 100.),xd).mask
+def Depth_100_500m(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) < 100.)+(np.ma.abs(xz) > 500.),xd).mask
+def Depth_500m(name,region, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where(  np.ma.abs(xz) < 500.,xd).mask
+def Depth_0_50m(name,region, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where( np.ma.abs(xz) > 50.,xd).mask
+def Depth_50_100m(name,region, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where( (np.ma.abs(xz) < 50.)+(np.ma.abs(xz) > 100.),xd).mask
+def Depth_100_200m(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) < 100.)+(np.ma.abs(xz) > 200.),xd).mask
+def Depth_200_500m(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( (np.ma.abs(xz) < 200.)+(np.ma.abs(xz) > 500.),xd).mask
+def Depth_500_1000m(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( (np.ma.abs(xz) < 500.)+(np.ma.abs(xz) > 1000.),xd).mask
+def Depth_1000_2000m(name,region, xt,xz,xy,xx,xd,debug=False): 	return np.ma.masked_where( (np.ma.abs(xz) < 1000.)+(np.ma.abs(xz) > 2000.),xd).mask
+def Depth_1000m(name,region, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where(  np.ma.abs(xz) < 1000.,xd).mask
+def Depth_2000m(name,region, xt,xz,xy,xx,xd,debug=False): 	 	return np.ma.masked_where(  np.ma.abs(xz) < 2000.,xd).mask
+def Shallow(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( xz > 200.,xd).mask
+def Deep(name,region, xt,xz,xy,xx,xd,debug=False): 			return np.ma.masked_where( xz < 200.,xd).mask
 
 
 #####
 # Time masks
 # These only work if the time array is in months, starting from zero.
 months = {month_name[i+1]:i for i in xrange(0,12) }
-def January(name,newSlice, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( ~(xt == months['January']),xd).mask
-def February(name,newSlice, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( ~(xt == months['February']),xd).mask
-def March(name,newSlice, xt,xz,xy,xx,xd,debug=False):		return np.ma.masked_where( ~(xt == months['March']),xd).mask
-def April(name,newSlice, xt,xz,xy,xx,xd,debug=False):		return np.ma.masked_where( ~(xt == months['April']),xd).mask
-def May(name,newSlice, xt,xz,xy,xx,xd,debug=False):		return np.ma.masked_where( ~(xt == months['May']),xd).mask
-def June(name,newSlice, xt,xz,xy,xx,xd,debug=False):		return np.ma.masked_where( ~(xt == months['June']),xd).mask
-def July(name,newSlice, xt,xz,xy,xx,xd,debug=False):		return np.ma.masked_where( ~(xt == months['July']),xd).mask
-def August(name,newSlice, xt,xz,xy,xx,xd,debug=False):		return np.ma.masked_where( ~(xt == months['August']),xd).mask
-def September(name,newSlice, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( ~(xt == months['September']),xd).mask
-def October(name,newSlice, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( ~(xt == months['October']),xd).mask
-def November(name,newSlice, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( ~(xt == months['November']),xd).mask
-def December(name,newSlice, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( ~(xt == months['December']),xd).mask
+def January(name,region, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( ~(xt == months['January']),xd).mask
+def February(name,region, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( ~(xt == months['February']),xd).mask
+def March(name,region, xt,xz,xy,xx,xd,debug=False):		return np.ma.masked_where( ~(xt == months['March']),xd).mask
+def April(name,region, xt,xz,xy,xx,xd,debug=False):		return np.ma.masked_where( ~(xt == months['April']),xd).mask
+def May(name,region, xt,xz,xy,xx,xd,debug=False):		return np.ma.masked_where( ~(xt == months['May']),xd).mask
+def June(name,region, xt,xz,xy,xx,xd,debug=False):		return np.ma.masked_where( ~(xt == months['June']),xd).mask
+def July(name,region, xt,xz,xy,xx,xd,debug=False):		return np.ma.masked_where( ~(xt == months['July']),xd).mask
+def August(name,region, xt,xz,xy,xx,xd,debug=False):		return np.ma.masked_where( ~(xt == months['August']),xd).mask
+def September(name,region, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( ~(xt == months['September']),xd).mask
+def October(name,region, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( ~(xt == months['October']),xd).mask
+def November(name,region, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( ~(xt == months['November']),xd).mask
+def December(name,region, xt,xz,xy,xx,xd,debug=False):	return np.ma.masked_where( ~(xt == months['December']),xd).mask
 	
-def JFM(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( ~(xt== months['January'])+(xt== months['February'])+(xt== months['March']),xd).mask 
-def AMJ(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where(~(xt==months['April'])+(xt==months['May'])+(xt==months['June']),xd).mask 
-def JAS(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where(~(xt==months['July'])+(xt==months['August'])+(xt==months['September']),xd).mask 
-def OND(name,newSlice, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where(~(xt==months['October'])+(xt==months['November'])+(xt==months['December']),xd).mask 
+def JFM(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where( ~(xt== months['January'])+(xt== months['February'])+(xt== months['March']),xd).mask 
+def AMJ(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where(~(xt==months['April'])+(xt==months['May'])+(xt==months['June']),xd).mask 
+def JAS(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where(~(xt==months['July'])+(xt==months['August'])+(xt==months['September']),xd).mask 
+def OND(name,region, xt,xz,xy,xx,xd,debug=False): 		return np.ma.masked_where(~(xt==months['October'])+(xt==months['November'])+(xt==months['December']),xd).mask 
 
 
 

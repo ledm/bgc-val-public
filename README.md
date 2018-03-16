@@ -250,7 +250,19 @@ Note that:
   For instance, the "January" "region" removes all data which are not in the first month of the year.
   In addition, it is straightforward to add a custom region if the defaults are not suitable for your analysis.
   More details area availalbe in the [Regions](#Regions) section, below.
-
+  
+* The `gridFile' option allows BGC-val to locate the grid description file.
+  The grid description file is a crucial requirement for BGC-val, as it provides important data about the model mask, 
+  the grid cell area, the grid cell volume.
+  Minimally, the grid file should be a netcdf which contains  the following information about the model grid:
+  * the cell centred coordinates for longitude, lattitude and depth,
+  * the land mask should be recorded in the netcdf in a field called `tmask',
+  * the cell area should be in a field called `area'
+  * and the volume should be recorded in a field labelled `pvol'.
+  Certain models use more than one grid to describe the ocean; for instance NEMO uses a U grid, a V grid, a W grid, and a T grid.
+  In that case, then care needs to be taken to ensure that the grid file provided matches the data.
+  BGC-val includes the meshgridmaker module in the  bgcvaltools package 
+  and the function `makeGridFile' from that module can be used to produce a grid file.
 
 ## Global Section
 

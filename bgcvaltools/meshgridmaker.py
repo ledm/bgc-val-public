@@ -50,6 +50,7 @@ import bgcvalpython as bvp
 from changeNC import changeNC, AutoVivification
 
 
+#####################
 # Significant lines.
 # (lat,lon), (lat,lon) , (N, E)
 AMOCCoords =  [(26.001, -80.8), (26.001, -10.)]	
@@ -62,6 +63,7 @@ WestIndianCoords   = [(-30.501, 26.001), (-30.501, 77.001)]
 NorthIndianCoords  = [(-30.501, 77.001), ( 25.501, 77.001)]
 EastIndianCoords   = [(-30.501, 77.001), (-30.501, 121.001)]
 SEAcoords	   = [(-24.501, 117.001), ( 28.501, 117.001)]
+
 
 CrossSections = {
 		'AMOC':		AMOCCoords,
@@ -116,7 +118,10 @@ def haversine(p1,p2):	#lon1, lat1, lon2, lat2):
 
 
 def GetArea(points,projection='leae',printAll=False):
-	poly = {"type": "Polygon", "coordinates": [   points, ]}
+	"""
+	Calculate the area of a box, according to the projection.
+	"""
+	poly = {"type": "Polygon", "coordinates": [ points, ]}
 	     
 	lon, lat = zip(*poly['coordinates'][0])	
 		
@@ -175,6 +180,9 @@ def makeBnds(arr):
 		
 
 def makeArea(nc,coordsdict):
+	"""
+	Calculate the area of an entire grid, according to the projection.
+	"""
 	lats = nc.variables[coordsdict['lat']][:]	
 	lons = bvp.makeLonSafeArr(nc.variables[coordsdict['lon']][:])
 	
@@ -234,6 +242,10 @@ def makeArea(nc,coordsdict):
 	assert 0 , 'timeseriesTools.py:\tNot implemeted makeArea for this grid. '+str(lats.ndim)
 
 def makeVolume(nc,coordsdict,area):
+	"""
+	Calculate the volume of a grid.
+	"""
+	
 	if 'depth_bnds' in nc.variables.keys():
 		depth_bnds = nc.variables['depth_bnds'][:]			
 	elif 'lev_bnds' in nc.variables.keys():
@@ -263,6 +275,10 @@ def drawLine(	fn,
 		points 		= [(-75., -68.5), (-54., -68.5)],
 		linename 	= 'DrakePassage',
 		returnMask	= False):
+	"""
+	Draw the line.
+	"""
+	
 	try:coordsdict = CoordDict[model]
 	except: return
 	#fn = getGridFile(model)
@@ -315,12 +331,6 @@ def drawLine(	fn,
 		if d == openValue: 
 			newmask[:,j,k] = tmask[:,j,k]
 		
-#	for (i,j,k), a in np.ndenumerate(newmask):
-#		if a in [1,1.]: continue
-#		if data[j,k] == openValue:
-#			print 'line!',i,j,k,a
-#			newmask[i,j,k] = 0.	# line 
-#		else:	newmask[i,j,k] = 1.	# mask everything else
 	newmask = np.clip(newmask,0.,1.)
 	filename = bvp.folder('images/drawLine/'+linename)+model+'-mask.png'
 	meshPlot(newmask.sum(0), title ,filename)
@@ -347,10 +357,7 @@ def sensibleLonBox(lons):
 				lons[l] = lo+360.
 	#####
 	# Note that this will need tweaking if we start looking at pacific transects.	
-
 	return lons		
-	
-	
 	
 	
 def lengthOfLineInPolygon(linepoints,corners,orient=True,debug=True):
@@ -402,7 +409,10 @@ def crossectionalAreaAlongLine(
 		points 		= [(-75., -68.5), (-54., -68.5)],	#lat, lon
 		linename 	= 'DrakePassage',
 		):
-		
+	"""
+	Calculate the cross sectional area of a grid, along a line.
+	"""
+			
 	print "crossectionalAreaAlongLine:",model
 
 	#####
@@ -462,11 +472,6 @@ def crossectionalAreaAlongLine(
 	if tmask.ndim==3:	surfmask = tmask[0]
 	if tmask.ndim==2:	surfmask = tmask	
 
-	#pyplot.pcolormesh(surfmask)
-	#pyplot.colorbar()
-	#pyplot.show()
-	#assert 0
-	
 	intersection = False
 	
 	for (i,j), d in np.ndenumerate(surface):
@@ -569,6 +574,10 @@ def crossectionalAreaAlongLine(
 
 
 def makeMask(nc,field):
+	"""
+	Load a field from a netcdf, then use that field to figure out that mask.
+	"""
+	
 	if type(nc) == type('str'):
 		nc = dataset(nc,'r',Quiet=True)
 	try:	
@@ -602,6 +611,9 @@ def meshPlot(arr, title,filename):
 	
 
 def ncdfToPlots(fn,model):
+	"""
+	Make some plots to check the new netcdf grid file.
+	"""
 	print "Making plots from:\t",fn
 	nc = dataset(fn,'r',Quiet=True)
 
@@ -640,6 +652,16 @@ def ncdfToPlots(fn,model):
 #####
 # Make the grid file:
 def makeGridFile(fn,fnout,field,coordsdict,model ='',threeD=True):
+	"""
+	This is the main routine that does the work.
+	fn: 		Input netcdf file. 
+	fnout:		output netcdf file.
+	field: 		a sample field (used to guess the mask)
+	coordsdict: 	a dictionairy containing the coordinate definitions.
+				looks like this: 	coordsdict = {'lat':'lat','lon':'lon','t':'time', 'z':'depth'}
+	model: 		the model name
+	threeD: 	boolean for 3D/2D fields.
+	"""
 	
 	#####
 	# copy explicitly all coordintaes, and boundaries.
@@ -677,9 +699,6 @@ def makeGridFile(fn,fnout,field,coordsdict,model ='',threeD=True):
 			if xsect[k].min() <0. : 
 				print "FAILED:",k	
 				assert 0
-	#else:
-		
-	#	assert 0
 	nc.close()	
 
 
@@ -719,21 +738,6 @@ def makeGridFile(fn,fnout,field,coordsdict,model ='',threeD=True):
 		av['newVar'][r]['newDims']	= tuple(yxdims)
 		av['newVar'][r]['dtype']	= doubletype
 		av['newVar'][r]['newData']	= tmask	
-	#r = 'DrakePassageMask'	
-	#av['newVar'][r]['name']		= r
-	#av['newVar'][r]['long_name']	= 'Drake passage'
-	#av['newVar'][r]['units']	= '0 is water, 1 is mask'
-	#av['newVar'][r]['newDims']	= tuple(zyxdims)
-	#av['newVar'][r]['dtype']	= doubletype
-	#av['newVar'][r]['newData']	= drakeMask	
-
-	#r = 'Atlantic26N_Mask'	
-	#av['newVar'][r]['name']		= r
-	#av['newVar'][r]['long_name']	= 'Atlantic Transect at 26N'
-	#av['newVar'][r]['units']	= '0 is water, 1 is mask'
-	#av['newVar'][r]['newDims']	= tuple(zyxdims)
-	#av['newVar'][r]['dtype']	= doubletype
-	#av['newVar'][r]['newData']	= Atlantic26N	
 	
 	for xsec in CrossSections.keys():
 		if not threeD:continue
@@ -744,33 +748,6 @@ def makeGridFile(fn,fnout,field,coordsdict,model ='',threeD=True):
 		av['newVar'][xsec]['dtype']	= doubletype
 		av['newVar'][xsec]['newData']	= xsect[xsec]	
 	
-#	if doAMOC:
-#		r = 'AMOC_26N_A'	
-#		av['newVar'][r]['name']		= r
-#		av['newVar'][r]['long_name']	= 'Atlantic Transect at 26N - cross sectional area'
-#		av['newVar'][r]['units']	= 'm^2'
-#		av['newVar'][r]['newDims']	= tuple(zyxdims)
-#		av['newVar'][r]['dtype']	= doubletype
-#		av['newVar'][r]['newData']	= amoc	
-		
-			
-#	if doDrake:
-#		r = 'Drake_A'
-#		av['newVar'][r]['name']		= r
-#		av['newVar'][r]['long_name']	= 'Drake passage cross sectional area'
-#		av['newVar'][r]['units']	= 'm^2'
-#		av['newVar'][r]['newDims']	= tuple(zyxdims)
-#		av['newVar'][r]['dtype']	= doubletype
-#		av['newVar'][r]['newData']	= drake	
-#	
-#	if doAMOC:
-#		r = 'AMOC_26N_A'	
-#		av['newVar'][r]['name']		= r
-#		av['newVar'][r]['long_name']	= 'Atlantic Transect at 26N - cross sectional area'
-#		av['newVar'][r]['units']	= 'm^2'
-#		av['newVar'][r]['newDims']	= tuple(zyxdims)
-#		av['newVar'][r]['dtype']	= doubletype
-#		av['newVar'][r]['newData']	= amoc	
 				
 	#### remove unneeded fields	
 	av[field]['name' ] 		= 'False'
@@ -787,24 +764,7 @@ def makeGridFile(fn,fnout,field,coordsdict,model ='',threeD=True):
 
 
 	
-#####
-# test Area calculation:	
-def testArea():
 
-	#import mpl_toolkits.basemap.pyproj.Proj as Proj
-	
-	# Corners of colorado
-	colorado = {"type": "Polygon", "coordinates": [
-	    [(-102.05, 41.0),
-	     (-102.05, 37.0),
-	     (-109.05, 37.0),
-	     (-109.05, 41.0),
-	     (-102.05, 41.0),]]}
-	coloradoArea = 268952044107.43506
-	
-	area = GetArea(colorado)
-	print "Area of colorado should be",coloradoArea,'\tand is:',area, ((100.*area/coloradoArea),'%')
-	
 
 		
 def main():
