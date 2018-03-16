@@ -471,6 +471,8 @@ class matchDataAndModel:
 	if is_index_t.min() == is_index_t.max():
 		#tdict[is_index_t.min()] = is_t.min()
 		print is_t.min() #, tdict[is_t.min()]
+		#if np.ma.is_masked(is_t.min()): pass
+		#else:
 		tdict[is_t.min()]	= is_index_t.min()
 		
 	#tdict   = {i:i for i in xrange(12)}

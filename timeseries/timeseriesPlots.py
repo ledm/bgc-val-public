@@ -107,7 +107,7 @@ def drawgreyband(ax,xaxis, bands,labels=[]):
 	return ax
 
 
-def drawLegendAlongside(ax,numberoflines):
+def drawLegendAlongside(ax,numberoflines,space=0.1):
 	#####
 	# Add legend outisde axes
 	legendSize = numberoflines+1
@@ -115,7 +115,7 @@ def drawLegendAlongside(ax,numberoflines):
 	box = ax.get_position()
 	ax.set_position([box.x0,
 			  box.y0 ,
-			  box.width*(1.-0.1*ncols), 
+			  box.width*(1.- space*ncols), 
 			  box.height ])
 										
 	legd = ax.legend(loc='center left', ncol=ncols,prop={'size':10},bbox_to_anchor=(1., 0.5))
@@ -542,7 +542,8 @@ def movingaverage_DT(data,times, window_len=5.,window_units='years'):
 def multitimeseries(
 		timesD, 		# model times (in floats)
 		arrD,			# model time series
-		data = -999,		# in situ data distribution
+                datatimes = -999,       # in situ data times
+		data = -999,		# in situ data 
 		title 	='',
 		filename='',
 		units = '',
@@ -569,7 +570,8 @@ def multitimeseries(
         	
 	fig = pyplot.figure()
 	#fig.set_size_inches(10,6)
-        fig.set_size_inches(5,5)
+        #ig.set_size_inches(5,5)
+        fig.set_size_inches(8,5)
 		
 	if plotStyle == 'Together':
 		ax = fig.add_subplot(111)
@@ -672,7 +674,8 @@ def multitimeseries(
 
 	
 	if data != -999:
-		try:
+		if datatimes in [-999, -999.]:
+	  	    try:
 			data = [float(d) for d in data]
 			if len(data) == 4:
 			
@@ -682,9 +685,15 @@ def multitimeseries(
 				ax = drawgreyband(ax,xlims, data,)				
 			if len(data) == 1:
 				pyplot.axhline(y=data[0],c='k',ls='-',lw=1,label = 'Data')	
-		except TypeError:
+		    except TypeError:
 			pyplot.axhline(y=data,c='k',ls='-',lw=1,label = 'Data')
-		
+		else:
+                        if len(data) == 2:
+                                ax = drawgreyband(ax,datatimes, data,)
+				pyplot.show()
+			else:
+				pyplot.plot(datatimes,data,lw=1,c='k',label='Obs')
+					
 
 
 
@@ -701,7 +710,7 @@ def multitimeseries(
 				legend.get_frame().set_alpha(0.)
 			except:pass
 		else:
-			ax= drawLegendAlongside(ax, len(timesD.keys()))
+			ax= drawLegendAlongside(ax, len(timesD.keys()),space=0.12)
 		
 	elif plotStyle == 'Separate':
 		for ax in axs:
@@ -709,6 +718,7 @@ def multitimeseries(
 			ax.set_xlim(xlims)	
 			ax.set_ylim(ylims)
 		pyplot.suptitle(title)				
+
 		
 	print "multitimeseries:\tsimpletimeseries:\tSaving:" , filename
 	pyplot.savefig(filename )
