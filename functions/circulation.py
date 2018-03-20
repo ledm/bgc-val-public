@@ -215,9 +215,9 @@ def cmip5AMOC(nc,keys,**kwargs):
 		tmaskv		= amocdetails[(gridFile_v,'tmask')]
 		
 	xsectArea = np.ma.masked_where((xsectArea==0.) + (tmaskv==1),xsectArea)
-
+	print gridFile_v,xsectArea.shape,  xsectArea.sum()
+	#print nc.__filename__
 	velo = nc.variables[keys[0]][:]/1.E06#[:]
-	print xsectArea.shape,  xsectArea.sum()
 	out = []
 	
 	if velo.ndim==4:

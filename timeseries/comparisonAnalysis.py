@@ -371,6 +371,9 @@ def comparisonAnalysis(configfile, writeCSV=True):
 
 			timerange = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].timerange			
 			timerange = [float(t) for t in sorted(timerange)]
+
+                        datasource = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].datasource
+
 			for jobID in jobIDs:
 			
 				try:	
@@ -396,7 +399,8 @@ def comparisonAnalysis(configfile, writeCSV=True):
 					timesD, 		# model times (in floats)
 					arrD,			# model time series
 					data 		= datarange,		# in situ data distribution
-					datatimes	= datatimes,
+					datatimes	= datatimes,		# in situ time range
+                                        datasource      = datasource,           # in situ data source
 					title 		= title,
 					filename	= filename,
 					units 		= units,
@@ -424,6 +428,7 @@ def comparisonAnalysis(configfile, writeCSV=True):
                         timerange = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].timerange
                         timerange = [float(t) for t in sorted(timerange)]
 
+                        datasource = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].datasource
 	
 			for model in models:
 			
@@ -443,12 +448,13 @@ def comparisonAnalysis(configfile, writeCSV=True):
 			for linestyle in linestyles:
 				title = titleify([scenario,jobID, region, layer, metric, key])
 				filename =  bvp.folder(globalkeys.images_comp)+'_'.join([ scenario, jobID, region, layer, metric, key,linestyle])+'.png'
-		
+					
 				tsp.multitimeseries(
 					timesD, 		# model times (in floats)
 					arrD,			# model time series
 					data 		= datarange,		# in situ data distribution
                                         datatimes       = datatimes,
+					datasource	= datasource,
 					title 		= title,
 					filename	= filename,
 					units 		= units,
@@ -475,6 +481,7 @@ def comparisonAnalysis(configfile, writeCSV=True):
                         timerange = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].timerange
                         timerange = [float(t) for t in sorted(timerange)]
 
+                        datasource = globalkeys.AnalysisKeyParser[(model,jobIDs[0],globalkeys.years[0],scenario,key)].datasource
 
 			#datarange = globalkeys.AnalysisKeyParser[(model,jobID,globalkeys.years[0],scenarios[0],key)].datarange			
                         #datarange = [float(t) for t in sorted(datarange)]
@@ -502,7 +509,8 @@ def comparisonAnalysis(configfile, writeCSV=True):
 					timesD, 		# model times (in floats)
 					arrD,			# model time series
 					data 		= datarange,		# in situ data distribution
-                                        datatimes       = datatimes,
+                                        datatimes       = datatimes,		# in situ time range
+                                        datasource      = datasource,		# in situ data source
 					title 		= title,
 					filename	= filename,
 					units 		= units,

@@ -102,8 +102,8 @@ def trafficlights(ax,xlims, bands,labels=[],drawlegend=True):
 		if drawlegend: pyplot.legend(handles=handles)
 	return ax
 
-def drawgreyband(ax,xaxis, bands,labels=[]):
-	ax.fill_between(xaxis,bands[0], bands[1] ,color='k', 	alpha = 0.05)
+def drawgreyband(ax,xaxis, bands,labels=[], **kwargs):
+	ax.fill_between(xaxis,bands[0], bands[1] ,color='k', 	alpha = 0.05, **kwargs)
 	return ax
 
 
@@ -543,13 +543,15 @@ def multitimeseries(
 		timesD, 		# model times (in floats)
 		arrD,			# model time series
                 datatimes = -999,       # in situ data times
-		data = -999,		# in situ data 
+		data = -999,		# in situ data
+		datasource = '', 
 		title 	='',
 		filename='',
 		units = '',
 		colours = cmipcolours, #['red','orange','green','purple','blue','pink','yellow','lime',],
 		plotStyle = 'Together',	
-		lineStyle = '',	
+		lineStyle = '',
+		dpi = 200,	
 	):
 
         if 0 in [len(timesD) , len(timesD.keys())]:return
@@ -674,25 +676,42 @@ def multitimeseries(
 
 	
 	if data != -999:
-		if datatimes in [-999, -999.]:
+		
+		if datatimes in [-999, -999.]: # Data has no time comonent
 	  	    try:
 			data = [float(d) for d in data]
 			if len(data) == 4:
 			
-				ax = drawgreyband(ax,xlims, [data[0],data[3]])
-				ax = drawgreyband(ax,xlims, [data[1],data[2]])							
+				ax = drawgreyband(ax,xlims, [data[0],data[3]],label=datasource)
+				ax = drawgreyband(ax,xlims, [data[1],data[2]],label=datasource)							
 			if len(data) == 2:
-				ax = drawgreyband(ax,xlims, data,)				
+				ax = drawgreyband(ax,xlims, data,label=datasource)				
 			if len(data) == 1:
-				pyplot.axhline(y=data[0],c='k',ls='-',lw=1,label = 'Data')	
+				pyplot.axhline(y=data[0],c='k',ls='-',lw=1,label = datasource)	
 		    except TypeError:
-			pyplot.axhline(y=data,c='k',ls='-',lw=1,label = 'Data')
-		else:
-                        if len(data) == 2:
-                                ax = drawgreyband(ax,datatimes, data,)
-				pyplot.show()
+			pyplot.axhline(y=data,c='k',ls='-',lw=1,label = datasource)
+		else:	# Data have a time component
+                        if len(data) == 2 and len(datatimes)==2:
+			        ax.fill_between(datatimes,data[0], data[1],facecolor=(0.,0.,0.,0.05),edgecolor=(0.,0.,0.,1.), lw=1, label=datasource,zorder=100)
+#                               ax = drawgreyband(ax,datatimes, data,label=datasource, edgecolor=(0.,0.,0.,1.), linewidth=1.,)
+#				pyplot.show()
 			else:
-				pyplot.plot(datatimes,data,lw=1,c='k',label='Obs')
+	                        data = np.array([float(d) for d in data])
+                                datatimes = np.array([float(d) for d in datatimes])
+
+				if len(data) > 5*12. :
+			                if lineStyle.lower() in ['movingav1year',]:
+        			                data_new = movingaverage_DT(data,datatimes, window_len=1.,window_units='years')
+			                elif lineStyle.lower() in ['movingav5years',]:
+                        			data_new = movingaverage_DT(data,datatimes, window_len=5.,window_units='years')
+						print datatimes
+						print data_new
+						print len(datatimes),len(data_new)
+#						assert 0
+					else:	data_new = data
+
+                                        pyplot.plot(datatimes,data_new,lw=1.5,c='k',label=datasource,zorder=100)
+				else:	pyplot.plot(datatimes,data,lw=1,c='k',label=datasource)
 					
 
 
@@ -710,7 +729,7 @@ def multitimeseries(
 				legend.get_frame().set_alpha(0.)
 			except:pass
 		else:
-			ax= drawLegendAlongside(ax, len(timesD.keys()),space=0.12)
+			ax= drawLegendAlongside(ax, len(timesD.keys()),space=0.15)
 		
 	elif plotStyle == 'Separate':
 		for ax in axs:
@@ -721,7 +740,7 @@ def multitimeseries(
 
 		
 	print "multitimeseries:\tsimpletimeseries:\tSaving:" , filename
-	pyplot.savefig(filename )
+	pyplot.savefig(filename, dpi=dpi )
 	pyplot.close()	
 	
 
