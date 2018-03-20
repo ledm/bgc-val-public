@@ -29,7 +29,6 @@ import os
 
 #Specific local code:
 from bgcvaltools import bgcvalpython as bvp
-from convertToOneDNC import convertToOneDNC
 from bgcvaltools.dataset import dataset
 from bgcvaltools.extractLayer import extractLayer
 from regions.makeMask import loadMaskMakers, makeMask

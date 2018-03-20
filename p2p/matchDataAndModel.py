@@ -49,10 +49,10 @@ from bgcvaltools.extractLayer import extractLayer
 #####	
 # These are availalble in the module:
 #	https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/netcdf_manip
-from pruneNC import pruneNC
-from convertToOneDNC import convertToOneDNC
-from mergeNC import mergeNC
-from changeNC import changeNC, AutoVivification
+from bgcvaltools.pruneNC import pruneNC
+from bgcvaltools.convertToOneDNC import convertToOneDNC
+from bgcvaltools.mergeNC import mergeNC
+from bgcvaltools.changeNC import changeNC, AutoVivification
 
 
 #TO DO

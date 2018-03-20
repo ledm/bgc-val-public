@@ -33,7 +33,7 @@ import os
 #from netCDF4 import Dataset
 from bgcvaltools import bgcvalpython as bvp
 import numpy as np
-from changeNC import changeNC, AutoVivification
+from bgcvaltools.changeNC import changeNC, AutoVivification
 #import paths
 from regions.makeMask import makeMask,loadMaskMakers
 from bgcvaltools.dataset import dataset

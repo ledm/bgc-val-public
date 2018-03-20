@@ -33,7 +33,7 @@ import os
 from re import findall
 
 from bgcvaltools import bgcvalpython as bvp 
-from mergeNC import mergeNC
+from bgcvaltools.mergeNC import mergeNC
 
 
 def getYearFromFile(fn):

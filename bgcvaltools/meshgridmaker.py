@@ -40,14 +40,13 @@ from math import pi, cos, radians,sin, asin, sqrt
 from matplotlib import pyplot
 from matplotlib.colors import LogNorm
 
-from bgcvaltools.dataset import dataset
-
 from shapely.geometry import shape,LineString, Polygon
 from shapely.geometry.polygon import orient as geoorient
 from pyproj import Proj,transform as projTransform
 
 import bgcvalpython as bvp	
-from changeNC import changeNC, AutoVivification
+from bgcvaltools.dataset import dataset
+from bgcvaltools.changeNC import changeNC, AutoVivification
 
 
 #####################

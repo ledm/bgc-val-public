@@ -37,7 +37,7 @@ from bgcvaltools import bgcvalpython as bvp
 #from UKESMpython import folder
 #from UKESMpython import getFileList,shouldIMakeFile#,getCalendar
 
-from mergeNC import mergeNC
+from bgcvaltools.mergeNC import mergeNC
 """	The goal of this code is to have a simple way to make climatology code.
 """
 

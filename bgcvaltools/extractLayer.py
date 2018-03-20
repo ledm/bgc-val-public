@@ -43,7 +43,7 @@ import numpy as np
 ######
 # local imports
 from bgcvaltools import bgcvalpython as bvp 
-from alwaysInclude import depthNames
+from bgcvaltools.alwaysInclude import depthNames
 from functions.stdfunctions import extractData
 
 	

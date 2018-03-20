@@ -33,13 +33,14 @@ from glob import glob
 from os.path import basename,exists
 from sys import argv
 import numpy as np
-from bgcvaltools import bgcvalpython as bvp 
+
 #from UKESMpython import folder
 #from UKESMpython import getFileList,shouldIMakeFile#,getCalendar
 from netCDF4 import Dataset
-from changeNC import changeNC,AutoVivification
-from mergeNC import mergeNC
-from pruneNC import pruneNC
+from bgcvaltools import bgcvalpython as bvp 
+from bgcvaltools.changeNC import changeNC,AutoVivification
+from bgcvaltools.mergeNC import mergeNC
+from bgcvaltools.pruneNC import pruneNC
 
 """	The goal of this code is to have a simple way to make climatology dataset.
 """
