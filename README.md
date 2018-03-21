@@ -5,9 +5,25 @@
 Originally designed as a toolkit for investigating the time development of the marine biogeochemistry component of the UK Earth system model,
 BGC-val has since expanded to become a generic tool for comparing model data against historic data. 
 
-The toolkit is python 2.7 based, and is freely available, and distributed with the BSD 3 clause license, via our in-house gitlab server. 
+The toolkit is python 2.7 based, and is freely available, and distributed with the BSD 3 clause license. 
+
+An up to date version of BGC-val is availalble in PML's in-house gitlab server.
+
 Registration is required, via this link: http://www.pml.ac.uk/Modelling_at_PML/Access_Code
 
+Once registered, the repositoy is available here: https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/bgc-val-public
+
+Please cite this package as:
+ ```
+ This information will be provided once the paper is published.
+ ```
+
+More details about the BGC-val toolkit can be found in the publication:
+```
+ This information will be provided once the paper is published.
+```
+
+## Goal
 
 The goal was to make the evaluation framework as generic as possible:
 * Model independent.
@@ -16,19 +32,12 @@ The goal was to make the evaluation framework as generic as possible:
 * Dataset independent.
 * Field independent.
 * Simple to use.
-
-
-This package utilises:
-* python parallelization. 
 * Front-loading analysis function
-* Regular save points + shelve files.
-* Versioning in git (using gitlab)
+* Iterruptable with regular save points + shelve files.
+* Version controlled in git 
 * Web visible html summary reports.
 
-Please cite this package as:
- ```
- This information will be provided once the paper is published.
- ```
+
 
 # Requirements
 
@@ -48,9 +57,6 @@ If they are not available on your linux system, most of these python packages ca
 ```bash
 pip install --user packagename
 ```
-
-In addition, the netcdf manipulation toolkit is also required:
-* netcdf_manip  - This package is available on the gitlab server. https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/netcdf_manip
 
 Access to this packages can be requested via the web form: http://www.pml.ac.uk/Modelling_at_PML/Access_Code
 
@@ -80,7 +86,6 @@ run configuration filoe (ie, bashrc, zshrc or cshrc).
 This command  is shell specific but in bashrc it will look like:
 ```bash
 export PYTHONPATH=${PYTHONPATH}:/path/to/bgc-val-public
-export PYTHONPATH=${PYTHONPATH}:/path/to/netcdf_manip
 ```
 
 
