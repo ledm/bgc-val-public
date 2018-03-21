@@ -215,7 +215,11 @@ packages. The configuration file is described below and in the paper.
 
 The [analysis_parser.py](./analysis_parser.py) script:
 1. Loads the configuration file using [./bgcvaltools/configparser.py](./bgcvaltools/configparser.py)
-2. Sends the configuration information in the configuration file to the [timeseries/timeseriesAnalysis.py](timeseries/timeseriesAnalysis.py) module to produce the time series analysis.
+
+2. Sends the configuration information in the configuration file to the 
+   [timeseries/timeseriesAnalysis.py](timeseries/timeseriesAnalysis.py) module 
+   to produce the time series analysis.
+   
 3. Sends the configuration information in the configuration file to the [timeseries/profileAnalysis.py](timeseries/profileAnalysis.py) module to produce the profile analysis.
 4. Sends the configuration information in the configuration file to the [p2p/testsuite_p2p.py](p2p/testsuite_p2p.py) module to produce the point to point evaluatuion.
 5. Sends the configuration information to the [timeseries/comparisonAnalysis.py](timeseries/comparisonAnalysis.py) module to compare several models/runs/etc.

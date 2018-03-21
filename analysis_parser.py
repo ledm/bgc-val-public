@@ -68,7 +68,7 @@ def evaluateFromConfig( akp,
 			jobID	= '',
 			year	= '',
 			scenario= '',
-			key	= '',):
+			key	= ''):
 
 	if akp.dimensions in  [1,]:			
 		metricList = ['metricless',]
