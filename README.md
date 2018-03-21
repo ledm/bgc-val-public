@@ -269,7 +269,7 @@ In this, `[Sections]` are denoted with square brackets,
 each option is separated from its value by a colon, ``:'',
 and the semi-colon ``;'' is the comment syntax in  `.ini` format.
 
-##Active keys section`
+## Active keys section
 
 The active keys section should be the first section of any BGC-val configuration file.
 This section consists solely of a list of Boolean switches,
@@ -295,7 +295,7 @@ In this example, the `Chlorophyll` evaluation is active,
 but both options `A` and `B` are switched off.
 
 
-##Individual evaluation sections`
+## Individual evaluation sections
 
 Each `True` Boolean options in the `[ActiveKeys]` section
 needs an associated `[Section]` with the same name
@@ -468,7 +468,7 @@ with a similar set of data coordinates and convert functions for an observationa
 
 
 
-##Global section
+## Global section
 
 The `[Global]` section of the configuration file
 can be used to set default behaviour which is common to many evaluation sections.
