@@ -39,7 +39,9 @@ The goal was to make the evaluation framework as generic as possible:
 
 
 
-# Requirements
+# Installation
+
+## Requirements
 
 To use this package, the following python packages are required:
 * matplotlib
@@ -48,45 +50,117 @@ To use this package, the following python packages are required:
 * scipy
 * cartopy 
 
-Please note that cartopy can be difficult to install, as it has a few requirements: 
-such as geos, geos-python, geos-devel, proj4, cython etc… (http://scitools.org.uk/cartopy/)
-Fortunately, it is already available on several UK computational systems, such as JASMIN or ARCHER.
-
 If they are not available on your linux system, most of these python packages can be installed with the command:
-
 ```bash
 pip install --user packagename
 ```
+The pip install command is able to download and install a standard python package or module.
+By using the --user tag, pip will install a user specific local copy in the home directory.
+Without the --user tag, pip will attempt to install the package as root user.
+Typically, this requires specific permissions.
+For more details on pip, see https://pypi.python.org/pypi/pip
 
-Access to this packages can be requested via the web form: http://www.pml.ac.uk/Modelling_at_PML/Access_Code
+
+Also, please note that cartopy can be difficult to install. Cartopy has a few requirements: 
+including geos, geos-python, geos-devel, proj4, cython etc... 
+These packages are not python specific, but rather need to be installed on the system level. (ie, not with pip)
+If you have sudo rights on your machine, geos, geos-python, geos-devel, proj4, and cython 
+can be installed using your systems installation tool. (apt-get, dnf, yum, etc...)
+More details on Cartopy available here: http://scitools.org.uk/cartopy/
+
+Fortunately, cartopy and these other packages are already available on 
+several UK computational systems, such as JASMIN or ARCHER.
 
 
 
+## Make a local clone
 
+As BGC-val is not a standard python package, the pip install command (as dscribed above) 
+can not be used to download BGC-val. A local copy needs to be made, either by downloading
+the repository or using the git clone command. We strongly recommend using the git clone
+command, as it makes it easier to keep the package up to date and to send new developments 
+back to the central repository.
 
-
-# Installation
-
-Once the required packages have been installed, make a local clone of the trunk of this package with the command:
+Make a local clone of the trunk of this package with the command:
 ```bash
 git clone git@gitlab.ecosystem-modelling.pml.ac.uk:ledm/bgc-val-public.git
 ```
 
-Note that the package name here is subject to change, and that you should check the path at the top of this page.
+Note that the package name here is subject to change, and that you should check the path
+at the top of the github/gitlab repository.
 
-In the local copy, use the following pip command to make a local installation of this package:
+According to the git documentation (https://git-scm.com/docs/git-clone), the git clone 
+command produces a clone of a repository into a newly created directory, creates 
+remote-tracking branches for each branch in the cloned repository (visible using git 
+branch -r), and creates and checks out an initial branch that is forked from the cloned
+repository’s currently active branch.
+
+To interact with the gitlab server, you will need to set up ssh keys, which speed line
+the process of cloning, and pushing/pulling data from the gitlab. The instructions on how
+to do this will appear on the gitlab server. 
+
+
+## pip install
+
+In your local cloned copy, use the following pip command to make a local installation
+of this package:
 
 ```bash
-pip install -e . --user
+pip install --editable --user .
 ```
 
-If the pip software management system is unavailable, 
-then these packages can be added to the $PYTHONPATH in your shell
-run configuration filoe (ie, bashrc, zshrc or cshrc).
-This command  is shell specific but in bashrc it will look like:
+By using the --user tag, pip will install a user specific local copy in the home directory.
+Without the --user tag, pip will attempt to install the package as root user,
+which requires root permission. By using the --editable tag, this means that the 
+repository will be editable. 
+
+If the pip software management system is unavailable on your local system, then 
+these packages can be added to the $PYTHONPATH in your shell run configuration
+file (ie, bashrc, zshrc or cshrc). This command  is shell specific but in bashrc
+it will look like:
 ```bash
 export PYTHONPATH=${PYTHONPATH}:/path/to/bgc-val-public
 ```
+
+
+## Keeping BGC-val up to date
+
+The gitlab server can be used to keep your local copy of BGC-val up to date.
+In order to keep your copy up to date, you need to pull the updates from the
+gitlab. However, git will not  you update your local copy if the changes
+would overwrite your edits. 
+
+To update your local copy, you will need to "stage" local changes. Effectively,
+this means that you tell git about your edits so it doesn't delete them. The 
+commands are:
+```bash
+git add -u
+git commit -m 'Description of your local changes'
+```
+Note that these commands do not push your changes to the git server.
+
+Once the local copy has been staged, the repository can be updated by pulling
+the changes from the remote git server (gitlab/github):
+```bash
+git pull
+```
+Note that these commands need to be run from in the directory in your repository.
+
+Note that we can not guarantee that the respository stored on the github version,
+or in the supplemental data of the GMD paper will be kept up to date.
+However, the gitlab server will be keep up to date. 
+
+
+## Contributing to BGC-val
+
+The gitlab server can also be used to share edits and push changes to the main repository.
+This is advanced stuff, so don't worry about branches and pushing changes until you're 
+comfortable with git.
+
+Having said that, the gitlab server has a user friendly graphical user interface. if you
+spot an issue in the code, something as big as a bug, or as small as a typo, feel free to flag
+it as an issue using the issues page: 
+https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/bgc-val-public/issues
 
 
 
@@ -125,6 +199,7 @@ These three directories will hold:
 
 `run.py` is a simple wrapper which calls the script, [analysis_parser.py](#Analysis_Parser), 
 and passes it the path to the [config ureation .ini file](#Run_Config_Initialisation_File) file.
+
 
 
 
