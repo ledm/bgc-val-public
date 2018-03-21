@@ -209,36 +209,393 @@ and passes it the path to the [config ureation .ini file](#Run_Config_Initialisa
 
 ## Analysis Parser
 
-[analysis_parser.py](./analysis_parser.py) is a script which parsers the configuration file, 
-and then sends the relevant flags, paths, filenames and settings to each of the main analyses 
+The [analysis_parser.py](./analysis_parser.py) is the central script which parsers the configuration
+file, and then sends the relevant flags, paths, filenames and settings to each of the main analyses 
 packages. The configuration file is described below and in the paper. 
 
-The [analysis_parser.py](./analysis_parser.py) script:
-1. Loads the configuration file using [./bgcvaltools/configparser.py](./bgcvaltools/configparser.py)
+The [analysis_parser.py](./analysis_parser.py) script performs the following actions:
+
+1. Loads the configuration information from the configuration file using 
+   the [./bgcvaltools/configparser.py](./bgcvaltools/configparser.py) module.
 
 2. Sends the configuration information in the configuration file to the 
    [timeseries/timeseriesAnalysis.py](timeseries/timeseriesAnalysis.py) module 
    to produce the time series analysis.
    
-3. Sends the configuration information in the configuration file to the [timeseries/profileAnalysis.py](timeseries/profileAnalysis.py) module to produce the profile analysis.
-4. Sends the configuration information in the configuration file to the [p2p/testsuite_p2p.py](p2p/testsuite_p2p.py) module to produce the point to point evaluatuion.
-5. Sends the configuration information to the [timeseries/comparisonAnalysis.py](timeseries/comparisonAnalysis.py) module to compare several models/runs/etc.
-6. Sends the configuration information to the  [html/makeReportConfig](html/makeReportConfig) to produce an html report.
+3. Sends the configuration information to the 
+   [timeseries/profileAnalysis.py](timeseries/profileAnalysis.py)
+   module to produce the profile analysis.
+   
+4. Sends the configuration information to the [p2p/testsuite_p2p.py](p2p/testsuite_p2p.py)
+   module to produce the point to point evaluatuion.
+   
+5. Sends the configuration information to the [timeseries/comparisonAnalysis.py](timeseries/comparisonAnalysis.py)
+   module to compare several models/runs/scenarios etc.
+   
+6. Sends the configuration information to the  [html/makeReportConfig](html/makeReportConfig.py)
+   to produce an html report based on the outputs of stages 2-5. 
+   
+These individual modules are all internally documented, and each function should have a (albeit) short
+description. 
 
-The analysis packages called are:
-* Time Series (TS): This looks at a series of consequtive model files and produces various time series analysis.
-* Profile Plots: This produces plots showing the time development of the depth-profile of the model.
-* Point to point: This produces a point to point comparison analysis of the model versus data for a single year, including statistical analysis, spatial mapping etc.
-* Report Maker: This takes all the plots produced and summarises them in an html document.
 
-The location of the model and data files, the description of the files, the regions, times, depth layers under investgation
-are all set in the runconfig.ini file. 
+
+
+
+
+
+The configuration file is central to the running of BGC-val
+and contains all the details needed to evaluate a simulation.
+This includes the file path of the input model files,
+the users choice of analysis regions, layers and functions,
+the names of the dimensions in the model and observational files,
+the final output paths, and many other settings.
+All settings and configuration choices 
+are recorded in an single file, 
+using the `.ini` format.
+Several example configuration files can 
+also be found in the `ini` directory.
+Each BGC-val configuration file is composed of three parts: an Active keys section, 
+a list of evaluation sections, and a Global section. 
+Each of these parts are described below.
+
+The tools that parse the configuration file is in the 
+`configparser.py` module in the `bgcvaltools` package.
+These tools interpret the configuration file and
+use them to direct the evaluation.
+Please note that we use the standard `.ini` format
+nomenclature while describing configuration files.
+In this, `[Sections]` are denoted with square brackets,
+each option is separated from its value by a colon, ``:'',
+and the semi-colon ``;'' is the comment syntax in  `.ini` format.
+
+##Active keys section`
+
+The active keys section should be the first section of any BGC-val configuration file.
+This section consists solely of a list of Boolean switches,
+one Boolean for each field that the user wants to evaluate:
+
+```ini
+[ActiveKeys]
+Chlorophyll     : True
+A               : False
+; B             : True
+```
+
+To reiterate the `ini` nomenclature, in this example
+`ActiveKeys` is the section name,
+and `Chlorophyll`, `A`, and `B` are options.
+The values associated with these options are the Boolean's, 
+`True`, `False`, and `True`. 
+The option `B` is commented out and will be ignored by BGC-val.
+
+In the `[ActiveKeys]` section, only options whose values are set to `True` are active.
+False Boolean's values and commented lines are not evaluated by BGC-val.
+In this example, the `Chlorophyll` evaluation is active,
+but both options `A` and `B` are switched off.
+
+
+##Individual evaluation sections`
+
+Each `True` Boolean options in the `[ActiveKeys]` section
+needs an associated `[Section]` with the same name
+as the option in `[ActiveKeys]` section.
+The following is an example of an evaluation 
+section for chlorophyll in the HadGEM2-ES model.
+
+
+```ini
+[Chlorophyll]
+name             : Chlorophyll
+units            : mg C/m^3
+
+; The model name and paths
+model            : HadGEM2-ES
+modelFiles       : /Path/*.nc
+modelgrid        : CMIP5-HadGEM2-ES
+gridFile         : /Path/grid_file.nc
+
+
+; Model coordinates/dimension names
+model_t          : time
+model_cal        : auto
+model_z          : lev
+model_lat        : lat
+model_lon        : lon
+
+; Data and conversion
+model_vars       : chl
+model_convert    : multiplyBy
+model_convert_factor : 1e6
+dimensions       : 3
+
+
+; Layers and Regions
+layers           : Surface 100m
+regions          : Global SouthernOcean
+```
+
+
+The `name` and `units` options are descriptive only;
+they are shown on the figures and in the html report, but do not influence the calculations.
+This is set up so that the name associated with the analysis may be different to the
+name of the fields being loaded.
+Similarly, while NetCDF files often have units associated with each field, 
+they may not match the units after the user has applied an evaluation function. 
+For this reason, the final units after any transformation must be supplied by the user.
+In the example showed here, HadGEM2-ES correctly used the CMIP5 standard units
+for chlorophyll concentration, kg m$^{-3`$.
+However, we prefer to view Chlorophyll in units of mg m$^{-3`$.
+
+The `model` option is typically set in the `Global` section, described below
+but it can be set here as well.
+The `modelFiles` option is the path that BGC-val should use to locate the model data files on local storage.
+The `modelFiles` option can point directly at a single NetCDF file,
+or can point to many files using wild-cards (`*`, `?`).
+The file finder uses the standard python package, `glob`, 
+so wild-cards must be compatible with that package.
+Additional nuances can be added to the file path parser using the
+placeholders `$MODEL`, `$SCENARIO`, `$JOBID`,
+`$NAME` and `$USERNAME`.
+These placeholders are replaced with the appropriate 
+global setting they are read by the `configparser` package.
+The global settings are described below 
+For instance, if the configuration file is set to iterate over several models,
+then the `$MODEL` placeholder will be replaced by 
+the model name currently being evaluated.
+
+The `gridFile` option allows BGC-val to locate the grid description file.
+The grid description file is a crucial requirement for BGC-val, 
+as it provides important data about the model mask, 
+the grid cell area, the grid cell volume.
+Minimally, the grid file should be a NetCDF which contains 
+the following information about the model grid:
+the cell centred coordinates for longitude, latitude and depth,
+and these fields should use the same coordinate system as the field currently being evaluated.
+In addition, the land mask should be recorded in the grid description NetCDF in a field called `tmask`,
+the cell area should be in a field called `area`
+and the cell volume should be recorded in a field labelled `pvol`.
+BGC-val includes the `meshgridmaker` module in the  `bgcvaltools` package
+and the function `makeGridFile` from that module can be used to produce a grid file.
+The `meshgridmaker` module can also be used to calculate 
+the cross sectional area of an ocean transect, which is used in several 
+flux metrics such as the Drake passage current or the Atlantic Meridianal Overturning circulation.
+
+Certain models use more than one grid to describe the ocean; 
+for instance NEMO uses a U grid, a V grid, a W grid, and a T grid.
+In that case, care needs to be taken to ensure that the grid file provided matches the data.
+The name of the grid can be set with the `modelgrid` option.
+
+The names of the coordinate fields in the NetCDF need to be provided here.
+They are `model_t` for the time, `model_cal` for the model calendar.
+Any NetCDF calendar option (360_day, 365_day, standard, Gregorian, etc ...)
+is also available using the `model_cal` option, however, the code will
+preferentially use the calendar included in standard NetCDF files.
+For more details, see the `num2date` function of the
+`netCDF4` python package, https://unidata.github.io/netcdf4-python/.
+The depth, latitude and longitude field names are passed to BGC-val 
+via the `model_z`, `model_lat` and `model_lon` options.
+
+The `model_vars` option tells BGC-val the names of the model fields that we are interested in.
+In this example, the CMIP5 HadGEM2-ES chlorophyll field
+is stored in the NetCDF under the field name `chl`.
+As mentioned already, HadGEM2-ES used the CMIP5 standard units
+for chlorophyll concentration, kg m$^{-3`$, 
+but we prefer to view Chlorophyll in units of mg m$^{-3`$.
+As such, we load the chlorophyll field using the conversion function,
+`multiplyBy` and give it the argument 1e6
+with the `model_convert_factor` option.
+More details are available below.
+
+BGC-val uses the coordinates provided here to extract 
+the layers requested in the `layers` option
+from the data loaded by the function in the `model_convert` option.
+In this example that would be the surface and the 100~m depth layer.
+For the time timeseries and profile analyses, 
+the layer slicing is applied in the 
+`DataLoader` class in the 
+`timeseriesTools` module of 
+the `timeseries` package.
+For the point to point analyses, 
+the layer slicing is applied in the 
+`matchDataAndModel` class in the `matchDataAndModel` module of 
+the `p2p` package.
+
+Once the 2D field has has been extracted, 
+BGC-val masks the data outside the regions requested in the `regions` option.
+In this example, that is the `Global` and the `SouthernOcean` regions.
+These two regions are defined in the `regions` package in the `makeMask` module.
+This process is described below.
+
+
+The `dimensions` option tells BGC-val what the dimensionality
+of the variable will be after it is loaded, but before it is masked or sliced.
+The dimensionality of the loaded variable affects how the final results are plotted.
+For instance, one dimensional variables 
+such as the global total primary production
+or the total northern hemisphere ice extent can not be
+plotted with a depth profile, or with a spatial component.
+Similarly, two dimensional variables such 
+as the air sea flux of CO$_2$ or the mixed layer depth 
+shouldn't be plotted as a depth profile, 
+but can be plotted with percentiles distribution.
+Three dimensional variables such as the
+temperature and salinity fields, the nutrient concentrations,
+and  the biogeochemical advected tracers 
+are plotted with time series, 
+depth profile, and percentile distributions.
+If any specific types of plots are possible but not wanted, 
+they can be switched off using one of the following options:
+```ini
+makeTS          : True
+makeProfiles    : False
+makeP2P         : True
+```
+The `makeTS` options controls the time series plots,
+the `makeProfiles` options controls the profile plots,
+and the `makeP2P` options controls the point to point evaluation plots.
+These options can be set for each Active Keys section, 
+or they can be set in the global section, described below.
+
+In the case the HadGEM2-ES's chlorophyll section, shown in this example,
+the absence of an observational data file means that some evaluation figures
+will have blank areas, and others figures will not be made at all.
+For instance, it's impossible to produce a 
+point to point comparison plot without both model
+and observational data files.
+The evaluation of `[Chlorophyll]` could be expanded by mirroring the model's coordinate and convert fields
+with a similar set of data coordinates and convert functions for an observational dataset.
+
+
+
+##Global section
+
+The `[Global]` section of the configuration file
+can be used to set default behaviour which is common to many evaluation sections.
+This is because the evaluation sections of the configuration file
+often use the same option and values in several sections.
+As an example, the names that a model uses for
+its coordinates are typically the same between fields;
+i.e. a Chlorophyll data file will use the same name for
+the latitude coordinate as the Nitrate data file from the same model.
+Setting default analysis settings 
+in the `[Global]` section ensures that
+they don't have to be repeated in each evaluation section.
+As an example, the following is a small part of a global settings section:
+```ini
+[Global]
+model           : ModelName
+model_lat       : Latitude
+```
+These values are now the defaults,
+and individual evaluation sections of this configuration file
+no longer require the `model` or `model_lat` options.
+However, note that local settings override the global settings.
+Note that certain options such as `name` or `units`
+can not be set to a default value. 
+
+The global section also includes some options
+that are not present in the individual field sections.
+For instance, each configuration file can 
+only produce a single output report,
+so all the configuration details regarding the
+html report are kept in the global section:
+```ini
+[Global]
+makeComp        : True
+makeReport      : True
+reportdir       : reports/HadGEM2-ES_chl
+```
+where the `makeComp` is a Boolean flag to turn on the comparison of multiple jobs, models or scenarios.
+The `makeReport` is a Boolean flag which turns on the global report making
+and `reportdir` is the path for the html report.
+
+The global options `jobID`, `year`,
+`model` and `scenario` can be set to a single value, or
+can be set to multiple values (separated by a space character),
+by swapping them with the options: `jobIDs`, `years`,
+`models` or `scenarios`.
+For instance, if multiple models were requested, then swap:
+```ini
+[Global]
+model           : ModelName1
+```
+
+with the following:
+```ini
+[Global]
+models          : ModelName1 ModelName2
+```
+
+For the sake of the clarity of the final report, we recommend only setting
+one of these options with multiple values at one time.
+The comparison reports are clearest when
+grouped according to a single setting
+ie, please don't try to compare too many different models, scenarios, and jobIDs at the same time.
+
+The `[Global]` section also holds the paths to the location on disk 
+where the processed data files and the output images are to be saved.
+The images are saved to the paths set with the following global options:
+`images_ts`, `images_pro`, `images_p2p`, `images_comp`
+for the timeseries, profiles, point to point and comparisons figures, respectively.
+Similarly, the post processed data files are saved to the paths set with the following global options:
+`postproc_ts`, `postproc_pro`, `postproc_p2p`
+for the timeseries, profiles, and point to point processed data files respectively.
+
+
+As described above, the global fields `jobID`, `year`,
+`model` and `scenario`
+can be used as placeholders in file paths.
+Following the bash shell grammar, 
+the placeholders are marked as all capitals with a leading $ sign.
+For instance, the output directory for the time series images could be set to:
+```ini
+[Global]
+images_ts : images/$MODEL/$NAME
+```
+where `$MODEL` and `$NAME` are placeholders for the
+model name string and the name of the field being evaluated.
+In the example in sect.~ref{sec:confevalsections` above,
+the `images_ts` path would become:
+`images/HadGEM2-ES/Chlorophyll`.
+Similarly, the `basedir_model` and `basedir_obs` global options
+can be used as fill the placeholders `$BASEDIR_MODEL` and `$BASEDIR_OBS`
+such that the base directory for models or observational data don't need to be repeated
+in every section.
+
+A full list of the contents of a global section can be found in the `README.md` file.
+Also, several example configuration files are available in the `ini`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 ## Run configuration initialisation file
 
-The `runconfig.ini` file contains all information, flags, paths and settings needed to produce the analysis.
+The configuration file file contains all information, flags, paths and settings needed to produce the analysis.
 
 Note that config files use the following convention:
 ```ini
@@ -246,6 +603,9 @@ Note that config files use the following convention:
 option : value
 ; comment
 ```
+
+The location of the model and data files, the description of the files, the regions, times, depth layers under investgation
+are all set in the configuration file file. 
 
 When loading the config file into python's module `ConfigParser`, beware that:
 * Sections hold capitalisation
@@ -258,19 +618,19 @@ The parser expects an [Active Keys](#Active_Keys) section, a section for each ke
 and a [Global Section](#Global_Section).
 
 
-The `runconfig.ini` file is parsed by the [bgcvaltools/analysis_parser.py](./bgcvaltools/analysis_parser.py) tool.
+The configuration file file is parsed by the [bgcvaltools/analysis_parser.py](./bgcvaltools/analysis_parser.py) tool.
 
 
 
 ## Active Keys
 
-The `[ActiveKeys]` section contains the boolean switches that activate the analysis sections described elsewhere in the `runconfig.ini` file.
+The `[ActiveKeys]` section contains the boolean switches that activate the analysis sections described elsewhere in the configuration file file.
 The order of the active keys here determines the order that the analysis runs and also the order each field appears in the final html report.
 Keys are switched on by being set to `True` and are switched off by being set to `False` or being commented out with a leading ';'.
 
-Each live key in the `[ActiveKeys]` section requires another section with the same name in `runconfig.ini`. ie:
+Each live key in the `[ActiveKeys]` section requires another section with the same name in configuration file. ie:
 ```ini
-[ActiveKeys]        
+[ActiveKeys]
 Chlorophyll         : True
 
 [Chlorophyll]
@@ -280,7 +640,7 @@ Chlorophyll         : True
 
 
 
-## An example of a active Keys section in runconfig.ini
+## An example of a active Keys section in configuration file
 
 The following is an example of the options  needed to produce a typical 2D analysis.
 In this case, this is a comparison of the surface chlorophyll in MEDUSA against the CCI satellite chlorophyll product.
@@ -329,7 +689,7 @@ regions         : Global                ; The regional cuts to make.
 Note that:
 * Many of these fields can be defined in the `[Global]` section, and ommited here, as long as they are the same between all the analyses.
   For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses. 
-  More details below in the [Global Section](#Global_Section_of_the_runconfig.ini) section.
+  More details below in the [Global Section](#Global_Section_of_the_configuration file) section.
   
 * The operations in the `data_convert` and `model_convert` options can be any of the operations in `bgc-val-public/stdfunctions.py`
   or they can be taken from a localfuntion in the localfunction directory. More details below in the [Functions](#Functions) section.
@@ -364,7 +724,7 @@ Note that:
 
 ## Global Section
 
-The `[Global]` section of the `runconfig.ini` file contains the global flags and the default settings for each field.
+The `[Global]` section of the configuration file file contains the global flags and the default settings for each field.
 For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses, so it can safely
 be set as a default value the `[Global]` section and ommited elsewhere. 
 
@@ -443,7 +803,7 @@ dataFile         :
 
 ## Functions
 
-The `data_convert` and `model_convert` options in the analysis section of the `runconfig.ini` file are used 
+The `data_convert` and `model_convert` options in the analysis section of the configuration file file are used 
 to give apply a python function to the data as it is loaded. 
 
 Typically, this is a quick way to convert the model or data so that they use the same units.
@@ -473,7 +833,7 @@ The dataset class defined in bgcvaltools/dataset.py and based on netCDF4.Dataset
 
 Layers can be selected from a specific list of named layers or transects such as `Surface`, `Equator`, etc..
 
-Any arbitrary depth layer or transects along a constant lattitude or congitude can also be defined in the `runconfig.ini` file:
+Any arbitrary depth layer or transects along a constant lattitude or congitude can also be defined in the configuration file file:
 * Any integer will load that depth layer from the file.
 * Any number followed by 'm', (ie `500m`) will calucate the layer of that depth, then extract that layer. 
 * Any transect along a latitude or longitude can be defines. ie (60S, or 28W). This works for both 1 and 2 dimensional coordinate systems.
@@ -491,7 +851,7 @@ For instance, these tools can be used to:
 
 The function produces a mask to hides all points that are not in the requested region.
 
-The list of regions requested is set in the `runconfig.ini` `regions` option, both in the `[Global]` section
+The list of regions requested is set in the configuration file `regions` option, both in the `[Global]` section
 and for each field.
 
 
@@ -528,7 +888,7 @@ which loads a bathymetry file and masks all points in water columns shallower th
 
 
 Please note that:
-* The name of the function needs to match the region in your `runconfig.ini` file.
+* The name of the function needs to match the region in your configuration file file.
 * Note that xt,xz,xy,xx,xd should all be the same shape and size. 
 * These cuts are applied to both the model and the data files.	
 	
