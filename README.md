@@ -1,5 +1,6 @@
 # BGC-val-public toolkit
 
+
 ## Introduction
 
 Originally designed as a toolkit for investigating the time development of the marine biogeochemistry component of the UK Earth system model,
@@ -37,6 +38,10 @@ The goal was to make the evaluation framework as generic as possible:
 * Version controlled in git 
 * Web visible html summary reports.
 
+We outline the decision and design decisions in the GMD paper above. This 
+readme should deal with the pragmatic side of using BGC-val.
+
+
 
 
 # Installation
@@ -50,7 +55,8 @@ To use this package, the following python packages are required:
 * scipy
 * cartopy 
 
-If they are not available on your linux system, most of these python packages can be installed with the command:
+If they are not available on your linux system, most of these python packages can be 
+installed with the command:
 ```bash
 pip install --user packagename
 ```
@@ -63,10 +69,10 @@ For more details on pip, see https://pypi.python.org/pypi/pip
 
 Also, please note that cartopy can be difficult to install. Cartopy has a few requirements: 
 including geos, geos-python, geos-devel, proj4, cython etc... 
-These packages are not python specific, but rather need to be installed on the system level. (ie, not with pip)
-If you have sudo rights on your machine, geos, geos-python, geos-devel, proj4, and cython 
-can be installed using your systems installation tool. (apt-get, dnf, yum, etc...)
-More details on Cartopy available here: http://scitools.org.uk/cartopy/
+These packages are not python specific, but rather need to be installed on the system level
+(ie, not with pip). If you have sudo rights on your machine, geos, geos-python, geos-devel,
+proj4, and cython can be installed using your systems installation tool. (apt-get, dnf, yum,
+etc...) More details on Cartopy available here: http://scitools.org.uk/cartopy/
 
 Fortunately, cartopy and these other packages are already available on 
 several UK computational systems, such as JASMIN or ARCHER.
@@ -110,9 +116,9 @@ pip install --editable --user .
 ```
 
 By using the --user tag, pip will install a user specific local copy in the home directory.
-Without the --user tag, pip will attempt to install the package as root user,
-which requires root permission. By using the --editable tag, this means that the 
-repository will be editable. 
+Without the --user tag, pip will attempt to install the package as root user, which 
+requires root permission. By using the --editable tag, this means that the repository 
+will be editable. 
 
 If the pip software management system is unavailable on your local system, then 
 these packages can be added to the $PYTHONPATH in your shell run configuration
@@ -151,44 +157,52 @@ or in the supplemental data of the GMD paper will be kept up to date.
 However, the gitlab server will be keep up to date. 
 
 
-## Contributing to BGC-val
+## Contributing back to BGC-val
 
 The gitlab server can also be used to share edits and push changes to the main repository.
-This is advanced stuff, so don't worry about branches and pushing changes until you're 
-comfortable with git.
+Howeverm you will most likely not have persmission to push changes to the master copy
+of the repository. 
 
-Having said that, the gitlab server has a user friendly graphical user interface. if you
-spot an issue in the code, something as big as a bug, or as small as a typo, feel free to flag
-it as an issue using the issues page: 
+Having said that, the gitlab server has a user friendly graphical user interface. If you
+spot an issue in the code, something as big as a bug, or as small as a typo, feel free to
+flag it as an issue using the issues page: 
 https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/bgc-val-public/issues
 
+There is more advanced stuff too, but don't worry about branches, forks or personal 
+copies and and pushing changes until you're comfortable with the rest of git.
 
 
-# Running
 
-Once the package has been installed, please look at the file of ini files and locate one that is 
-most compatible with your goals and computing system. 
-Our example below uses the cmip5_jasmin.ini configuration file,
-which directs the evaluation several CMIP5 models on the JASMIN data processing facility.
 
-Before running the suite, please make a copy of your choosen ini file.
-Make sure that you go through your copied configuration file, and check that the
-paths to data, evaluations requested reflect your coputational environment,
-data paths, and goal of your analyses. 
 
-The default cmip5_jasmin.ini file has all the included analyses switched on in the [Active Keys section](#Active_Keys),
-you may want to turn most of these off, at least while setting up the evaluation suite.
 
-Many of the paths in the [Global Section](#Global_Section) will also need to be changes to reflect your local environment.
 
+# Running BGC-val
+
+Once the package has been installed, please look at the file of ini files and locate one
+that is most compatible with your goals and computing system. Our example below uses the
+[ini/HadGEM2-ES_no3_cmip5_jasmin.ini](./ini/HadGEM2-ES_no3_cmip5_jasmin.ini) 
+configuration file, which directs the evaluation several CMIP5 models on the JASMIN data
+processing facility.
+
+Before running the suite, please make a copy of your choosen ini file. Make sure that you
+go through your copied configuration file, and check that the paths to data, evaluations 
+requested reflect your coputational environment, data paths, and goal of your analyses. 
+
+The default cmip5_jasmin.ini file has all the included analyses switched on in the 
+[Active Keys section](#Active_Keys), you may want to turn most of these off, at least while
+setting up the evaluation suite.
+
+Many of the paths in the [Global Section](#Global_Section) will also need to be changes to
+reflect your local environment.
 
 The command to run this evaluation is:
 ```bash
 ./run.py ini/cmip5_jasmin.ini
 ```
-where the run.py script is the main script that runs the analysis, and the ini file is
-a configuration script that contains all information, flags, paths and settings
-needed to produce an analysis.
+where the run.py script is the main script that runs the analysis, and the ini file is a 
+configuration script that contains all information, flags, paths and settings needed to 
+produce an analysis.
 
 
 
