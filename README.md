@@ -24,6 +24,8 @@ More details about the BGC-val toolkit can be found in the publication:
  This information will be provided once the paper is published.
 ```
 
+
+
 ## Goal
 
 The goal was to make the evaluation framework as generic as possible:
@@ -40,7 +42,6 @@ The goal was to make the evaluation framework as generic as possible:
 
 We outline the decision and design decisions in the GMD paper above. This 
 readme should deal with the pragmatic side of using BGC-val.
-
 
 
 
@@ -106,6 +107,7 @@ the process of cloning, and pushing/pulling data from the gitlab. The instructio
 to do this will appear on the gitlab server. 
 
 
+
 ## pip install
 
 In your local cloned copy, use the following pip command to make a local installation
@@ -127,6 +129,7 @@ it will look like:
 ```bash
 export PYTHONPATH=${PYTHONPATH}:/path/to/bgc-val-public
 ```
+
 
 
 ## Keeping BGC-val up to date
@@ -157,6 +160,7 @@ or in the supplemental data of the GMD paper will be kept up to date.
 However, the gitlab server will be keep up to date. 
 
 
+
 ## Contributing back to BGC-val
 
 The gitlab server can also be used to share edits and push changes to the main repository.
@@ -174,55 +178,41 @@ copies and and pushing changes until you're comfortable with the rest of git.
 
 
 
-
-
-
 # Running BGC-val
 
 Once the package has been installed, please look at the file of ini files and locate one
 that is most compatible with your goals and computing system. Our example below uses the
 [ini/HadGEM2-ES_no3_cmip5_jasmin.ini](./ini/HadGEM2-ES_no3_cmip5_jasmin.ini) 
-configuration file, which directs the evaluation several CMIP5 models on the JASMIN data
-processing facility.
+configuration file, which directs the evaluation of the CMIP5 hadgem2-es models on the 
+JASMIN data processing facility. This is the script that was used to produce several
+plots shown in the paper.
 
 Before running the suite, please make a copy of your choosen ini file. Make sure that you
 go through your copied configuration file, and check that the paths to data, evaluations 
 requested reflect your coputational environment, data paths, and goal of your analyses. 
 
-The default cmip5_jasmin.ini file has all the included analyses switched on in the 
-[Active Keys section](#Active_Keys), you may want to turn most of these off, at least while
-setting up the evaluation suite.
+The default [ini/HadGEM2-ES_no3_cmip5_jasmin.ini](./ini/HadGEM2-ES_no3_cmip5_jasmin.ini)
+file has two included analyses switched on in the [Active Keys section](#Active_Keys).
 
 Many of the paths in the [Global Section](#Global_Section) will also need to be changes to
 reflect your local environment.
 
 The command to run this evaluation is:
 ```bash
-./run.py ini/cmip5_jasmin.ini
+./run.py ini/HadGEM2-ES_no3_cmip5_jasmin.ini
 ```
-where the run.py script is the main script that runs the analysis, and the ini file is a 
-configuration script that contains all information, flags, paths and settings needed to 
-produce an analysis.
-
-
-
-These three directories will hold:
-* workingdir: Post processed files for each of the analyses.
-* images: The .png image files that are produced.
-* reports: the html report which can be viewed using a web browser.
 
 `run.py` is a simple wrapper which calls the script, [analysis_parser.py](#Analysis_Parser), 
 and passes it the path to the [config ureation .ini file](#Run_Config_Initialisation_File) file.
 
 
 
-
 ## Analysis Parser
 
-`analysis_parser.py` is a script which parsers the configuration file, 
-and then sends the relevant flags, paths, filenames
-and settings to each of the main analyses packages. 
-The configuration file is described below and in the paper. 
+[analysis_parser.py](./analysis_parser.py) is a script which parsers the configuration file, 
+and then sends the relevant flags, paths, filenames and settings to each of the main analyses 
+packages. The configuration file is described below and in the paper. 
+
 The analysis packages called are:
 * Time Series (TS): This looks at a series of consequtive model files and produces various time series analysis.
 * Profile Plots: This produces plots showing the time development of the depth-profile of the model.
@@ -274,11 +264,11 @@ Chlorophyll         : True
 [Chlorophyll]
 ; Chlorophyll analysis details:
 ...
-
 ```
 
 
-## An exmaple of a active Keys section in runconfig.ini
+
+## An example of a active Keys section in runconfig.ini
 
 The following is an example of the options  needed to produce a typical 2D analysis.
 In this case, this is a comparison of the surface chlorophyll in MEDUSA against the CCI satellite chlorophyll product.
@@ -357,6 +347,8 @@ Note that:
   In that case, then care needs to be taken to ensure that the grid file provided matches the data.
   BGC-val includes the meshgridmaker module in the  bgcvaltools package 
   and the function `makeGridFile' from that module can be used to produce a grid file.
+
+
 
 ## Global Section
 
@@ -437,7 +429,6 @@ dataFile         :
 
 
 
-
 ## Functions
 
 The `data_convert` and `model_convert` options in the analysis section of the `runconfig.ini` file are used 
@@ -474,7 +465,6 @@ Any arbitrary depth layer or transects along a constant lattitude or congitude c
 * Any integer will load that depth layer from the file.
 * Any number followed by 'm', (ie `500m`) will calucate the layer of that depth, then extract that layer. 
 * Any transect along a latitude or longitude can be defines. ie (60S, or 28W). This works for both 1 and 2 dimensional coordinate systems.
-
 
 
 
@@ -530,10 +520,7 @@ Please note that:
 * Note that xt,xz,xy,xx,xd should all be the same shape and size. 
 * These cuts are applied to both the model and the data files.	
 	
-	
-	
-	
-	
+		
 	
 ## Longnames
 
@@ -614,6 +601,7 @@ The time series directory also includes the `analysis_level0.py` tool which is u
 html summary table of the final years of a simulation. 
 
 
+
 ## Profile Plots
 
 This produces plots showing the time development of the depth-profile of the model.
@@ -621,6 +609,7 @@ The files needed to run this are hosted in the the `timeseries` directory.
 
 The profile tools use many of the same processes and tools as the time series analyses,
 however instead of running them over one layer, it runs them over many layers in succession.
+
 
 
 ## Comparison plots
@@ -631,18 +620,9 @@ of the model. The files needed to run this are hosted in the  `comparisonAnalysi
 
 
 
-
-
-
 ## Point to point
 This produces a point to point comparison analysis of the model versus data for a single year, including statistical analysis, spatial mapping etc.
 The files needed to run this are hosted in the the `p2p` directory.
-
-
-
-MORE DETAILS NEEDED
-
-
 
 
 
