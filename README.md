@@ -213,6 +213,14 @@ and passes it the path to the [config ureation .ini file](#Run_Config_Initialisa
 and then sends the relevant flags, paths, filenames and settings to each of the main analyses 
 packages. The configuration file is described below and in the paper. 
 
+The [analysis_parser.py](./analysis_parser.py) script:
+1. Loads the configuration file using [./bgcvaltools/configparser.py](./bgcvaltools/configparser.py)
+2. Sends the configuration information in the configuration file to the [timeseries/timeseriesAnalysis.py](timeseries/timeseriesAnalysis.py) module to produce the time series analysis.
+3. Sends the configuration information in the configuration file to the [timeseries/profileAnalysis.py](timeseries/profileAnalysis.py) module to produce the profile analysis.
+4. Sends the configuration information in the configuration file to the [p2p/testsuite_p2p.py](p2p/testsuite_p2p.py) module to produce the point to point evaluatuion.
+5. Sends the configuration information to the [timeseries/comparisonAnalysis.py](timeseries/comparisonAnalysis.py) module to compare several models/runs/etc.
+6. Sends the configuration information to the  [html/makeReportConfig](html/makeReportConfig) to produce an html report.
+
 The analysis packages called are:
 * Time Series (TS): This looks at a series of consequtive model files and produces various time series analysis.
 * Profile Plots: This produces plots showing the time development of the depth-profile of the model.
