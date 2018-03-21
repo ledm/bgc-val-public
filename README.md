@@ -241,23 +241,20 @@ description.
 
 
 
+# Configuration file
 
-
-
-The configuration file is central to the running of BGC-val
+The configuration file is central to the running of BGC-val 
 and contains all the details needed to evaluate a simulation.
 This includes the file path of the input model files,
 the users choice of analysis regions, layers and functions,
 the names of the dimensions in the model and observational files,
-the final output paths, and many other settings.
-All settings and configuration choices 
-are recorded in an single file, 
-using the `.ini` format.
-Several example configuration files can 
-also be found in the `ini` directory.
-Each BGC-val configuration file is composed of three parts: an Active keys section, 
-a list of evaluation sections, and a Global section. 
-Each of these parts are described below.
+the final output paths, and many other settings. All settings 
+and configuration choices are recorded in an single file, 
+using the `.ini` format. Several example configuration files can 
+also be found in the `ini` directory. Each BGC-val configuration
+file is composed of three parts: an Active keys section, a list
+of evaluation sections, and a Global section. Each of these 
+parts are described below.
 
 The tools that parse the configuration file is in the 
 `configparser.py` module in the `bgcvaltools` package.
@@ -267,7 +264,13 @@ Please note that we use the standard `.ini` format
 nomenclature while describing configuration files.
 In this, `[Sections]` are denoted with square brackets,
 each option is separated from its value by a colon, ``:'',
-and the semi-colon ``;'' is the comment syntax in  `.ini` format.
+and the semi-colon ``;'' is the comment syntax in  `.ini` format:
+```ini
+[Section]
+option : value
+; comment
+```
+
 
 ## Active keys section
 
@@ -345,7 +348,7 @@ they may not match the units after the user has applied an evaluation function.
 For this reason, the final units after any transformation must be supplied by the user.
 In the example showed here, HadGEM2-ES correctly used the CMIP5 standard units
 for chlorophyll concentration, kg m$^{-3`$.
-However, we prefer to view Chlorophyll in units of mg m$^{-3`$.
+However, we prefer to view Chlorophyll in units of mg m^-3 .
 
 The `model` option is typically set in the `Global` section, described below
 but it can be set here as well.
@@ -400,8 +403,8 @@ The `model_vars` option tells BGC-val the names of the model fields that we are 
 In this example, the CMIP5 HadGEM2-ES chlorophyll field
 is stored in the NetCDF under the field name `chl`.
 As mentioned already, HadGEM2-ES used the CMIP5 standard units
-for chlorophyll concentration, kg m$^{-3`$, 
-but we prefer to view Chlorophyll in units of mg m$^{-3`$.
+for chlorophyll concentration, kg m$^-3 , 
+but we prefer to view Chlorophyll in units of mg m^-3 .
 As such, we load the chlorophyll field using the conversion function,
 `multiplyBy` and give it the argument 1e6
 with the `model_convert_factor` option.
@@ -436,7 +439,7 @@ such as the global total primary production
 or the total northern hemisphere ice extent can not be
 plotted with a depth profile, or with a spatial component.
 Similarly, two dimensional variables such 
-as the air sea flux of CO$_2$ or the mixed layer depth 
+as the air sea flux of CO_2 or the mixed layer depth 
 shouldn't be plotted as a depth profile, 
 but can be plotted with percentiles distribution.
 Three dimensional variables such as the
@@ -568,243 +571,44 @@ Also, several example configuration files are available in the `ini`.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Run configuration initialisation file
-
-The configuration file file contains all information, flags, paths and settings needed to produce the analysis.
-
-Note that config files use the following convention:
-```ini
-[Section]
-option : value
-; comment
-```
-
-The location of the model and data files, the description of the files, the regions, times, depth layers under investgation
-are all set in the configuration file file. 
-
-When loading the config file into python's module `ConfigParser`, beware that:
-* Sections hold capitalisation
-* Options all become lowercase
-* Values are parsed as strings
-* End of line comments require a space or tab before the ';'
-
-
-The parser expects an [Active Keys](#Active_Keys) section, a section for each key in `[ActiveKeys]`
-and a [Global Section](#Global_Section).
-
-
-The configuration file file is parsed by the [bgcvaltools/analysis_parser.py](./bgcvaltools/analysis_parser.py) tool.
-
-
-
-## Active Keys
-
-The `[ActiveKeys]` section contains the boolean switches that activate the analysis sections described elsewhere in the configuration file file.
-The order of the active keys here determines the order that the analysis runs and also the order each field appears in the final html report.
-Keys are switched on by being set to `True` and are switched off by being set to `False` or being commented out with a leading ';'.
-
-Each live key in the `[ActiveKeys]` section requires another section with the same name in configuration file. ie:
-```ini
-[ActiveKeys]
-Chlorophyll         : True
-
-[Chlorophyll]
-; Chlorophyll analysis details:
-...
-```
-
-
-
-## An example of a active Keys section in configuration file
-
-The following is an example of the options  needed to produce a typical 2D analysis.
-In this case, this is a comparison of the surface chlorophyll in MEDUSA against the CCI satellite chlorophyll product.
-
-```ini
-[Chl_CCI]
-name            : Chl_CCI               ; The name of the analysis.
-units           : mg C/m^3              ; The final units, after any transformation function has been applied.
-datasource      : CCI                   ; The name of the data source
-model           : MEDUSA                ; The name of the model
-modelgrid       : eORCA1                ; The name of the model grid
-dimensions      : 2                     ; The dimensionaility of the final product.
-
-; -------------------------------
-; The filenames                         ; This is a list of paths for the model, model grid and the data file.
-modelFiles      : /data/euryale7/scratch/ledm/UKESM/MEDUSA/$JOBID/medusa*_1y_*_ptrc-T.nc
-modelFile_p2p   : /data/euryale7/scratch/ledm/UKESM/MEDUSA/$JOBID/medusa*_1y_*$YEAR????_ptrc-T.nc
-gridFile        : /data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc
-dataFile        : /data/euryale7/backup/ledm/Observations/CCI/ESACCI-OC-L3S-OC_PRODUCTS-CLIMATOLOGY-16Y_MONTHLY_1degree_GEO_PML_OC4v6_QAA-annual-fv2.0.nc
-
-; -------------------------------
-; Model coordinates/dimension names
-model_t         : time_centered         ; The time dimension used in the model netcdf.
-model_cal       : 360_day               ; The calendar used in the model netcdf.        
-model_z         : deptht                ; The depth dimension used in the model netcdf.
-model_lat       : nav_lat               ; The latitude dimension used in the model netcdf.
-model_lon       : nav_lon               ; The longitude dimension used in the model netcdf.
-model_vars      : CHD CHN               ; The names of the fields used in the model netcdf.
-model_convert   : sum                   ; The operation applied to the fields in model_vars
-
-; -------------------------------
-; Data coordinates names
-data_t          : time                  ; The time dimension used in the data netcdf.
-data_cal        : standard              ; The calendar used in the data netcdf.
-;data_z         : index_z               ; The depth dimension used in the modatadel netcdf. Note that CCI is a surface only product, so no depth field is provided.
-data_lat        : lat                   ; The latitude dimension used in the data netcdf.
-data_lon        : lon                   ; The longitude dimension used in the data netcdf.
-data_vars       : chlor_a               ; The names of the field used in the data netcdf.
-data_convert    : NoChange              ; The operation applied to the fields in data_vars.
-data_tdict      : ZeroToZero            ; The calendar used in the data netcdf.
-
-layers          : Surface               ; A List of layers or transects to investigate the data.
-regions         : Global                ; The regional cuts to make.
-```
-
-Note that:
 * Many of these fields can be defined in the `[Global]` section, and ommited here, as long as they are the same between all the analyses.
   For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses. 
   More details below in the [Global Section](#Global_Section_of_the_configuration file) section.
-  
-* The operations in the `data_convert` and `model_convert` options can be any of the operations in `bgc-val-public/stdfunctions.py`
-  or they can be taken from a localfuntion in the localfunction directory. More details below in the [Functions](#Functions) section.
-
-* Layers can be selected from a specific list of named layers or transects such as `Surface`, `Equator`, etc..
-  Arbitrary Layers or Transects can also be defined in the config.ini:
-    * Any integer will load that depth layer from the file.
-    * Any number followed by 'm', (ie 500m) will load that depth.
-    * Any transect along a latitude or longitude can be defines. ie (60S, or 28W)
 
 
-* Regions here is a portmanteau for any selection of data based on it's coordinates, or data values.
-  Typically, these are spatial regional cuts, such as `NorthernHemisphere`, but the regional cut is not limited to spatial regions.
-  For instance, the "January" "region" removes all data which are not in the first month of the year.
-  In addition, it is straightforward to add a custom region if the defaults are not suitable for your analysis.
-  More details area availalbe in the [Regions](#Regions) section, below.
-  
-* The `gridFile' option allows BGC-val to locate the grid description file.
-  The grid description file is a crucial requirement for BGC-val, as it provides important data about the model mask, 
-  the grid cell area, the grid cell volume.
-  Minimally, the grid file should be a netcdf which contains  the following information about the model grid:
+
+
+
+
+
+
+
+
+
+## A note on grid files:
+
+The `gridFile' option allows BGC-val to locate the grid description file.
+The grid description file is a crucial requirement for BGC-val, as it provides important data about the model mask, 
+the grid cell area, the grid cell volume.
+Minimally, the grid file should be a netcdf which contains  the following information about the model grid:
   * the cell centred coordinates for longitude, lattitude and depth,
   * the land mask should be recorded in the netcdf in a field called `tmask',
   * the cell area should be in a field called `area'
   * and the volume should be recorded in a field labelled `pvol'.
-  Certain models use more than one grid to describe the ocean; for instance NEMO uses a U grid, a V grid, a W grid, and a T grid.
-  In that case, then care needs to be taken to ensure that the grid file provided matches the data.
-  BGC-val includes the meshgridmaker module in the  bgcvaltools package 
-  and the function `makeGridFile' from that module can be used to produce a grid file.
+Certain models use more than one grid to describe the ocean; for instance NEMO uses a U grid, a V grid, a W grid, and a T grid.
+In that case, then care needs to be taken to ensure that the grid file provided matches the data.
+BGC-val includes the meshgridmaker module in the  bgcvaltools package 
+and the function `makeGridFile' from that module can be used to produce a grid file.
 
 
 
-## Global Section
-
-The `[Global]` section of the configuration file file contains the global flags and the default settings for each field.
-For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses, so it can safely
-be set as a default value the `[Global]` section and ommited elsewhere. 
-
-The Global options `jobID`, `year`, `model` and  `scenario` can be singular values.
-For instance, if the evaluation only needs to run over one model, year, jobID, or scenario.
-However, any of these options can be set to multiple fields in by instead using the options: `jobIDs`, `years`, `models` and  `scenarios`.
-For instance, if the evaluation needs to compare multiple models, years, jobs or scenarios.
-
-In addition, the values defined in the `[Global]` for `jobID`, `year`, `model` and  `scenario`
-can be used to define specific paths at runtime. 
-For instance, paths using `$JOBID`, `$YEAR` or `$MODEL`.
-Similarly, `$NAME` can be used as a stand in for the name option for of each analysis. 
-
-Some values can not be set in the `[Global]`, for instance the `name`, and `model_vars`
-and `model_convert` fields are by definition unique for each analysis.
-
-
-The following is a typical `[Global]` section:
-```ini
-[Global]
-jobID             : u-am927              ; Unique run/simulation/job identifier
-years             : 1980 1990            ; Year to look at for p2p.
-model             : MEDUSA               ; model name
-scenario	  : historical		 ; scenario
-
-
-; -------------------------------
-; Boolean flags
-clean            : False ;              ; Boolean flag to make a run from scratch.
-makeTS           : True ;               ; Boolean flag to make the time series plots.
-makeProfiles     : True ;               ; Boolean flag to make the 3D profile.
-makeP2P          : True ;               ; Boolean flag to make the P2P plots.
-makeReport       : True ;               ; Boolean flag to make the report.
-
-; -------------------------------
-; Output Images folders
-images_ts        : images/$JOBID/timeseries/$NAME
-images_pro       : images/$JOBID/profiles/$NAME
-images_p2p       : images/$JOBID/p2p/$MODEL-$YEAR/$NAME
-
-; -------------------------------
-; Working directories
-postproc_ts      : workingdir/$JOBID/timeseries/$NAME
-postproc_pro     : workingdir/$JOBID/profiles/$NAME
-postproc_p2p     : workingdir/$JOBID/p2p/$MODEL-$NAME-$YEAR
-
-; -------------------------------
-; location to put the html report 
-reportdir        : reports/$JOBID
-
-; -------------------------------
-; These are the default model coordinates
-model_t          : time_centered        ; model time dimension
-model_cal        : 360_day              ; model calendar
-model_z          : deptht               ; model depth dimension
-model_lat        : nav_lat              ; model latitude dimension 
-model_lon        : nav_lon              ; model latitude dimension 
-
-; -------------------------------
-; Default model grid file
-modelgrid        : eORCA1                                                                  ; Model grid name
-gridFile         : /data/euryale7/scratch/ledm/UKESM/MEDUSA/mesh_mask_eORCA1_wrk.nc        ; Model grid file
-
-; -------------------------------
-; The default data details. The default for these is empty, as the time series suite can run without a data file.
-data_t           :
-data_cal         : 
-data_z           : 
-data_lat         : 
-data_lon         : 
-data_tdict       : 
-dataFile         : 
-```
-
+# User configurable python packages
 
 
 ## Functions
 
-The `data_convert` and `model_convert` options in the analysis section of the configuration file file are used 
-to give apply a python function to the data as it is loaded. 
+The `data_convert` and `model_convert` options in the analysis section of the configuration 
+file are used to give apply a python function to the data as it is loaded. 
 
 Typically, this is a quick way to convert the model or data so that they use the same units.
 With this is mind, most of the standard functions are basic convertions such as 
@@ -824,6 +628,7 @@ However, more complex functions can also be applied, for instance:
 The operations in the `data_convert` and `model_convert` options can be any of the operations in `bgc-val-public/stdfunctions.py`.
 They can be also taken from a localfuntion in the localfunction directory. More details below in the [Functions](#Functions) section.
 
+
 These functions take the netcdf as a dataset object. 
 The dataset class defined in bgcvaltools/dataset.py and based on netCDF4.Dataset with added functionaility. 
 
@@ -833,11 +638,16 @@ The dataset class defined in bgcvaltools/dataset.py and based on netCDF4.Dataset
 
 Layers can be selected from a specific list of named layers or transects such as `Surface`, `Equator`, etc..
 
-Any arbitrary depth layer or transects along a constant lattitude or congitude can also be defined in the configuration file file:
+Any arbitrary depth layer or transects along a constant lattitude or congitude can also be defined in the configuration file:
 * Any integer will load that depth layer from the file.
 * Any number followed by 'm', (ie `500m`) will calucate the layer of that depth, then extract that layer. 
 * Any transect along a latitude or longitude can be defines. ie (60S, or 28W). This works for both 1 and 2 dimensional coordinate systems.
 
+* Layers can be selected from a specific list of named layers or transects such as `Surface`, `Equator`, etc..
+  Arbitrary Layers or Transects can also be defined in the config.ini:
+    * Any integer will load that depth layer from the file.
+    * Any number followed by 'm', (ie 500m) will load that depth.
+    * Any transect along a latitude or longitude can be defines. ie (60S, or 28W)
 
 
 ## Regions
@@ -888,10 +698,17 @@ which loads a bathymetry file and masks all points in water columns shallower th
 
 
 Please note that:
-* The name of the function needs to match the region in your configuration file file.
+* The name of the function needs to match the region in your configuration file.
 * Note that xt,xz,xy,xx,xd should all be the same shape and size. 
 * These cuts are applied to both the model and the data files.	
 	
+
+* Regions here is a portmanteau for any selection of data based on it's coordinates, or data values.
+  Typically, these are spatial regional cuts, such as `NorthernHemisphere`, but the regional cut is not limited to spatial regions.
+  For instance, the "January" "region" removes all data which are not in the first month of the year.
+  In addition, it is straightforward to add a custom region if the defaults are not suitable for your analysis.
+  More details area availalbe in the [Regions](#Regions) section, below.
+
 		
 	
 ## Longnames
@@ -923,11 +740,7 @@ ln = getLongName(string)
 Note that if a longname is not provided, the string is returned unchanged. 
 
 
-
-# The analysis packages
-
-In this section of the `README.md` we look at the programming decisions that were made 
-in the design process of the BGC-val suite.
+# Primary python packages
 
 
 ## Time Series (TS)
