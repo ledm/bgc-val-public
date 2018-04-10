@@ -146,7 +146,7 @@ commands are:
 git add -u
 git commit -m 'Description of your local changes'
 ```
-Note that these commands do not push your changes to the git server.
+Note that these commands do not push your changes to the remote git server.
 
 Once the local copy has been staged, the repository can be updated by pulling
 the changes from the remote git server (gitlab/github):
@@ -164,7 +164,7 @@ However, the gitlab server will be keep up to date.
 ## Contributing back to BGC-val
 
 The gitlab server can also be used to share edits and push changes to the main repository.
-Howeverm you will most likely not have persmission to push changes to the master copy
+However, you will most likely not have persmission to push changes to the master copy
 of the repository. 
 
 Having said that, the gitlab server has a user friendly graphical user interface. If you
@@ -270,6 +270,9 @@ and the semi-colon ``;'' is the comment syntax in  `.ini` format:
 option : value
 ; comment
 ```
+
+Several example configuration files are available, in the `ini` folder, 
+and even a blank configuration file is available in the `skeleton.ini`.
 
 
 ## Active keys section
@@ -416,10 +419,8 @@ from the data loaded by the function in the `model_convert` option.
 In this example that would be the surface and the 100~m depth layer.
 For the time timeseries and profile analyses, 
 the layer slicing is applied in the 
-`DataLoader` class in the 
-`timeseriesTools` module of 
-the `timeseries` package.
-For the point to point analyses, 
+`DataLoader` class in the `timeseriesTools` module of 
+the `timeseries` package. For the point to point analyses, 
 the layer slicing is applied in the 
 `matchDataAndModel` class in the `matchDataAndModel` module of 
 the `p2p` package.
@@ -570,13 +571,9 @@ A full list of the contents of a global section can be found in the `README.md` 
 Also, several example configuration files are available in the `ini`.
 
 
-
 * Many of these fields can be defined in the `[Global]` section, and ommited here, as long as they are the same between all the analyses.
   For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses. 
   More details below in the [Global Section](#Global_Section_of_the_configuration file) section.
-
-
-
 
 
 
@@ -617,12 +614,10 @@ With this is mind, most of the standard functions are basic convertions such as
 * Add multple fields together
 * Or simply do nothing, just load one field as is.
 
-
 However, more complex functions can also be applied, for instance:
 * Depth integtation
 * Global Total sum
 * Flux through a certain cross section.
-
 
 
 The operations in the `data_convert` and `model_convert` options can be any of the operations in `bgc-val-public/stdfunctions.py`.
@@ -714,9 +709,7 @@ Please note that:
 ## Longnames
 
 This is a folder which contains dictionaries in .ini format.
-
 These are the pretty public-facing long names for all the python objects, strings and other fields used in the bgc-val.
-
 The index (or key or option) of the .ini file is the name of the field in the code, and the 
 value (or item ) in  the dictionairy is the long name, which is used in plots, tables and html. 
 
@@ -742,6 +735,12 @@ Note that if a longname is not provided, the string is returned unchanged.
 
 # Primary python packages
 
+
+The time series, profiles and comparison figured are produced in the `timeseries` package.
+All the figures are produced by functions in the `timeseriesPlots.py` module.
+
+The time series package also includes the `timeseriesTools.py` module, which contains many 
+functions which are used in the process of making time series, profile and comparison figures.
 
 ## Time Series (TS)
 
@@ -790,11 +789,12 @@ html summary table of the final years of a simulation.
 ## Profile Plots
 
 This produces plots showing the time development of the depth-profile of the model.
-The files needed to run this are hosted in the the `timeseries` directory.
+The files needed to run this are hosted in the the `timeseries` directory.,
+notably the `profileAnalysis.py` file.
 
 The profile tools use many of the same processes and tools as the time series analyses,
 however instead of running them over one layer, it runs them over many layers in succession.
-
+To speed up the process, it automatically produces a masking file for the region in question.
 
 
 ## Comparison plots
@@ -802,6 +802,21 @@ however instead of running them over one layer, it runs them over many layers in
 This tool produces plots showing the time development comparing several models/scenarios/jobs 
 of the model. The files needed to run this are hosted in the  `comparisonAnalysis.py` scrinpt in the
 `timeseries` directory.
+
+
+
+For the sake of the clarity of the final report, we recommend only setting
+one of these options with multiple values at one time.
+The comparison reports are clearest when
+grouped according to a single setting
+ie, please don't try to compare too many different models, scenarios, and jobIDs at the same time.
+When multiple comparison are requested, they are sorted according to the preferential order: models, job identifiers, then scenarios.
+
+
+The comparison tool loads each of the time series shelve files, sorts them and orders them,
+then send them to the plotting function.
+The comparison module can also produce CSV files showing the multi model mean of various time ranges
+and other metrics, such as median or standard deviation.
 
 
 
