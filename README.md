@@ -8,11 +8,11 @@ BGC-val has since expanded to become a generic tool for comparing model data aga
 
 The toolkit is python 2.7 based, and is freely available, and distributed with the BSD 3 clause license. 
 
-An up to date version of BGC-val is availalble in PML's in-house gitlab server.
+An up to date version of BGC-val is available in PML's in-house gitlab server.
 
 Registration is required, via this link: http://www.pml.ac.uk/Modelling_at_PML/Access_Code
 
-Once registered, the repositoy is available here: https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/bgc-val-public
+Once registered, the repository is available here: https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/bgc-val-public
 
 Please cite this package as:
  ```
@@ -36,12 +36,12 @@ The goal was to make the evaluation framework as generic as possible:
 * Field independent.
 * Simple to use.
 * Front-loading analysis function
-* Iterruptable with regular save points + shelve files.
+* Interuptable with regular save points + shelve files.
 * Version controlled in git 
 * Web visible html summary reports.
 
 We outline the decision and design decisions in the GMD paper above. This 
-readme should deal with the pragmatic side of using BGC-val.
+README should deal with the pragmatic side of using BGC-val.
 
 
 
@@ -50,13 +50,13 @@ readme should deal with the pragmatic side of using BGC-val.
 ## Requirements
 
 To use this package, the following python packages are required:
-* matplotlib
+* Matplotlib
 * netCDF4
 * numpy 
 * scipy
 * cartopy 
 
-If they are not available on your linux system, most of these python packages can be 
+If they are not available on your Linux system, most of these python packages can be 
 installed with the command:
 ```bash
 pip install --user packagename
@@ -82,7 +82,7 @@ several UK computational systems, such as JASMIN or ARCHER.
 
 ## Make a local clone
 
-As BGC-val is not a standard python package, the pip install command (as dscribed above) 
+As BGC-val is not a standard python package, the pip install command (as described above) 
 can not be used to download BGC-val. A local copy needs to be made, either by downloading
 the repository or using the git clone command. We strongly recommend using the git clone
 command, as it makes it easier to keep the package up to date and to send new developments 
@@ -94,7 +94,7 @@ git clone git@gitlab.ecosystem-modelling.pml.ac.uk:ledm/bgc-val-public.git
 ```
 
 Note that the package name here is subject to change, and that you should check the path
-at the top of the github/gitlab repository.
+at the top of the GitHub/gitlab repository.
 
 According to the git documentation (https://git-scm.com/docs/git-clone), the git clone 
 command produces a clone of a repository into a newly created directory, creates 
@@ -149,13 +149,13 @@ git commit -m 'Description of your local changes'
 Note that these commands do not push your changes to the remote git server.
 
 Once the local copy has been staged, the repository can be updated by pulling
-the changes from the remote git server (gitlab/github):
+the changes from the remote git server (gitlab/GitHub):
 ```bash
 git pull
 ```
 Note that these commands need to be run from in the directory in your repository.
 
-Note that we can not guarantee that the respository stored on the github version,
+Note that we can not guarantee that the repository stored on the GitHub version,
 or in the supplemental data of the GMD paper will be kept up to date.
 However, the gitlab server will be keep up to date. 
 
@@ -164,7 +164,7 @@ However, the gitlab server will be keep up to date.
 ## Contributing back to BGC-val
 
 The gitlab server can also be used to share edits and push changes to the main repository.
-However, you will most likely not have persmission to push changes to the master copy
+However, you will most likely not have permission to push changes to the master copy
 of the repository. 
 
 Having said that, the gitlab server has a user friendly graphical user interface. If you
@@ -183,13 +183,13 @@ copies and and pushing changes until you're comfortable with the rest of git.
 Once the package has been installed, please look at the file of ini files and locate one
 that is most compatible with your goals and computing system. Our example below uses the
 [ini/HadGEM2-ES_no3_cmip5_jasmin.ini](./ini/HadGEM2-ES_no3_cmip5_jasmin.ini) 
-configuration file, which directs the evaluation of the CMIP5 hadgem2-es models on the 
+configuration file, which directs the evaluation of the CMIP5 HadGEM2-es models on the 
 JASMIN data processing facility. This is the script that was used to produce several
 plots shown in the paper.
 
-Before running the suite, please make a copy of your choosen ini file. Make sure that you
+Before running the suite, please make a copy of your chosen ini file. Make sure that you
 go through your copied configuration file, and check that the paths to data, evaluations 
-requested reflect your coputational environment, data paths, and goal of your analyses. 
+requested reflect your computational environment, data paths, and goal of your analyses. 
 
 The default [ini/HadGEM2-ES_no3_cmip5_jasmin.ini](./ini/HadGEM2-ES_no3_cmip5_jasmin.ini)
 file has two included analyses switched on in the [Active Keys section](#Active_Keys).
@@ -203,14 +203,14 @@ The command to run this evaluation is:
 ```
 
 `run.py` is a simple wrapper which calls the script, [analysis_parser.py](#Analysis_Parser), 
-and passes it the path to the [config ureation .ini file](#Run_Config_Initialisation_File) file.
+and passes it the path to the [configuration ureation .ini file](#Run_Configuration_Initialisation_File) file.
 
 
 
 ## Analysis Parser
 
-The [analysis_parser.py](./analysis_parser.py) is the central script which parsers the configuration
-file, and then sends the relevant flags, paths, filenames and settings to each of the main analyses 
+The [analysis_parser.py](./analysis_parser.py) is the central script which parses the configuration
+file, and then sends the relevant flags, paths, file names and settings to each of the main analyses 
 packages. The configuration file is described below and in the paper. 
 
 The [analysis_parser.py](./analysis_parser.py) script performs the following actions:
@@ -227,7 +227,7 @@ The [analysis_parser.py](./analysis_parser.py) script performs the following act
    module to produce the profile analysis.
    
 4. Sends the configuration information to the [p2p/testsuite_p2p.py](p2p/testsuite_p2p.py)
-   module to produce the point to point evaluatuion.
+   module to produce the point to point evaluation.
    
 5. Sends the configuration information to the [timeseries/comparisonAnalysis.py](timeseries/comparisonAnalysis.py)
    module to compare several models/runs/scenarios etc.
@@ -571,7 +571,7 @@ A full list of the contents of a global section can be found in the `README.md` 
 Also, several example configuration files are available in the `ini`.
 
 
-* Many of these fields can be defined in the `[Global]` section, and ommited here, as long as they are the same between all the analyses.
+* Many of these fields can be defined in the `[Global]` section, and omitted here, as long as they are the same between all the analyses.
   For instance, the model calendar, defined in `model_cal` is unlikely to differ between analyses. 
   More details below in the [Global Section](#Global_Section_of_the_configuration file) section.
 
@@ -588,7 +588,7 @@ The `gridFile' option allows BGC-val to locate the grid description file.
 The grid description file is a crucial requirement for BGC-val, as it provides important data about the model mask, 
 the grid cell area, the grid cell volume.
 Minimally, the grid file should be a netcdf which contains  the following information about the model grid:
-  * the cell centred coordinates for longitude, lattitude and depth,
+  * the cell centred coordinates for longitude, latitude and depth,
   * the land mask should be recorded in the netcdf in a field called `tmask',
   * the cell area should be in a field called `area'
   * and the volume should be recorded in a field labelled `pvol'.
@@ -608,24 +608,24 @@ The `data_convert` and `model_convert` options in the analysis section of the co
 file are used to give apply a python function to the data as it is loaded. 
 
 Typically, this is a quick way to convert the model or data so that they use the same units.
-With this is mind, most of the standard functions are basic convertions such as 
+With this is mind, most of the standard functions are basic conventions such as 
 * multiply by 100.
 * Divide by 1000
-* Add multple fields together
+* Add multiple fields together
 * Or simply do nothing, just load one field as is.
 
 However, more complex functions can also be applied, for instance:
-* Depth integtation
+* Depth integration
 * Global Total sum
 * Flux through a certain cross section.
 
 
 The operations in the `data_convert` and `model_convert` options can be any of the operations in `bgc-val-public/stdfunctions.py`.
-They can be also taken from a localfuntion in the localfunction directory. More details below in the [Functions](#Functions) section.
+They can be also taken from a local function in the local function directory. More details below in the [Functions](#Functions) section.
 
 
 These functions take the netcdf as a dataset object. 
-The dataset class defined in bgcvaltools/dataset.py and based on netCDF4.Dataset with added functionaility. 
+The dataset class defined in bgcvaltools/dataset.py and based on netCDF4.Dataset with added functionality. 
 
 
 
@@ -633,13 +633,13 @@ The dataset class defined in bgcvaltools/dataset.py and based on netCDF4.Dataset
 
 Layers can be selected from a specific list of named layers or transects such as `Surface`, `Equator`, etc..
 
-Any arbitrary depth layer or transects along a constant lattitude or congitude can also be defined in the configuration file:
+Any arbitrary depth layer or transects along a constant latitude or longitude can also be defined in the configuration file:
 * Any integer will load that depth layer from the file.
-* Any number followed by 'm', (ie `500m`) will calucate the layer of that depth, then extract that layer. 
+* Any number followed by 'm', (ie `500m`) will calculate the layer of that depth, then extract that layer. 
 * Any transect along a latitude or longitude can be defines. ie (60S, or 28W). This works for both 1 and 2 dimensional coordinate systems.
 
 * Layers can be selected from a specific list of named layers or transects such as `Surface`, `Equator`, etc..
-  Arbitrary Layers or Transects can also be defined in the config.ini:
+  Arbitrary Layers or Transects can also be defined in the configuration.ini:
     * Any integer will load that depth layer from the file.
     * Any number followed by 'm', (ie 500m) will load that depth.
     * Any transect along a latitude or longitude can be defines. ie (60S, or 28W)
@@ -652,7 +652,7 @@ For instance, these tools can be used to:
 * Remove negative values.
 * Remove zero values
 * Remove data outside a certain depth range.
-* Remove data outside a latituge or longitude range. 
+* Remove data outside a latitude or longitude range. 
 
 The function produces a mask to hides all points that are not in the requested region.
 
@@ -702,7 +702,7 @@ Please note that:
   Typically, these are spatial regional cuts, such as `NorthernHemisphere`, but the regional cut is not limited to spatial regions.
   For instance, the "January" "region" removes all data which are not in the first month of the year.
   In addition, it is straightforward to add a custom region if the defaults are not suitable for your analysis.
-  More details area availalbe in the [Regions](#Regions) section, below.
+  More details area available in the [Regions](#Regions) section, below.
 
 		
 	
@@ -711,7 +711,7 @@ Please note that:
 This is a folder which contains dictionaries in .ini format.
 These are the pretty public-facing long names for all the python objects, strings and other fields used in the bgc-val.
 The index (or key or option) of the .ini file is the name of the field in the code, and the 
-value (or item ) in  the dictionairy is the long name, which is used in plots, tables and html. 
+value (or item ) in  the dictionary is the long name, which is used in plots, tables and html. 
 
 For instance:
 ```ini
@@ -721,8 +721,8 @@ sossheig                             : Sea Surface Height
 lat                                  : Latitude
 ```
 
-The dictionaries are loaded at runtime by `longnames/longnames.py`. This script loads all .ini files in the `longnames/` directory.
-Users can easilly add their own dictionairies here, without disturbing the main longname.ini dictionairy.
+The dictionaries are loaded at run time by `longnames/longnames.py`. This script loads all .ini files in the `longnames/` directory.
+Users can easily add their own dictionaries here, without disturbing the main longname.ini dictionary.
 
 The longname for a specific field is called with:
 ```python
@@ -744,36 +744,36 @@ functions which are used in the process of making time series, profile and compa
 
 ## Time Series (TS)
 
-This looks at a series of consequtive model files and produces various time series analysis.
+This looks at a series of consecutive model files and produces various time series analysis.
 The files needed to run this are hosted in the `timeseries` directory.
 The idea behind the time series tool is to try to understand the model data one time step at 
 a time, then produce visualisations that clearly show the time development of the model.
 
 The main time series script is `timeseriesAnalysis.py` in the `timeseries` directory.
-The script checks to see whether the model and observatioal data are present. 
+The script checks to see whether the model and observational data are present. 
 Then it loads the observational data (if present) and then the model data.
-Both the model and observatioal data are loaded with the DataLoader tool in the 
+Both the model and observational data are loaded with the DataLoader tool in the 
 `timeseriesTools.py` file in the `timeseries` directory.
-This process creates a python dictionairy where the processed data is indexed according to :
+This process creates a python dictionary where the processed data is indexed according to :
 `(region, layer, metric)`.
 The processed model data is stored as another dictionary. 
-The second layer dictionairy uses the model's calendar year (converted into a float) as
+The second layer dictionary uses the model's calendar year (converted into a float) as
 the index, and the value is the processed model data associated with that time and `(region, layer, metric)`.
 This nested dictionary object is called modeldataD in the `timeseriesAnalysis.py`.
 Each modeldataD is stored in a shelve file.
 
-This double nested dictionary may seem confusing, but it safer than parrallel 
+This double nested dictionary may seem confusing, but it safer than parallel 
 arrays used elsewhere. For instance, an example of loading this file from shelve would be:
 `modeldataD['Global','Surface','Mean'][1955.5]`
 would produce the Global surface mean of the year 1955. 
 
-The modeldataD are stored as shelves and are openned by several of the plotting tools, but can also be opened manually in the command line.
+The modeldataD are stored as shelves and are opened by several of the plotting tools, but can also be opened manually in the command line.
 
 The times series produces plots using the `timeseriesPlots.py` file in the `timeseries` directory..
-This file contains several python functions which use matplotlib to create visualisations 
+This file contains several python functions which use Matplotlib to create visualisations 
 of the time series and profile data.
 The simple times series, the traffic lights plots, the multitimeseries,
-map plots, hovmoeller plots, and profile plots are all produced by functions in this file.
+map plots, Hovmoller plots, and profile plots are all produced by functions in this file.
  
 The time series directory also includes the `timeseriesTools.py` script.
 This toolkit contains several functions used by the other files in the time series folder. 
@@ -800,7 +800,7 @@ To speed up the process, it automatically produces a masking file for the region
 ## Comparison plots
 
 This tool produces plots showing the time development comparing several models/scenarios/jobs 
-of the model. The files needed to run this are hosted in the  `comparisonAnalysis.py` scrinpt in the
+of the model. The files needed to run this are hosted in the  `comparisonAnalysis.py` script in the
 `timeseries` directory.
 
 
@@ -835,11 +835,11 @@ The `html` folder contains several templates, some python tools and lots of html
 
 The html report was based on a template provided by html5up.net under the CCA 3.0 license.
 
-The primary python tool used to produve html reports from a configuration file is the
+The primary python tool used to produce html reports from a configuration file is the
 `makeReportConfig.py` file. 
 This includes a function that loads the configuration file, then figures out what was requested,
 a pushes this all into a self contained html site.
-The html folder can be copied into a web facing server, or opened directly using firefox.
+The html folder can be copied into a web facing server, or opened directly using Firefox.
 
 The location of the report on disk is determined by the global flag.
 
