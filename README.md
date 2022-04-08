@@ -14,6 +14,10 @@ Registration is required, via this link: http://www.pml.ac.uk/Modelling_at_PML/A
 
 Once registered, the repository is available here: https://gitlab.ecosystem-modelling.pml.ac.uk/ledm/bgc-val-public
 
+
+Note that PML's gitlab server is now closed and this toolkit will be hosted on github from 08/04/2022.
+
+
 Please cite this package as:
  ```
  This information will be provided once the paper is published.
